@@ -7,9 +7,12 @@
   ],
   "scripts": {
     "dev": "concurrently \"yarn workspace backend dev\" \"yarn workspace frontend dev\"",
-    "build:types": "yarn workspace @weave/types build",
+    "build:frontend": "yarn workspace frontend build",
+    "build": "yarn build:frontend",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "devDependencies": {
     "@eslint/js": "^9.31.0",
