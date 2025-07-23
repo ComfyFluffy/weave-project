@@ -1,0 +1,19 @@
+{
+  "name": "weave-project",
+  "packageManager": "yarn@4.9.2",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"yarn workspace backend dev\" \"yarn workspace frontend dev\"",
+    "build:types": "yarn workspace @weave/types build",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.0",
+    "globals": "^16.3.0",
+    "typescript": "^5.8.3"
+  }
+}
