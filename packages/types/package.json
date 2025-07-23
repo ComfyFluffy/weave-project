@@ -1,8 +1,7 @@
 {
   "name": "@weave/types",
   "version": "1.0.0",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "src/index.ts",
   "packageManager": "yarn@4.9.2",
   "scripts": {
     "build": "tsc"
