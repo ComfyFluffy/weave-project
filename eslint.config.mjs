@@ -4,6 +4,7 @@ import tseslint from 'typescript-eslint'
 import pluginReact from 'eslint-plugin-react'
 import pluginReactHooks from 'eslint-plugin-react-hooks'
 import pluginReactRefresh from 'eslint-plugin-react-refresh'
+import pluginQuery from '@tanstack/eslint-plugin-query'
 
 export default [
   // Base JavaScript configuration
@@ -59,11 +60,13 @@ export default [
       react: pluginReact,
       'react-hooks': pluginReactHooks,
       'react-refresh': pluginReactRefresh,
+      '@tanstack/query': pluginQuery,
     },
     rules: {
       // Base React rules
       ...pluginReact.configs.recommended.rules,
       ...pluginReactHooks.configs.recommended.rules,
+      ...pluginQuery.configs.recommended.rules,
 
       // React-specific customizations
       'react/react-in-jsx-scope': 'off', // Not needed with React 17+

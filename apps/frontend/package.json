@@ -12,6 +12,8 @@
   "dependencies": {
     "@chakra-ui/react": "^3.22.0",
     "@emotion/react": "^11.14.0",
+    "@tanstack/react-query": "^5.83.0",
+    "@tanstack/react-query-devtools": "^5.83.0",
     "@weave/types": "workspace:^",
     "date-fns": "^4.1.0",
     "lucide-react": "^0.525.0",

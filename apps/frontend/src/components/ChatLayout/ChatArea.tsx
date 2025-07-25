@@ -1,21 +1,28 @@
 import { Box, Flex, Text, Input, IconButton, Badge } from '@chakra-ui/react'
 import { Send, Smile, Plus, Hash } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { MessageList } from './MessageList'
 import type { Message, Channel } from '@weave/types'
 
 interface ChatAreaProps {
   channel?: Channel
   messages?: Message[]
+  typingUsers?: string[]
   onSendMessage?: (content: string) => void
+  onStartTyping?: () => void
+  onStopTyping?: () => void
 }
 
 export function ChatArea({
   channel,
   messages = [],
+  typingUsers = [],
   onSendMessage,
+  onStartTyping,
+  onStopTyping,
 }: ChatAreaProps) {
   const [messageInput, setMessageInput] = useState('')
+  const typingTimeoutRef = useRef<number | null>(null)
 
   // Default fallback channel
   const currentChannel: Channel = channel || {
@@ -26,10 +33,48 @@ export function ChatArea({
     readonly: true,
   }
 
+  // Handle typing indicators
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setMessageInput(value)
+
+    // Start typing indicator
+    if (value.trim() && !typingTimeoutRef.current) {
+      onStartTyping?.()
+    }
+
+    // Clear existing timeout
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current)
+    }
+
+    // Set new timeout to stop typing indicator
+    typingTimeoutRef.current = setTimeout(() => {
+      onStopTyping?.()
+      typingTimeoutRef.current = null
+    }, 1000)
+  }
+
+  // Clean up timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current)
+      }
+    }
+  }, [])
+
   const handleSendMessage = () => {
     if (messageInput.trim() && onSendMessage && !currentChannel.readonly) {
       onSendMessage(messageInput.trim())
       setMessageInput('')
+
+      // Stop typing indicator
+      onStopTyping?.()
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current)
+        typingTimeoutRef.current = null
+      }
     }
   }
 
@@ -65,6 +110,19 @@ export function ChatArea({
       {/* Messages Area */}
       <Box flex={1} overflow="hidden">
         <MessageList messages={messages} />
+
+        {/* Typing Indicators */}
+        {typingUsers.length > 0 && (
+          <Box px={4} py={2} bg="gray.750">
+            <Text color="gray.400" fontSize="sm">
+              {typingUsers.length === 1
+                ? `${typingUsers[0]} 正在输入...`
+                : typingUsers.length === 2
+                  ? `${typingUsers[0]} 和 ${typingUsers[1]} 正在输入...`
+                  : `${typingUsers.slice(0, -1).join(', ')} 和 ${typingUsers[typingUsers.length - 1]} 正在输入...`}
+            </Text>
+          </Box>
+        )}
       </Box>
 
       {/* Message Input */}
@@ -83,7 +141,7 @@ export function ChatArea({
             <Box flex={1} position="relative">
               <Input
                 value={messageInput}
-                onChange={(e) => setMessageInput(e.target.value)}
+                onChange={handleInputChange}
                 onKeyPress={handleKeyPress}
                 placeholder={`在 #${currentChannel.name} 中发送消息`}
                 bg="gray.600"

@@ -4,214 +4,87 @@ import { WorldSidebar } from './WorldSidebar'
 import { ChannelSidebar } from './ChannelSidebar'
 import { ChatArea } from './ChatArea'
 import { MemberList } from './MemberList'
-import type { World, Channel, Message, WorldMember, User } from '@weave/types'
-
-// Mock data - in a real app this would come from your backend/API
-const mockWorlds: World[] = [
-  {
-    id: '1',
-    name: '龙与地下城',
-    description: '经典奇幻冒险世界',
-    channels: [
-      {
-        id: '1',
-        name: '世界公告',
-        type: 'announcement',
-        readonly: true,
-        description: '重要的世界信息和公告',
-      },
-      {
-        id: '2',
-        name: '规则与传说',
-        type: 'rules',
-        readonly: true,
-        description: '世界观、核心规则',
-      },
-      {
-        id: '3',
-        name: '角色创建',
-        type: 'character-creation',
-        description: '创建和管理你的角色',
-      },
-      {
-        id: '4',
-        name: '场外闲聊',
-        type: 'ooc',
-        description: '游戏外的自由交流',
-      },
-      {
-        id: '5',
-        name: '场景-酒馆相遇',
-        type: 'ic',
-        description: '故事开始的地方',
-      },
-      {
-        id: '6',
-        name: '场景-深入龙穴',
-        type: 'ic',
-        description: '危险的冒险场景',
-      },
-    ],
-    members: [
-      {
-        id: '1',
-        username: '游戏主持人',
-        role: 'gm',
-        character: {
-          id: 'gm1',
-          name: '智慧老人',
-          class: '游戏主持人',
-          hp: 100,
-          maxHp: 100,
-          location: '神域',
-          inventory: [],
-        },
-      },
-      {
-        id: '2',
-        username: '龙骑士玩家',
-        role: 'player',
-        character: {
-          id: 'p1',
-          name: '阿尔萨斯',
-          class: '圣骑士',
-          hp: 85,
-          maxHp: 100,
-          location: '酒馆',
-          inventory: ['神圣剑', '治疗药水'],
-        },
-      },
-      {
-        id: '3',
-        username: '法师玩家',
-        role: 'player',
-        character: {
-          id: 'p2',
-          name: '梅林',
-          class: '法师',
-          hp: 60,
-          maxHp: 80,
-          location: '酒馆',
-          inventory: ['法杖', '魔法书'],
-        },
-      },
-      {
-        id: '4',
-        username: '观察者',
-        role: 'spectator',
-      },
-    ],
-    state: {
-      world_info: {
-        name: '龙与地下城',
-        description: '经典奇幻冒险世界',
-      },
-      player_characters: {},
-      key_events_log: ['游戏开始'],
-      npc_status: {},
-    },
-  },
-  {
-    id: '2',
-    name: '赛博朋克2077',
-    description: '未来科幻世界',
-    channels: [
-      { id: '7', name: '世界公告', type: 'announcement', readonly: true },
-      { id: '8', name: '规则与传说', type: 'rules', readonly: true },
-      { id: '9', name: '角色创建', type: 'character-creation' },
-      { id: '10', name: '场外闲聊', type: 'ooc' },
-      { id: '11', name: '场景-夜之城', type: 'ic' },
-    ],
-    members: [],
-    state: {
-      world_info: {
-        name: '赛博朋克2077',
-        description: '未来科幻世界',
-      },
-      player_characters: {},
-      key_events_log: [],
-      npc_status: {},
-    },
-  },
-]
-
-const mockMessages: { [channelId: string]: Message[] } = {
-  '1': [
-    {
-      id: '1',
-      channelId: '1',
-      worldId: '1',
-      authorId: 'system',
-      authorName: '系统',
-      content: '欢迎来到龙与地下城世界！请先在 #角色创建 频道创建你的角色。',
-      timestamp: new Date('2024-01-15T10:00:00Z'),
-      type: 'system',
-    },
-    {
-      id: '2',
-      channelId: '1',
-      worldId: '1',
-      authorId: 'gm1',
-      authorName: '游戏主持人',
-      content: '今晚的冒险将在酒馆开始，请所有玩家准备好你们的角色！',
-      timestamp: new Date('2024-01-15T14:30:00Z'),
-      type: 'user',
-    },
-  ],
-  '5': [
-    {
-      id: '3',
-      channelId: '5',
-      worldId: '1',
-      authorId: 'gm1',
-      authorName: '游戏主持人',
-      content:
-        '你们进入了一间温暖的酒馆，里面充满了烟草和啤酒的香味。酒保是一个友善的矮人，正在擦拭着酒杯。',
-      timestamp: new Date('2024-01-15T20:00:00Z'),
-      type: 'user',
-    },
-    {
-      id: '4',
-      channelId: '5',
-      worldId: '1',
-      authorId: 'p1',
-      authorName: '龙骑士玩家',
-      characterName: '阿尔萨斯',
-      content: '我走向酒保，点了一杯麦酒，同时观察着酒馆里的其他客人。',
-      timestamp: new Date('2024-01-15T20:05:00Z'),
-      type: 'user',
-    },
-  ],
-}
+import { socketService } from '../../services/socketService'
+import { useWorlds, useWorld, useChannelMessages } from '../../hooks/useQueries'
+import type { World, Channel, Message, WorldMember } from '@weave/types'
 
 export function ChatLayout() {
-  const [selectedWorldId, setSelectedWorldId] = useState<string>('1')
-  const [selectedChannelId, setSelectedChannelId] = useState<string>('1')
-  const [messages, setMessages] = useState<Message[]>([])
+  const [selectedWorldId, setSelectedWorldId] = useState<string>('')
+  const [selectedChannelId, setSelectedChannelId] = useState<string>('')
+  const [typingUsers, setTypingUsers] = useState<string[]>([])
 
-  const currentWorld = mockWorlds.find((w) => w.id === selectedWorldId)
+  // Use React Query hooks for data fetching
+  const { data: worlds = [], isLoading: worldsLoading } = useWorlds()
+  const { data: currentWorld } = useWorld(selectedWorldId)
+  const { data: messages = [], refetch: refetchMessages } = useChannelMessages(selectedChannelId)
+
   const currentChannel = currentWorld?.channels.find(
     (c) => c.id === selectedChannelId
   )
 
-  // Load messages when channel changes
+  // Initialize socket connection and auto-select world/channel
   useEffect(() => {
-    if (selectedChannelId && mockMessages[selectedChannelId]) {
-      setMessages(mockMessages[selectedChannelId])
-    } else {
-      setMessages([])
-    }
-  }, [selectedChannelId])
+    // Connect to socket
+    socketService.connect('玩家')
 
-  // When world changes, select the first channel
+    // Auto-select first world if available
+    if (worlds.length > 0 && !selectedWorldId) {
+      setSelectedWorldId(worlds[0].id)
+    }
+
+    // Setup socket event listeners
+    socketService.onNewMessage((message: Message) => {
+      // Refetch messages when new message arrives
+      refetchMessages()
+    })
+
+    socketService.onMessageHistory((messageHistory: Message[]) => {
+      // Refetch messages when history is updated
+      refetchMessages()
+    })
+
+    socketService.onUserTyping((data) => {
+      setTypingUsers((prev) => {
+        if (data.typing) {
+          return [...prev.filter((u) => u !== data.username), data.username]
+        } else {
+          return prev.filter((u) => u !== data.username)
+        }
+      })
+    })
+
+    // Cleanup on unmount
+    return () => {
+      socketService.disconnect()
+    }
+  }, [worlds, selectedWorldId, refetchMessages])
+
+  // Auto-select first channel when world data changes
   useEffect(() => {
-    if (currentWorld && currentWorld.channels.length > 0) {
+    if (currentWorld?.channels.length && !selectedChannelId) {
       setSelectedChannelId(currentWorld.channels[0].id)
     }
-  }, [selectedWorldId, currentWorld])
+  }, [currentWorld, selectedChannelId])
+
+  // Handle world selection
+  useEffect(() => {
+    if (selectedWorldId) {
+      socketService.joinWorld(selectedWorldId)
+    }
+  }, [selectedWorldId])
+
+  // Handle channel selection
+  useEffect(() => {
+    if (selectedChannelId) {
+      socketService.joinChannel(selectedChannelId)
+      setTypingUsers([]) // Clear typing indicators
+      refetchMessages() // Refresh messages for the new channel
+    }
+  }, [selectedChannelId, refetchMessages])
 
   const handleWorldSelect = (worldId: string) => {
     setSelectedWorldId(worldId)
+    setSelectedChannelId('') // Reset channel when world changes
   }
 
   const handleChannelSelect = (channelId: string) => {
@@ -219,26 +92,24 @@ export function ChatLayout() {
   }
 
   const handleSendMessage = (content: string) => {
-    if (!currentChannel || !currentWorld) return
+    if (
+      !currentChannel ||
+      !currentWorld ||
+      !selectedChannelId ||
+      !selectedWorldId
+    ) {
+      return
+    }
 
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      channelId: selectedChannelId,
-      worldId: selectedWorldId,
-      authorId: 'current-user',
-      authorName: '玩家',
+    // TODO: Get character name from user's current character
+    const characterName = undefined // Will be implemented when we add character management
+
+    socketService.sendMessage(
+      selectedChannelId,
+      selectedWorldId,
       content,
-      timestamp: new Date(),
-      type: 'user',
-    }
-
-    setMessages((prev) => [...prev, newMessage])
-
-    // Update the mock messages cache
-    if (!mockMessages[selectedChannelId]) {
-      mockMessages[selectedChannelId] = []
-    }
-    mockMessages[selectedChannelId].push(newMessage)
+      characterName
+    )
   }
 
   const handleCreateWorld = () => {
@@ -246,26 +117,11 @@ export function ChatLayout() {
     console.log('Create world clicked')
   }
 
-  // Transform worlds for WorldSidebar
-  const worldsForSidebar = mockWorlds.map((world) => ({
-    id: world.id,
-    name: world.name,
-    avatar: getWorldAvatar(world.name),
-    hasNotification: world.id === '1', // Mock notification for first world
-  }))
-
-  function getWorldAvatar(name: string): string {
-    if (name.includes('龙与地下城')) return '🐉'
-    if (name.includes('赛博朋克')) return '🤖'
-    if (name.includes('克苏鲁')) return '🐙'
-    return '🎲'
-  }
-
   return (
     <Flex height="100vh" width="100vw" bg="gray.900">
       {/* World/Server List */}
       <WorldSidebar
-        worlds={worldsForSidebar}
+        worlds={worlds}
         selectedWorldId={selectedWorldId}
         onWorldSelect={handleWorldSelect}
         onCreateWorld={handleCreateWorld}
@@ -283,7 +139,14 @@ export function ChatLayout() {
       <ChatArea
         channel={currentChannel}
         messages={messages}
+        typingUsers={typingUsers}
         onSendMessage={handleSendMessage}
+        onStartTyping={() =>
+          selectedChannelId && socketService.startTyping(selectedChannelId)
+        }
+        onStopTyping={() =>
+          selectedChannelId && socketService.stopTyping(selectedChannelId)
+        }
       />
 
       {/* Member List */}

@@ -1093,6 +1093,54 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tanstack/eslint-plugin-query@npm:^5.81.2":
+  version: 5.81.2
+  resolution: "@tanstack/eslint-plugin-query@npm:5.81.2"
+  dependencies:
+    "@typescript-eslint/utils": "npm:^8.18.1"
+  peerDependencies:
+    eslint: ^8.57.0 || ^9.0.0
+  checksum: 10c0/cef8b06c7d56dc8fb2429c5e9de9446fbabae81275d289da7ff79b58c24dfa83905577bb376911d14390617d42ada3700603738d8138e6bea4b29e1b9b58c797
+  languageName: node
+  linkType: hard
+
+"@tanstack/query-core@npm:5.83.0":
+  version: 5.83.0
+  resolution: "@tanstack/query-core@npm:5.83.0"
+  checksum: 10c0/e6dc480bc99eaca552a9ad65423788b60368cf99308681252fc7dbe42a3f2c1c978db0d3471cc3349b9112cfb4d967ace4e192a1d7e987e30c5c1ff74809c77c
+  languageName: node
+  linkType: hard
+
+"@tanstack/query-devtools@npm:5.81.2":
+  version: 5.81.2
+  resolution: "@tanstack/query-devtools@npm:5.81.2"
+  checksum: 10c0/f942cba7bd3ecb471063cd472eeebb2ec76005feeb7e0f357b191da5ab9f769aa767bc88d4da82b2b39c4fcbb16dfed38ce3c77b6eea4d4c30405368c1120207
+  languageName: node
+  linkType: hard
+
+"@tanstack/react-query-devtools@npm:^5.83.0":
+  version: 5.83.0
+  resolution: "@tanstack/react-query-devtools@npm:5.83.0"
+  dependencies:
+    "@tanstack/query-devtools": "npm:5.81.2"
+  peerDependencies:
+    "@tanstack/react-query": ^5.83.0
+    react: ^18 || ^19
+  checksum: 10c0/9d3c0c4ba5d5f42d1e76a5d009d768fe407e2bcdfa24986236a5b501bf41de8a04c30ebca97c871f822f6c20e508490943dbe0602640770d95f518cce9e7a760
+  languageName: node
+  linkType: hard
+
+"@tanstack/react-query@npm:^5.83.0":
+  version: 5.83.0
+  resolution: "@tanstack/react-query@npm:5.83.0"
+  dependencies:
+    "@tanstack/query-core": "npm:5.83.0"
+  peerDependencies:
+    react: ^18 || ^19
+  checksum: 10c0/883229f9219ca906a54d7caafd44d59b57db5dbe87e954f8a7027f460e9f8b97842dfbd0d676dc3111d577baf312c64f6c1fdd67cd1e4b0f0bf574e29670c606
+  languageName: node
+  linkType: hard
+
 "@tsconfig/node10@npm:^1.0.7":
   version: 1.0.11
   resolution: "@tsconfig/node10@npm:1.0.11"
@@ -1181,7 +1229,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/cors@npm:^2.8.12":
+"@types/cors@npm:^2.8.12, @types/cors@npm:^2.8.19":
   version: 2.8.19
   resolution: "@types/cors@npm:2.8.19"
   dependencies:
@@ -1436,7 +1484,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/utils@npm:8.38.0":
+"@typescript-eslint/utils@npm:8.38.0, @typescript-eslint/utils@npm:^8.18.1":
   version: 8.38.0
   resolution: "@typescript-eslint/utils@npm:8.38.0"
   dependencies:
@@ -2572,9 +2620,11 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "backend@workspace:apps/backend"
   dependencies:
+    "@types/cors": "npm:^2.8.19"
     "@types/express": "npm:^5.0.3"
     "@types/node": "npm:^24.1.0"
     "@weave/types": "workspace:^"
+    cors: "npm:^2.8.5"
     express: "npm:^5.1.0"
     globals: "npm:^16.3.0"
     socket.io: "npm:^4.8.1"
@@ -2875,7 +2925,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cors@npm:~2.8.5":
+"cors@npm:^2.8.5, cors@npm:~2.8.5":
   version: 2.8.5
   resolution: "cors@npm:2.8.5"
   dependencies:
@@ -3800,6 +3850,8 @@ __metadata:
   dependencies:
     "@chakra-ui/react": "npm:^3.22.0"
     "@emotion/react": "npm:^11.14.0"
+    "@tanstack/react-query": "npm:^5.83.0"
+    "@tanstack/react-query-devtools": "npm:^5.83.0"
     "@types/react": "npm:^19.1.8"
     "@types/react-dom": "npm:^19.1.6"
     "@vitejs/plugin-react": "npm:^4.6.0"
@@ -6595,6 +6647,7 @@ __metadata:
   resolution: "weave-project@workspace:."
   dependencies:
     "@eslint/js": "npm:^9.31.0"
+    "@tanstack/eslint-plugin-query": "npm:^5.81.2"
     concurrently: "npm:^9.2.0"
     eslint: "npm:^9.31.0"
     eslint-plugin-react: "npm:^7.37.5"
