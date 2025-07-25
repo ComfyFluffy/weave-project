@@ -47,8 +47,7 @@ class ApiService {
 
   async createCharacter(
     worldId: string,
-    createdBy: string,
-    character: Omit<PlayerCharacter, 'id' | 'createdBy'>
+    character: Omit<PlayerCharacter, 'id'>
   ): Promise<PlayerCharacter> {
     const response = await fetch(
       `${API_BASE_URL}/worlds/${worldId}/characters`,
@@ -57,7 +56,7 @@ class ApiService {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ ...character, createdBy }),
+        body: JSON.stringify(character),
       }
     )
     if (!response.ok) {

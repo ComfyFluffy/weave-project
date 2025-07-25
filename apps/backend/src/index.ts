@@ -4,6 +4,7 @@ import cors from 'cors'
 import { Server } from 'socket.io'
 import type { Message, PlayerCharacter } from '@weave/types'
 import { worlds, messages } from './mock'
+import { nanoid } from 'nanoid'
 
 const app = express()
 const server = http.createServer(app)
@@ -85,7 +86,7 @@ app.get('/api/worlds/:worldId/characters', (req, res) => {
 
 app.post('/api/worlds/:worldId/characters', (req, res) => {
   const worldId = req.params.worldId
-  const { createdBy, ...characterData } = req.body
+  const characterData = req.body
 
   const world = worlds.find((w) => w.id === worldId)
   if (!world) {
@@ -93,11 +94,10 @@ app.post('/api/worlds/:worldId/characters', (req, res) => {
   }
 
   // Generate a new character ID
-  const characterId = `char-${Date.now()}`
+  const characterId = `char:${nanoid()}`
   const newCharacter: PlayerCharacter = {
     id: characterId,
     ...characterData,
-    createdBy,
   }
 
   // Add to world's characters

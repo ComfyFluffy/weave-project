@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query'
 import { apiService } from '../services/apiService'
-import type { World, Message, PlayerCharacter } from '@weave/types'
+import type { World, Message } from '@weave/types'
 
 // Query keys
 export const queryKeys = {
@@ -55,13 +55,11 @@ export const useCreateCharacter = () => {
   return useMutation({
     mutationFn: ({
       worldId,
-      createdBy,
       character,
     }: {
       worldId: string
-      createdBy: string
-      character: Parameters<typeof apiService.createCharacter>[2]
-    }) => apiService.createCharacter(worldId, createdBy, character),
+      character: Parameters<typeof apiService.createCharacter>[1]
+    }) => apiService.createCharacter(worldId, character),
     onSuccess: (_, { worldId }) => {
       // Invalidate and refetch world characters
       queryClient.invalidateQueries({

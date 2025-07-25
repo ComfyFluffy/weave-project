@@ -20,15 +20,6 @@ export function WorldSidebar({
   onWorldSelect,
   onCreateWorld,
 }: WorldSidebarProps) {
-  // Default worlds if none provided
-  const defaultWorlds = [
-    { id: '1', name: '龙与地下城', avatar: '🐉', hasNotification: true },
-    { id: '2', name: '赛博朋克2077', avatar: '🤖', hasNotification: false },
-    { id: '3', name: '克苏鲁的呼唤', avatar: '🐙', hasNotification: false },
-  ]
-
-  const worldList = worlds.length > 0 ? worlds : defaultWorlds
-
   return (
     <Box
       width="72px"
@@ -57,7 +48,7 @@ export function WorldSidebar({
         <Box height="2px" width="32px" bg="gray.600" my={2} />
 
         {/* World List */}
-        {worldList.map((world) => (
+        {worlds.map((world) => (
           <Tooltip
             key={world.id}
             content={world.name}

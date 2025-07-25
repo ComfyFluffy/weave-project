@@ -127,7 +127,6 @@ export function ChatLayout() {
       const newCharacter = await createCharacterMutation.mutateAsync({
         worldId: selectedWorldId,
         character,
-        createdBy: currentSocketId,
       })
 
       // Auto-select the newly created character
