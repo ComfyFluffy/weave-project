@@ -46,41 +46,24 @@ export const worlds: World[] = [
         description: '危险的冒险场景',
       },
     ],
-    members: [
-      {
-        id: '1',
-        username: '游戏主持人',
-        role: 'gm',
-        character: {
-          id: 'gm1',
-          name: '智慧老人',
-          class: '游戏主持人',
-          hp: 100,
-          maxHp: 100,
-          location: '神域',
-          inventory: [],
-        },
+    members: [],
+    state: {
+      world_info: {
+        name: '龙与地下城',
+        description: '一个充满魔法与冒险的奇幻世界',
       },
-      {
-        id: '2',
-        username: '龙骑士玩家',
-        role: 'player',
-        character: {
-          id: 'p1',
+      characters: {
+        'char-1': {
+          id: 'char-1',
           name: '阿尔萨斯',
           class: '圣骑士',
           hp: 85,
           maxHp: 100,
           location: '酒馆',
-          inventory: ['神圣剑', '治疗药水'],
+          inventory: ['圣光之剑', '治疗药水', '铁甲'],
         },
-      },
-      {
-        id: '3',
-        username: '法师玩家',
-        role: 'player',
-        character: {
-          id: 'p2',
+        'char-2': {
+          id: 'char-2',
           name: '梅林',
           class: '法师',
           hp: 60,
@@ -89,20 +72,11 @@ export const worlds: World[] = [
           inventory: ['法杖', '魔法书'],
         },
       },
-      {
-        id: '4',
-        username: '观察者',
-        role: 'spectator',
+      key_events_log: ['冒险开始', '发现了古老的遗迹'],
+      npc_status: {
+        酒保: '友善，愿意提供信息',
+        守卫队长: '警惕，对外来者保持戒备',
       },
-    ],
-    state: {
-      world_info: {
-        name: '龙与地下城',
-        description: '经典奇幻冒险世界',
-      },
-      player_characters: {},
-      key_events_log: ['游戏开始'],
-      npc_status: {},
     },
   },
   {
@@ -120,11 +94,21 @@ export const worlds: World[] = [
     state: {
       world_info: {
         name: '赛博朋克2077',
-        description: '未来科幻世界',
+        description: '一个充满未来科技与阴谋的世界',
       },
-      player_characters: {},
       key_events_log: [],
       npc_status: {},
+      characters: {
+        'char-3': {
+          id: 'char-3',
+          name: 'V',
+          class: '赏金猎人',
+          hp: 120,
+          maxHp: 150,
+          location: '夜之城',
+          inventory: ['霰弹枪', '黑客工具', '增强义体'],
+        },
+      },
     },
   },
   {
@@ -144,7 +128,7 @@ export const worlds: World[] = [
         name: '克苏鲁的呼唤',
         description: '恐怖神秘世界',
       },
-      player_characters: {},
+      characters: {},
       key_events_log: [],
       npc_status: {},
     },

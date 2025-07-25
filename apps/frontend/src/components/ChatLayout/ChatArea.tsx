@@ -1,28 +1,54 @@
-import { Box, Flex, Text, Input, IconButton, Badge } from '@chakra-ui/react'
-import { Send, Smile, Plus, Hash } from 'lucide-react'
-import { useState, useRef, useEffect } from 'react'
+import {
+  Box,
+  Flex,
+  Text,
+  Input,
+  IconButton,
+  Badge,
+  Button,
+  Menu,
+  Portal,
+} from '@chakra-ui/react'
+import { Send, Smile, Plus, Hash, User } from 'lucide-react'
+import { useState } from 'react'
 import { MessageList } from './MessageList'
-import type { Message, Channel } from '@weave/types'
+import { useTypingIndicator } from '../../hooks/useTypingIndicator'
+import { TYPING_INDICATOR_TIMEOUT } from '../../constants/ui'
+import type { Message, Channel, PlayerCharacter } from '@weave/types'
 
 interface ChatAreaProps {
   channel?: Channel
   messages?: Message[]
   typingUsers?: string[]
+  worldCharacters?: PlayerCharacter[]
+  selectedCharacter?: PlayerCharacter | null
+  currentSocketId?: string
   onSendMessage?: (content: string) => void
   onStartTyping?: () => void
   onStopTyping?: () => void
+  onSelectCharacter?: (character: PlayerCharacter) => void
+  onOpenCharacterModal?: () => void
 }
 
 export function ChatArea({
   channel,
   messages = [],
   typingUsers = [],
+  worldCharacters = [],
+  selectedCharacter,
+  currentSocketId,
   onSendMessage,
   onStartTyping,
   onStopTyping,
+  onSelectCharacter,
+  onOpenCharacterModal,
 }: ChatAreaProps) {
   const [messageInput, setMessageInput] = useState('')
-  const typingTimeoutRef = useRef<number | null>(null)
+  const { handleTypingStart, handleTypingStop } = useTypingIndicator(
+    onStartTyping,
+    onStopTyping,
+    TYPING_INDICATOR_TIMEOUT
+  )
 
   // Default fallback channel
   const currentChannel: Channel = channel || {
@@ -37,44 +63,14 @@ export function ChatArea({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     setMessageInput(value)
-
-    // Start typing indicator
-    if (value.trim() && !typingTimeoutRef.current) {
-      onStartTyping?.()
-    }
-
-    // Clear existing timeout
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current)
-    }
-
-    // Set new timeout to stop typing indicator
-    typingTimeoutRef.current = setTimeout(() => {
-      onStopTyping?.()
-      typingTimeoutRef.current = null
-    }, 1000)
+    handleTypingStart(value.trim().length > 0)
   }
-
-  // Clean up timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current)
-      }
-    }
-  }, [])
 
   const handleSendMessage = () => {
     if (messageInput.trim() && onSendMessage && !currentChannel.readonly) {
       onSendMessage(messageInput.trim())
       setMessageInput('')
-
-      // Stop typing indicator
-      onStopTyping?.()
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current)
-        typingTimeoutRef.current = null
-      }
+      handleTypingStop()
     }
   }
 
@@ -137,6 +133,64 @@ export function ChatArea({
             >
               <Plus size={20} />
             </IconButton>
+
+            {/* Character Selector */}
+            <Menu.Root>
+              <Menu.Trigger asChild>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  bg="gray.700"
+                  borderColor="gray.600"
+                  color="white"
+                  _hover={{ bg: 'gray.600' }}
+                  minWidth="120px"
+                  justifyContent="flex-start"
+                >
+                  <User size={16} />{' '}
+                  {selectedCharacter ? selectedCharacter.name : '选择角色'}
+                </Button>
+              </Menu.Trigger>
+              <Portal>
+                <Menu.Positioner>
+                  <Menu.Content bg="gray.800" borderColor="gray.600">
+                    {worldCharacters.map((character) => (
+                      <Menu.Item
+                        key={character.id}
+                        value={character.id}
+                        bg="gray.800"
+                        _hover={{ bg: 'gray.700' }}
+                        color="white"
+                        onClick={() => onSelectCharacter?.(character)}
+                      >
+                        <Flex
+                          align="center"
+                          justify="space-between"
+                          width="100%"
+                        >
+                          <Text>{character.name}</Text>
+                          <Text fontSize="xs" color="gray.400">
+                            {character.class}
+                          </Text>
+                        </Flex>
+                      </Menu.Item>
+                    ))}
+                    <Menu.Item
+                      value="create-new"
+                      bg="gray.800"
+                      _hover={{ bg: 'gray.700' }}
+                      color="blue.400"
+                      onClick={() => onOpenCharacterModal?.()}
+                    >
+                      <Flex align="center">
+                        <Plus size={16} />
+                        <Text ml={2}>创建新角色</Text>
+                      </Flex>
+                    </Menu.Item>
+                  </Menu.Content>
+                </Menu.Positioner>
+              </Portal>
+            </Menu.Root>
 
             <Box flex={1} position="relative">
               <Input

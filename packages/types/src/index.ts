@@ -3,7 +3,7 @@ export interface WorldState {
     name: string
     description: string
   }
-  player_characters: Record<string, PlayerCharacter>
+  characters: Record<string, PlayerCharacter>
   key_events_log: string[]
   npc_status: Record<string, string>
 }
@@ -36,10 +36,11 @@ export interface Channel {
 }
 
 export interface WorldMember {
-  id: string
+  id: string // socket ID
   username: string
   character?: PlayerCharacter
   role: 'player' | 'gm' | 'spectator'
+  isOnline: boolean
 }
 
 export interface Message {

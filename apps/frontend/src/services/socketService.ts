@@ -101,7 +101,7 @@ class SocketService {
   }
 
   // Remove event listeners
-  off(event: string, callback?: (...args: any[]) => void) {
+  off(event: string, callback?: (...args: unknown[]) => void) {
     this.socket?.off(event, callback)
   }
 }

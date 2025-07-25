@@ -1,98 +1,25 @@
-import { Box, VStack, Text, Avatar, Flex, Badge } from '@chakra-ui/react'
+import {
+  Box,
+  VStack,
+  Text,
+  Avatar,
+  Flex,
+  Badge,
+  IconButton,
+} from '@chakra-ui/react'
+import { Settings } from 'lucide-react'
+import { getRoleColor, getRoleLabel, getStatusColor } from '../../utils/ui'
 import type { WorldMember } from '@weave/types'
 
 interface MemberListProps {
   members?: WorldMember[]
+  onOpenCharacterManagement?: () => void
 }
 
-export function MemberList({ members = [] }: MemberListProps) {
-  // Mock data
-  const mockMembers: WorldMember[] =
-    members.length > 0
-      ? members
-      : [
-          {
-            id: '1',
-            username: '游戏主持人',
-            role: 'gm',
-            character: {
-              id: 'gm1',
-              name: '智慧老人',
-              class: '游戏主持人',
-              hp: 100,
-              maxHp: 100,
-              location: '神域',
-              inventory: [],
-            },
-          },
-          {
-            id: '2',
-            username: '龙骑士玩家',
-            role: 'player',
-            character: {
-              id: 'p1',
-              name: '阿尔萨斯',
-              class: '圣骑士',
-              hp: 85,
-              maxHp: 100,
-              location: '酒馆',
-              inventory: ['神圣剑', '治疗药水'],
-            },
-          },
-          {
-            id: '3',
-            username: '法师玩家',
-            role: 'player',
-            character: {
-              id: 'p2',
-              name: '梅林',
-              class: '法师',
-              hp: 60,
-              maxHp: 80,
-              location: '酒馆',
-              inventory: ['法杖', '魔法书'],
-            },
-          },
-          {
-            id: '4',
-            username: '观察者',
-            role: 'spectator',
-          },
-        ]
-
-  const getRoleColor = (role: string) => {
-    switch (role) {
-      case 'gm':
-        return 'purple.400'
-      case 'player':
-        return 'green.400'
-      case 'spectator':
-        return 'gray.400'
-      default:
-        return 'gray.400'
-    }
-  }
-
-  const getRoleLabel = (role: string) => {
-    switch (role) {
-      case 'gm':
-        return '主持人'
-      case 'player':
-        return '玩家'
-      case 'spectator':
-        return '观察者'
-      default:
-        return ''
-    }
-  }
-
-  const getStatusColor = (hp: number, maxHp: number) => {
-    const ratio = hp / maxHp
-    if (ratio > 0.7) return 'green.400'
-    if (ratio > 0.3) return 'yellow.400'
-    return 'red.400'
-  }
-
+export function MemberList({
+  members = [],
+  onOpenCharacterManagement,
+}: MemberListProps) {
   return (
     <Box
       width="240px"
@@ -103,15 +30,27 @@ export function MemberList({ members = [] }: MemberListProps) {
     >
       {/* Header */}
       <Box p={4} borderBottom="1px solid" borderColor="gray.700">
-        <Text fontWeight="bold" color="white" fontSize="md">
-          成员 — {mockMembers.length}
-        </Text>
+        <Flex align="center" justify="space-between">
+          <Text fontWeight="bold" color="white" fontSize="md">
+            成员 — {members.length}
+          </Text>
+          <IconButton
+            size="sm"
+            variant="ghost"
+            color="gray.400"
+            _hover={{ color: 'white', bg: 'gray.700' }}
+            onClick={onOpenCharacterManagement}
+            title="角色管理"
+          >
+            <Settings size={16} />
+          </IconButton>
+        </Flex>
       </Box>
 
       {/* Members List */}
       <Box height="calc(100vh - 81px)" overflowY="auto">
         <VStack gap={0} align="stretch" p={2}>
-          {mockMembers.map((member) => (
+          {members.map((member) => (
             <Box
               key={member.id}
               p={2}

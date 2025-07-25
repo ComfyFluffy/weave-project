@@ -1,12 +1,14 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query'
 import { apiService } from '../services/apiService'
-import type { World, Message } from '@weave/types'
+import type { World, Message, PlayerCharacter } from '@weave/types'
 
 // Query keys
 export const queryKeys = {
   worlds: ['worlds'] as const,
   world: (worldId: string) => ['world', worldId] as const,
-  channelMessages: (channelId: string) => ['channelMessages', channelId] as const,
+  channelMessages: (channelId: string) =>
+    ['channelMessages', channelId] as const,
+  worldCharacters: (worldId: string) => ['worldCharacters', worldId] as const,
 }
 
 // Worlds list query
@@ -37,6 +39,60 @@ export const useChannelMessages = (channelId: string) => {
   })
 }
 
+// Character management hooks - now world-based
+export const useWorldCharacters = (worldId: string) => {
+  return useQuery({
+    queryKey: queryKeys.worldCharacters(worldId),
+    queryFn: () => apiService.fetchWorldCharacters(worldId),
+    enabled: !!worldId,
+    staleTime: 60000, // Characters update less frequently
+  })
+}
+
+export const useCreateCharacter = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      worldId,
+      createdBy,
+      character,
+    }: {
+      worldId: string
+      createdBy: string
+      character: Parameters<typeof apiService.createCharacter>[2]
+    }) => apiService.createCharacter(worldId, createdBy, character),
+    onSuccess: (_, { worldId }) => {
+      // Invalidate and refetch world characters
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.worldCharacters(worldId),
+      })
+      // Also invalidate world data to update member list and world state
+      queryClient.invalidateQueries({ queryKey: queryKeys.world(worldId) })
+    },
+  })
+}
+
+export const useSelectCharacter = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      worldId,
+      socketId,
+      characterId,
+    }: {
+      worldId: string
+      socketId: string
+      characterId: string
+    }) => apiService.selectCharacter(worldId, socketId, characterId),
+    onSuccess: (_, { worldId }) => {
+      // Invalidate world data to update member list with selected character
+      queryClient.invalidateQueries({ queryKey: queryKeys.world(worldId) })
+    },
+  })
+}
+
 // Hook to update queries when socket events occur
 export function useQueryUpdates() {
   const queryClient = useQueryClient()
@@ -64,7 +120,9 @@ export function useQueryUpdates() {
   }
 
   const invalidateChannelMessages = (channelId: string) => {
-    queryClient.invalidateQueries({ queryKey: queryKeys.channelMessages(channelId) })
+    queryClient.invalidateQueries({
+      queryKey: queryKeys.channelMessages(channelId),
+    })
   }
 
   return {
