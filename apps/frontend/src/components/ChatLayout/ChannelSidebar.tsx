@@ -4,24 +4,27 @@ import {
   Text,
   Button,
   Flex,
-  Collapsible,
   Badge,
+  Menu,
+  Portal,
+  IconButton,
 } from '@chakra-ui/react'
 import {
   Hash,
   Volume2,
   Settings,
-  ChevronDown,
-  ChevronRight,
-  Users,
   BookOpen,
   MessageSquare,
   Sword,
+  MoreHorizontal,
+  Trash2,
 } from 'lucide-react'
-import { useState } from 'react'
 import type { Channel } from '@weave/types'
+import { CreateChannelModal } from '../CreateChannelModal'
+import { useDeleteChannel } from '../../hooks/useChannels'
 
 interface ChannelSidebarProps {
+  worldId?: string
   worldName?: string
   channels?: Channel[]
   selectedChannelId?: string
@@ -31,18 +34,32 @@ interface ChannelSidebarProps {
 const channelIcons = {
   announcement: Volume2,
   rules: BookOpen,
-  'character-creation': Users,
   ooc: MessageSquare,
   ic: Sword,
 }
 
 export function ChannelSidebar({
+  worldId,
   worldName = '选择一个世界',
   channels = [],
   selectedChannelId,
   onChannelSelect,
 }: ChannelSidebarProps) {
-  const [textChannelsOpen, setTextChannelsOpen] = useState(true)
+  const deleteChannelMutation = useDeleteChannel(worldId || '')
+
+  const handleDeleteChannel = async (channelId: string) => {
+    if (!worldId) return
+
+    try {
+      await deleteChannelMutation.mutateAsync(channelId)
+    } catch (error) {
+      console.error('Failed to delete channel:', error)
+    }
+  }
+
+  const canDeleteChannel = (channel: Channel) => {
+    return channel.type !== 'announcement' && channel.type !== 'rules'
+  }
 
   return (
     <Box
@@ -69,83 +86,98 @@ export function ChannelSidebar({
         </Flex>
       </Box>
 
-      {/* Channel Categories */}
+      {/* Channel List */}
       <VStack gap={0} align="stretch" p={2}>
-        {/* Text Channels Section */}
-        <Box>
-          <Collapsible.Root open={textChannelsOpen}>
-            <Collapsible.Trigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                width="full"
-                justifyContent="flex-start"
-                color="gray.400"
-                fontSize="xs"
-                fontWeight="semibold"
-                textTransform="uppercase"
-                letterSpacing="0.5px"
-                py={1}
-                px={2}
-                _hover={{ color: 'gray.300' }}
-                onClick={() => setTextChannelsOpen(!textChannelsOpen)}
-              >
-                <Flex align="center" gap={1}>
-                  {textChannelsOpen ? (
-                    <ChevronDown size={12} />
-                  ) : (
-                    <ChevronRight size={12} />
-                  )}
-                  文字频道
-                </Flex>
-              </Button>
-            </Collapsible.Trigger>
-            <Collapsible.Content>
-              <VStack gap={0} align="stretch" pl={2}>
-                {channels.map((channel) => {
-                  const IconComponent = channelIcons[channel.type] || Hash
-                  const isSelected = selectedChannelId === channel.id
+        {/* Channels Header */}
+        <Flex align="center" justify="space-between" px={2} py={1}>
+          <Text
+            color="gray.400"
+            fontSize="xs"
+            fontWeight="semibold"
+            textTransform="uppercase"
+            letterSpacing="0.5px"
+          >
+            频道
+          </Text>
+          {worldId && <CreateChannelModal worldId={worldId} />}
+        </Flex>
 
-                  return (
-                    <Button
-                      key={channel.id}
-                      variant="ghost"
-                      size="sm"
-                      width="full"
-                      justifyContent="flex-start"
-                      color={isSelected ? 'white' : 'gray.300'}
-                      bg={isSelected ? 'gray.600' : 'transparent'}
-                      fontSize="sm"
-                      fontWeight="normal"
-                      py={1}
-                      px={2}
-                      _hover={{
-                        bg: isSelected ? 'gray.600' : 'gray.700',
-                        color: 'white',
-                      }}
-                      onClick={() => onChannelSelect?.(channel.id)}
-                    >
-                      <Flex align="center" justify="space-between" width="full">
-                        <Flex align="center" gap={2}>
-                          <IconComponent
-                            size={16}
-                            color={isSelected ? 'white' : '#9ca3af'}
-                          />
-                          <Text>{channel.name}</Text>
-                        </Flex>
-                        {channel.readonly && (
-                          <Badge size="xs" bg="yellow.600" color="white">
-                            只读
-                          </Badge>
-                        )}
-                      </Flex>
-                    </Button>
-                  )
-                })}
-              </VStack>
-            </Collapsible.Content>
-          </Collapsible.Root>
-        </Box>
+        {/* Channel List */}
+        <VStack gap={0} align="stretch">
+          {channels.map((channel) => {
+            const IconComponent = channelIcons[channel.type] || Hash
+            const isSelected = selectedChannelId === channel.id
+
+            return (
+              <Flex key={channel.id} align="center" width="full">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  width="full"
+                  justifyContent="flex-start"
+                  color={isSelected ? 'white' : 'gray.300'}
+                  bg={isSelected ? 'gray.600' : 'transparent'}
+                  fontSize="sm"
+                  fontWeight="normal"
+                  py={1}
+                  px={2}
+                  _hover={{
+                    bg: isSelected ? 'gray.600' : 'gray.700',
+                    color: 'white',
+                  }}
+                  onClick={() => onChannelSelect?.(channel.id)}
+                >
+                  <Flex align="center" justify="space-between" width="full">
+                    <Flex align="center" gap={2}>
+                      <IconComponent
+                        size={16}
+                        color={isSelected ? 'white' : '#9ca3af'}
+                      />
+                      <Text>{channel.name}</Text>
+                    </Flex>
+                    {channel.readonly && (
+                      <Badge size="xs" bg="yellow.600" color="white">
+                        只读
+                      </Badge>
+                    )}
+                    {canDeleteChannel(channel) && (
+                      <Menu.Root>
+                        <Menu.Trigger asChild>
+                          <IconButton
+                            variant="ghost"
+                            size="sm"
+                            color="gray.400"
+                            _hover={{ color: 'white', bg: 'gray.700' }}
+                            p={1}
+                            minW="auto"
+                            height="auto"
+                          >
+                            <MoreHorizontal />
+                          </IconButton>
+                        </Menu.Trigger>
+                        <Portal>
+                          <Menu.Positioner>
+                            <Menu.Content>
+                              <Menu.Item
+                                value="delete-channel"
+                                onClick={() => handleDeleteChannel(channel.id)}
+                                color="red.400"
+                                _hover={{ bg: 'red.600', color: 'white' }}
+                              >
+                                <Trash2 size={14} />
+                                <Text>删除频道</Text>
+                              </Menu.Item>
+                            </Menu.Content>
+                          </Menu.Positioner>
+                        </Portal>
+                      </Menu.Root>
+                    )}
+                  </Flex>
+                </Button>
+              </Flex>
+            )
+          })}
+        </VStack>
       </VStack>
     </Box>
   )

@@ -2,7 +2,7 @@ import express from 'express'
 import http from 'http'
 import cors from 'cors'
 import { Server } from 'socket.io'
-import type { Message, PlayerCharacter } from '@weave/types'
+import type { Channel, Message, PlayerCharacter } from '@weave/types'
 import { worlds, messages } from './mock'
 import { nanoid } from 'nanoid'
 
@@ -71,7 +71,62 @@ app.get('/api/channels/:channelId/messages', (req, res) => {
   res.json(channelMessages)
 })
 
-// Character management endpoints
+// Channel endpoints
+app.get('/api/worlds/:worldId/channels', (req, res) => {
+  const { worldId } = req.params
+  const world = worlds.find((w) => w.id === worldId)
+  if (!world) {
+    return res.status(404).json({ error: 'World not found' })
+  }
+  res.json(world.channels)
+})
+
+app.post('/api/worlds/:worldId/channels', (req, res) => {
+  const { worldId } = req.params
+  const { name, type, description } = req.body
+
+  const world = worlds.find((w) => w.id === worldId)
+  if (!world) {
+    return res.status(404).json({ error: 'World not found' })
+  }
+
+  const newChannel: Channel = {
+    id: `channel_${Date.now()}`,
+    name,
+    type: type || 'ic',
+    description,
+    createdBy: 'system', // In real app, this would be current user
+    createdAt: new Date(),
+  }
+
+  world.channels.push(newChannel)
+  res.status(201).json(newChannel)
+})
+
+app.delete('/api/worlds/:worldId/channels/:channelId', (req, res) => {
+  const { worldId, channelId } = req.params
+
+  const world = worlds.find((w) => w.id === worldId)
+  if (!world) {
+    return res.status(404).json({ error: 'World not found' })
+  }
+
+  const channelIndex = world.channels.findIndex((c) => c.id === channelId)
+  if (channelIndex === -1) {
+    return res.status(404).json({ error: 'Channel not found' })
+  }
+
+  // Prevent deletion of system channels
+  const channel = world.channels[channelIndex]
+  if (channel.type === 'announcement' || channel.type === 'rules') {
+    return res.status(400).json({ error: 'Cannot delete system channels' })
+  }
+
+  world.channels.splice(channelIndex, 1)
+  res.status(204).send()
+})
+
+// Character endpoints
 app.get('/api/worlds/:worldId/characters', (req, res) => {
   const worldId = req.params.worldId
   const world = worlds.find((w) => w.id === worldId)

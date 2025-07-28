@@ -16,6 +16,7 @@ import {
   useCreateCharacter,
   useSelectCharacter,
 } from '../../hooks/useQueries'
+import { useChannels } from '../../hooks/useChannels'
 import type { Message, PlayerCharacter } from '@weave/types'
 import { Flex } from '@chakra-ui/react'
 
@@ -36,6 +37,7 @@ export function ChatLayout() {
   // Use React Query hooks for data fetching
   const { data: worlds = [], isLoading: worldsLoading } = useWorlds()
   const { data: currentWorld } = useWorld(selectedWorldId)
+  const { data: channels = [] } = useChannels(selectedWorldId)
   const { data: messages = [], refetch: refetchMessages } =
     useChannelMessages(selectedChannelId)
   const { data: worldCharacters = [] } = useWorldCharacters(selectedWorldId)
@@ -44,9 +46,7 @@ export function ChatLayout() {
   const createCharacterMutation = useCreateCharacter()
   const selectCharacterMutation = useSelectCharacter()
 
-  const currentChannel = currentWorld?.channels.find(
-    (c) => c.id === selectedChannelId
-  )
+  const currentChannel = channels.find((c) => c.id === selectedChannelId)
 
   // Initialize socket connection and auto-select world/channel
   useEffect(() => {
@@ -85,12 +85,12 @@ export function ChatLayout() {
     }
   }, [worlds, selectedWorldId, refetchMessages])
 
-  // Auto-select first channel when world data changes
+  // Auto-select first channel when channels data changes
   useEffect(() => {
-    if (currentWorld?.channels.length && !selectedChannelId) {
-      setSelectedChannelId(currentWorld.channels[0].id)
+    if (channels.length && !selectedChannelId) {
+      setSelectedChannelId(channels[0].id)
     }
-  }, [currentWorld, selectedChannelId])
+  }, [channels, selectedChannelId])
 
   // Handle world selection
   useEffect(() => {
@@ -188,8 +188,9 @@ export function ChatLayout() {
 
       {/* Channel List */}
       <ChannelSidebar
+        worldId={selectedWorldId}
         worldName={currentWorld?.name}
-        channels={currentWorld?.channels}
+        channels={channels}
         selectedChannelId={selectedChannelId}
         onChannelSelect={handleChannelSelect}
       />

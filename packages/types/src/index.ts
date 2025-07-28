@@ -30,9 +30,11 @@ export interface World {
 export interface Channel {
   id: string
   name: string
-  type: 'announcement' | 'rules' | 'character-creation' | 'ooc' | 'ic'
+  type: 'announcement' | 'rules' | 'ooc' | 'ic'
   description?: string
   readonly?: boolean
+  createdBy?: string
+  createdAt?: Date
 }
 
 export interface WorldMember {

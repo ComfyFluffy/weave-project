@@ -22,12 +22,6 @@ export const worlds: World[] = [
         description: '世界观、核心规则',
       },
       {
-        id: '3',
-        name: '角色创建',
-        type: 'character-creation',
-        description: '创建和管理你的角色',
-      },
-      {
         id: '4',
         name: '场外闲聊',
         type: 'ooc',
@@ -86,7 +80,6 @@ export const worlds: World[] = [
     channels: [
       { id: '7', name: '世界公告', type: 'announcement', readonly: true },
       { id: '8', name: '规则与传说', type: 'rules', readonly: true },
-      { id: '9', name: '角色创建', type: 'character-creation' },
       { id: '10', name: '场外闲聊', type: 'ooc' },
       { id: '11', name: '场景-夜之城', type: 'ic' },
     ],
@@ -118,7 +111,6 @@ export const worlds: World[] = [
     channels: [
       { id: '12', name: '世界公告', type: 'announcement', readonly: true },
       { id: '13', name: '规则与传说', type: 'rules', readonly: true },
-      { id: '14', name: '角色创建', type: 'character-creation' },
       { id: '15', name: '场外闲聊', type: 'ooc' },
       { id: '16', name: '场景-阿卡姆镇', type: 'ic' },
     ],
