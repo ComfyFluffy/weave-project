@@ -1,80 +1,282 @@
-# weave-project
+# Weave - AI增强的在线协作叙事平台
 
-## 核心
-- 类 Discord 的聊天界面
-- 建立一个事实库/规则库（世界）供 LLM 使用及主持人查看/修改，解决 LLM 在长聊天中的长期记忆问题
-- LLM 融合进故事推进，全面提升游玩体验。辅助玩家/主持人选择剧情，或通过多个 Agent 的模式让 LLM 当玩家/主持人。
-- 规则判定。玩家提交 Action 的时候指定
-## 外围
-- LLM 辅助的世界/角色创建
-- LLM 辅助的故事导出
-## MVP
-- 所有核心功能
-- 不需要登陆，玩家进入聊天室/世界后选择或创建角色
-- 非必要不使用数据库
+> 🎲 **智能化的、永不疲倦的虚拟游戏主持人**  
+> 一个融合了AI技术、拥有高度自由度的实时在线协作叙事平台
 
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-20232A?style=flat-square&logo=react&logoColor=61DAFB)](https://reactjs.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-43853D?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Socket.IO](https://img.shields.io/badge/Socket.IO-black?style=flat-square&logo=socket.io&badgeColor=010101)](https://socket.io/)
+
+---
+
+## 🎯 项目愿景
+
+Weave 旨在打破传统线上跑团（TRPG）的壁垒，通过强大的人工智能为玩家提供一个类似Discord的、高度整合的社交与游戏空间。我们致力于解决传统模式中主持人构思枯竭、规则复杂、节奏拖沓等核心痛点，让创造故事的乐趣变得前所未有的简单和纯粹。
+
+## 🚀 核心特性
+
+### ✅ 已完成功能
+- **Discord风格聊天界面**: 熟悉直观的多频道聊天体验
+- **实时多人协作**: 基于Socket.IO的即时通信
+- **角色创建与管理**: 完整的角色创建和选择系统
+- **世界/频道管理**: 支持多世界、多频道的组织结构
+- **类型安全架构**: 完整的TypeScript类型定义体系
+
+### 🚧 开发中功能
+- **智能世界状态管理系统**: 结构化的事实库/规则库，解决LLM长期记忆问题
+- **AI辅助剧情推进**: LLM融合进故事发展，提供智能建议和选项
+- **自动规则判定**: 玩家行动的智能裁决系统
+
+### 🔄 计划中功能
+- **AI主持人模式**: 完全自动化的游戏主持体验
+- **LLM辅助内容生成**: 世界观、角色、故事的AI辅助创建
+- **智能故事导出**: AI辅助的游戏记录整理和导出
+
+## 🏗️ 技术架构
+
+### 项目结构
 ```
-产品需求文档：Weave (2.0 - AI增强版)
-- 项目代号: Weave
-- 版本: 2.0
-- 核心定位: 一个融合了AI技术、拥有高度自由度的实时在线协作叙事平台。
-1. 核心愿景 (Vision)
-我们旨在创造一个**"智能化的、永不疲倦的虚拟游戏主持人(GM/DM)"**。
-Weave 将打破传统线上跑团（TRPG）的壁垒。它利用强大的人工智能，为玩家提供一个类似Discord的、高度整合的社交与游戏空间。无论是想体验一场无需准备、随时开始的冒险，还是希望为资深主持人提供创作的"灵感副驾"，Weave都将致力于解决传统模式中主持人构思枯竭、规则复杂、节奏拖沓等核心痛点，让创造故事的乐趣变得前所未有的简单和纯粹。
-2. 界面与核心流程 (UI/UX & Flow)
-整体界面将参考Discord的成熟设计，为用户提供熟悉、直观的体验。
-- 服务器/世界列表: 用户可以创建或被邀请加入不同的"世界"（即服务器）。每个世界都是一个独立且持久的故事空间。
-- 世界内的频道结构:
-  - #世界公告: 用于主持人和AI发布重要信息。
-  - #规则与传说 (Rules & Lore): 一个只读频道，存放由AI生成或由玩家自定义的世界观、核心规则。此频道内容是AI的核心知识库。
-  - #角色创建: 一个引导式频道，玩家在此创建和管理自己的角色卡。
-  - #场外闲聊 (OOC - Out of Character): 供玩家进行游戏外的自由交流。
-  - #场景-酒馆相遇, #场景-深入龙穴 等 (IC - In Character): 核心游戏频道，故事在这里实时发生。
-3. 核心玩法模式 (Gameplay Modes)
-平台提供两种核心模式，满足不同玩家群体的需求。
-- 模式A: 全权AI主持人 (AI as Narrator)
-  - 描述: 一种完全自动化的"一键开团"体验。AI扮演游戏主持人的全部角色：负责场景描述、扮演所有NPC、裁定玩家行动结果、推进故事发展。
-  - 适用人群: TRPG新手、没有固定主持人的朋友团体、想要快速体验一场冒险的玩家。
-- 模式B: AI辅助主持人 (AI-Assisted Narrator)
-  - 描述: 由一名人类玩家担任主持人，但AI会成为他的"智能副驾"。主持人拥有最终决定权，但可以随时调用AI来获取灵感、生成内容或处理繁琐的规则。
-  - 适用人群: 经验丰富的主持人，希望减轻负担、提升故事质量，但不想放弃主导权。
-4. AI核心功能：项目的灵魂 (Core AI Features)
-这是Weave最具创新性的部分，旨在解决你提到的核心痛点。
-功能一: AI主持人或辅助主持人 (AI Narrator/Assistant)
-- 痛点解决: 解决主持人构思枯竭、节奏拖沓的问题。
-- 功能描述: AI可以全权主持游戏，或作为人类主持人的智能助手。
-功能二: AI驱动的选项 (AI-Provided Choices)
-- 痛点解决: 解决主持人和玩家的"卡壳"时刻，避免长时间的冷场。
-- 功能描述: 在任何时刻，主持人或玩家都可以触发"AI灵感"功能。AI会分析当前上下文，并立刻提供3-4个合乎逻辑的、可供选择的剧情走向或行动选项。
-- 示例: 玩家被困在一个地牢里，AI提供选项：
-  1. 【环境互动】"你们在墙角一块松动的石头后面，发现了一个隐藏的杠杆。"
-  2. 【引入冲突】"另一队探险者突然出现，他们似乎也想要这里的宝藏。"
-  3. 【增加变数】"天花板开始震动，似乎随时可能坍塌。"
-- 团队可以通过投票来决定采纳哪个选项，快速推动剧情。
-功能三: 上下文记忆与状态管理 (Contextual Memory & State Management)
-- 痛点解决: 解决大语言模型(LLM)在长篇聊天记录中"遗忘"关键信息的致命问题。
-- 我们的解决方案: 我们不依赖LLM的原始记忆力，而是设计一个**"世界状态 (World State)"**的结构化JSON对象，作为AI的"外置硬盘"。
-  - world_state.json 结构示例:
-{
-  "player_status": {
-    "玩家A": {"HP": 80, "location": "低语森林", "inventory": ["长剑", "治疗药水"]},
-    "玩家B": {"HP": 95, "location": "低语森林", "inventory": ["魔法杖"]}
-  },
-  "key_events_log": ["国王被刺杀", "古代神器被盗"],
-  "npc_status": { "守卫队长": "对玩家B产生了怀疑" }
+weave-project/
+├── apps/
+│   ├── frontend/          # React + Vite 前端应用
+│   │   ├── src/
+│   │   │   ├── components/    # UI组件
+│   │   │   │   ├── ChatLayout/    # 聊天界面组件
+│   │   │   │   ├── CharacterCreation/    # 角色创建组件
+│   │   │   │   └── ui/    # 基础UI组件
+│   │   │   ├── hooks/     # React Hooks
+│   │   │   ├── services/  # API服务
+│   │   │   └── providers/ # 上下文提供者
+│   │   └── package.json
+│   └── backend/           # Node.js + Express 后端服务
+│       ├── src/
+│       │   ├── index.ts       # 服务器入口
+│       │   └── mock.ts        # 模拟数据
+│       └── package.json
+├── packages/
+│   └── types/             # 共享TypeScript类型定义
+│       └── src/index.ts
+├── docs/                  # 项目文档
+│   ├── world-state-management.md    # 世界状态管理系统文档
+│   └── implementation-plan.md       # 实现计划
+└── package.json           # 根目录配置
+```
+
+### 技术栈
+
+#### 前端
+- **框架**: React 18 + TypeScript
+- **构建工具**: Vite
+- **UI库**: Chakra UI
+- **状态管理**: React Query + Context API
+- **实时通信**: Socket.IO Client
+
+#### 后端  
+- **运行时**: Node.js + Express
+- **语言**: TypeScript
+- **实时通信**: Socket.IO
+- **数据存储**: 内存存储 (开发阶段) → PostgreSQL (生产环境)
+
+#### 开发工具
+- **包管理**: npm workspaces
+- **代码规范**: ESLint + Prettier
+- **类型检查**: TypeScript严格模式
+- **开发环境**: VS Code Dev Container
+
+## 🎮 核心功能详解
+
+### 1. Discord风格界面
+- **世界侧边栏**: 快速切换不同的游戏世界
+- **频道系统**: 
+  - 📢 世界公告 (只读)
+  - 📚 规则与传说 (知识库)
+  - 👥 场外闲聊 (OOC)
+  - ⚔️ 场景频道 (IC) - 多个游戏场景
+- **成员列表**: 显示在线玩家和角色状态
+- **实时消息**: 支持文字、系统消息、行动指令
+
+### 2. 智能世界状态管理 🧠
+
+这是Weave的核心创新，通过**外置结构化知识库**解决LLM记忆限制问题。
+
+#### 核心数据结构
+```typescript
+interface WorldState {
+  world_info: {
+    name: string
+    description: string
+    genre: string
+    themes: string[]
+    current_time: string
+    weather?: string
+  }
+  characters: Record<string, PlayerCharacter>      // 角色状态
+  key_events_log: TimelineEvent[]                 // 事件日志
+  npc_status: Record<string, NPCState>            // NPC状态
+  locations: Record<string, Location>             // 地点信息
+  items: Record<string, Item>                     // 物品道具
+  active_plots: Plot[]                            // 活跃剧情
+  rules: Rule[]                                   // 游戏规则
+  lore: LoreEntry[]                              // 世界传说
 }
-  - 工作流:
-    1. 当玩家的行动或故事发展产生了关键变化（如获得物品、进入新地点、NPC态度改变），AI的第一任务是更新world_state.json。
-    2. 当AI需要做出下一个决策时，我们喂给它的上下文是经过精心提炼的：[最近的聊天记录] + [相关的世界规则] + [完整的world_state.json]。
-    3. 通过这种方式，AI总能基于一个准确、精简的核心事实库来做出判断，从而确保了故事的长期逻辑自洽。
-5. 技术栈构想 (Tech Stack)
-- 前端: React (用于构建类似Discord的复杂交互界面) + Chakra UI (组件库)
-- 后端: Node.js (Express) + Socket.IO (用于处理实时双向通信)
-- 数据库: Prisma & PostgreSQL (存储用户数据、世界状态等)
-- AI模型: 通过API接入大型语言模型服务 (如 OpenAI API, Google Gemini API)。
-6. 技术架构细节
-- 项目采用 Monorepo 结构，使用 Yarn Workspaces 管理多个包
-- 前端应用使用 Vite 构建工具和 React 框架
-- 后端服务使用 Express 和 Socket.IO 实现实时通信
-- 共享类型定义通过 @weave/types 包在前后端之间共享
 ```
+
+#### 智能上下文生成
+```
+AI上下文 = [最近聊天记录] + [相关角色状态] + [当前位置信息] + 
+          [活跃剧情] + [相关NPC状态] + [适用规则]
+```
+
+### 3. 角色系统
+- **完整角色卡**: 姓名、职业、属性、装备、关系网
+- **状态追踪**: HP、位置、物品、个人目标
+- **关系管理**: 角色间关系和NPC关系的动态追踪
+- **个人知识库**: 每个角色已知的世界信息和秘密
+
+## 🚀 快速开始
+
+### 环境要求
+- Node.js 18+
+- npm 9+
+- 现代浏览器 (支持ES2020+)
+
+### 安装和运行
+
+1. **克隆项目**
+```bash
+git clone https://github.com/ComfyFluffy/weave-project.git
+cd weave-project
+```
+
+2. **安装依赖**
+```bash
+npm install
+```
+
+3. **启动开发服务器**
+```bash
+# 启动后端服务 (端口 3001)
+npm run dev:backend
+
+# 启动前端应用 (端口 5173)
+npm run dev:frontend
+```
+
+4. **访问应用**
+- 前端: http://localhost:5173
+- 后端API: http://localhost:3001
+
+### 开发命令
+```bash
+# 构建整个项目
+npm run build
+
+# 运行类型检查
+npm run type-check
+
+# 运行代码检查
+npm run lint
+
+# 清理构建文件
+npm run clean
+```
+
+## 📖 使用指南
+
+### 1. 创建角色
+1. 选择或创建一个世界
+2. 点击"角色创建"按钮
+3. 填写角色信息：名称、职业、描述
+4. 设置初始属性和装备
+5. 确认创建并进入游戏
+
+### 2. 游戏流程
+1. **选择频道**: 根据需要选择公告、闲聊或场景频道
+2. **角色扮演**: 在IC频道中以角色身份进行互动
+3. **状态更新**: 角色状态会根据游戏进展自动更新
+4. **查看信息**: 通过角色面板查看详细状态和关系
+
+### 3. GM功能 (开发中)
+- 世界状态管理面板
+- NPC和剧情管理工具
+- 事件时间线查看
+- AI辅助内容生成
+
+## 🔧 开发指南
+
+### 项目规范
+- **代码风格**: 遵循ESLint和Prettier配置
+- **提交信息**: 使用[Conventional Commits](https://www.conventionalcommits.org/)格式
+- **类型安全**: 所有代码必须通过TypeScript严格模式检查
+
+### 贡献流程
+1. Fork项目并创建功能分支
+2. 进行开发并编写测试
+3. 确保代码通过所有检查
+4. 提交Pull Request
+
+### 核心概念
+- **World**: 游戏世界，包含频道、成员、状态
+- **Channel**: 聊天频道，不同类型服务不同目的
+- **Character**: 玩家角色，包含完整的游戏状态
+- **WorldState**: 结构化的世界状态数据
+- **Message**: 聊天消息，支持多种类型
+
+## 📚 相关文档
+
+- [世界状态管理系统详解](./docs/world-state-management.md)
+- [实现计划和路线图](./docs/implementation-plan.md)
+- [API文档](./docs/api.md) (待完善)
+- [部署指南](./docs/deployment.md) (待完善)
+
+## 🛣️ 开发路线图
+
+### Phase 1: 基础架构 (已完成)
+- [x] 项目架构搭建
+- [x] Discord风格界面
+- [x] 基础聊天功能
+- [x] 角色创建系统
+
+### Phase 2: 世界状态管理 (进行中)
+- [x] 类型定义完善
+- [ ] 状态管理API
+- [ ] GM控制面板
+- [ ] 实时状态同步
+
+### Phase 3: AI集成 (计划中)
+- [ ] LLM接口集成
+- [ ] 智能内容生成
+- [ ] 自动状态更新
+- [ ] AI辅助决策
+
+### Phase 4: 高级功能 (远期)
+- [ ] 移动端适配
+- [ ] 多语言支持
+- [ ] 插件系统
+- [ ] 社区功能
+
+## 🤝 贡献
+
+欢迎所有形式的贡献！无论是bug报告、功能建议、代码提交还是文档完善。
+
+### 如何贡献
+1. 查看[Issues](https://github.com/ComfyFluffy/weave-project/issues)寻找感兴趣的任务
+2. Fork项目并创建分支
+3. 进行开发并测试
+4. 提交Pull Request
+
+### 贡献者
+感谢所有为项目做出贡献的开发者！
+
+## 📄 许可证
+
+本项目采用MIT许可证 - 查看[LICENSE](LICENSE)文件了解详情。
+
+## ⭐ 支持项目
+
+如果这个项目对你有帮助，请给我们一个星标⭐！
+
+---
+
+**Weave** - 让AI成为你最好的游戏伙伴 🎲✨
