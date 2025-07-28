@@ -8,6 +8,7 @@ import {
   CharacterSelectionModal,
 } from '../CharacterCreation'
 import { socketService } from '../../services/socketService'
+import type { UserRole } from '../RoleSelector'
 import {
   useWorlds,
   useWorld,
@@ -23,6 +24,7 @@ import { Flex } from '@chakra-ui/react'
 export function ChatLayout() {
   const [selectedWorldId, setSelectedWorldId] = useState<string>('')
   const [selectedChannelId, setSelectedChannelId] = useState<string>('')
+  const [selectedRole, setSelectedRole] = useState<UserRole>('player')
   const [typingUsers, setTypingUsers] = useState<string[]>([])
   const [currentSocketId] = useState<string>(
     Math.random().toString(36).substr(2, 9)
@@ -35,7 +37,7 @@ export function ChatLayout() {
   const [showCharacterCreation, setShowCharacterCreation] = useState(false)
 
   // Use React Query hooks for data fetching
-  const { data: worlds = [], isLoading: worldsLoading } = useWorlds()
+  const { data: worlds = [] } = useWorlds()
   const { data: currentWorld } = useWorld(selectedWorldId)
   const { data: channels = [] } = useChannels(selectedWorldId)
   const { data: messages = [], refetch: refetchMessages } =
@@ -59,12 +61,12 @@ export function ChatLayout() {
     }
 
     // Setup socket event listeners
-    socketService.onNewMessage((message: Message) => {
+    socketService.onNewMessage((_message: Message) => {
       // Refetch messages when new message arrives
       refetchMessages()
     })
 
-    socketService.onMessageHistory((messageHistory: Message[]) => {
+    socketService.onMessageHistory((_messageHistory: Message[]) => {
       // Refetch messages when history is updated
       refetchMessages()
     })
@@ -151,8 +153,15 @@ export function ChatLayout() {
       return
     }
 
-    // Use selected character name if available
-    const characterName = selectedCharacter?.name
+    // For GM role, allow posting without character selection
+    let characterName: string | undefined
+    if (selectedRole === 'gm') {
+      // GM can post as "游戏主持人" or with selected character
+      characterName = selectedCharacter?.name || '游戏主持人'
+    } else {
+      // Regular players need to select a character
+      characterName = selectedCharacter?.name
+    }
 
     socketService.sendMessage(
       selectedChannelId,
@@ -162,7 +171,7 @@ export function ChatLayout() {
     )
   }
 
-  const handleSelectCharacter = (character: PlayerCharacter) => {
+  const handleSelectCharacter = (character: PlayerCharacter | null) => {
     setSelectedCharacter(character)
     setShowCharacterSelection(false)
   }
@@ -192,7 +201,9 @@ export function ChatLayout() {
         worldName={currentWorld?.name}
         channels={channels}
         selectedChannelId={selectedChannelId}
+        selectedRole={selectedRole}
         onChannelSelect={handleChannelSelect}
+        onRoleChange={setSelectedRole}
       />
 
       {/* Main Chat Area */}
@@ -202,7 +213,7 @@ export function ChatLayout() {
         typingUsers={typingUsers}
         worldCharacters={worldCharacters}
         selectedCharacter={selectedCharacter}
-        currentSocketId={currentSocketId}
+        selectedRole={selectedRole}
         onSendMessage={handleSendMessage}
         onStartTyping={() =>
           selectedChannelId && socketService.startTyping(selectedChannelId)

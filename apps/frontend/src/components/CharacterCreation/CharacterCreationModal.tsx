@@ -50,6 +50,10 @@ export function CharacterCreationModal({
         .split(',')
         .map((item) => item.trim())
         .filter((item) => item.length > 0),
+      relationships: {},
+      personal_goals: [],
+      known_lore: [],
+      secrets: [],
     }
 
     onCreateCharacter(character)

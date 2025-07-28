@@ -15,6 +15,7 @@ import { MessageList } from './MessageList'
 import { useTypingIndicator } from '../../hooks/useTypingIndicator'
 import { TYPING_INDICATOR_TIMEOUT } from '../../constants/ui'
 import type { Message, Channel, PlayerCharacter } from '@weave/types'
+import type { UserRole } from '../RoleSelector'
 
 interface ChatAreaProps {
   channel?: Channel
@@ -22,11 +23,11 @@ interface ChatAreaProps {
   typingUsers?: string[]
   worldCharacters?: PlayerCharacter[]
   selectedCharacter?: PlayerCharacter | null
-  currentSocketId?: string
+  selectedRole: UserRole
   onSendMessage?: (content: string) => void
   onStartTyping?: () => void
   onStopTyping?: () => void
-  onSelectCharacter?: (character: PlayerCharacter) => void
+  onSelectCharacter?: (character: PlayerCharacter | null) => void
   onOpenCharacterModal?: () => void
 }
 
@@ -36,7 +37,7 @@ export function ChatArea({
   typingUsers = [],
   worldCharacters = [],
   selectedCharacter,
-  currentSocketId,
+  selectedRole,
   onSendMessage,
   onStartTyping,
   onStopTyping,
@@ -122,7 +123,7 @@ export function ChatArea({
       </Box>
 
       {/* Message Input */}
-      {!currentChannel.readonly && (
+      {!currentChannel.readonly && selectedRole !== 'spectator' && (
         <Box p={4}>
           <Flex gap={2} align="flex-end">
             <IconButton
@@ -134,7 +135,7 @@ export function ChatArea({
               <Plus size={20} />
             </IconButton>
 
-            {/* Character Selector */}
+            {/* Character Selector - Modified for GM role */}
             <Menu.Root>
               <Menu.Trigger asChild>
                 <Button
@@ -148,12 +149,33 @@ export function ChatArea({
                   justifyContent="flex-start"
                 >
                   <User size={16} />{' '}
-                  {selectedCharacter ? selectedCharacter.name : '选择角色'}
+                  {selectedRole === 'gm'
+                    ? selectedCharacter
+                      ? selectedCharacter.name
+                      : '游戏主持人'
+                    : selectedCharacter
+                      ? selectedCharacter.name
+                      : '选择角色'}
                 </Button>
               </Menu.Trigger>
               <Portal>
                 <Menu.Positioner>
                   <Menu.Content bg="gray.800" borderColor="gray.600">
+                    {/* GM can post as GM without character */}
+                    {selectedRole === 'gm' && (
+                      <Menu.Item
+                        value="gm"
+                        bg="gray.800"
+                        _hover={{ bg: 'gray.700' }}
+                        color="yellow.400"
+                        onClick={() => onSelectCharacter?.(null)}
+                      >
+                        <Flex align="center">
+                          <Text>游戏主持人</Text>
+                        </Flex>
+                      </Menu.Item>
+                    )}
+
                     {worldCharacters.map((character) => (
                       <Menu.Item
                         key={character.id}
@@ -175,18 +197,22 @@ export function ChatArea({
                         </Flex>
                       </Menu.Item>
                     ))}
-                    <Menu.Item
-                      value="create-new"
-                      bg="gray.800"
-                      _hover={{ bg: 'gray.700' }}
-                      color="blue.400"
-                      onClick={() => onOpenCharacterModal?.()}
-                    >
-                      <Flex align="center">
-                        <Plus size={16} />
-                        <Text ml={2}>创建新角色</Text>
-                      </Flex>
-                    </Menu.Item>
+
+                    {/* Only allow character creation for players and GMs */}
+                    {(selectedRole === 'player' || selectedRole === 'gm') && (
+                      <Menu.Item
+                        value="create-new"
+                        bg="gray.800"
+                        _hover={{ bg: 'gray.700' }}
+                        color="blue.400"
+                        onClick={() => onOpenCharacterModal?.()}
+                      >
+                        <Flex align="center">
+                          <Plus size={16} />
+                          <Text ml={2}>创建新角色</Text>
+                        </Flex>
+                      </Menu.Item>
+                    )}
                   </Menu.Content>
                 </Menu.Positioner>
               </Portal>
@@ -197,7 +223,11 @@ export function ChatArea({
                 value={messageInput}
                 onChange={handleInputChange}
                 onKeyPress={handleKeyPress}
-                placeholder={`在 #${currentChannel.name} 中发送消息`}
+                placeholder={
+                  selectedRole === 'gm'
+                    ? `以主持人身份在 #${currentChannel.name} 中发送消息`
+                    : `在 #${currentChannel.name} 中发送消息`
+                }
                 bg="gray.600"
                 border="none"
                 color="white"
@@ -238,6 +268,15 @@ export function ChatArea({
               </Flex>
             </Box>
           </Flex>
+        </Box>
+      )}
+
+      {/* Spectator notice */}
+      {selectedRole === 'spectator' && (
+        <Box p={4} bg="gray.750" borderTop="1px solid" borderColor="gray.700">
+          <Text color="gray.400" fontSize="sm" textAlign="center">
+            观察者模式 - 您只能查看消息，无法发送消息
+          </Text>
         </Box>
       )}
     </Flex>

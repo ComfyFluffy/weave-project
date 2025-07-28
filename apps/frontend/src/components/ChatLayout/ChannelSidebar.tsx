@@ -21,6 +21,7 @@ import {
 } from 'lucide-react'
 import type { Channel } from '@weave/types'
 import { CreateChannelModal } from '../CreateChannelModal'
+import { RoleSelector, type UserRole } from '../RoleSelector'
 import { useDeleteChannel } from '../../hooks/useChannels'
 
 interface ChannelSidebarProps {
@@ -28,7 +29,9 @@ interface ChannelSidebarProps {
   worldName?: string
   channels?: Channel[]
   selectedChannelId?: string
+  selectedRole: UserRole
   onChannelSelect?: (channelId: string) => void
+  onRoleChange: (role: UserRole) => void
 }
 
 const channelIcons = {
@@ -43,7 +46,9 @@ export function ChannelSidebar({
   worldName = '选择一个世界',
   channels = [],
   selectedChannelId,
+  selectedRole,
   onChannelSelect,
+  onRoleChange,
 }: ChannelSidebarProps) {
   const deleteChannelMutation = useDeleteChannel(worldId || '')
 
@@ -68,6 +73,8 @@ export function ChannelSidebar({
       borderRight="1px solid"
       borderColor="gray.700"
       flexShrink={0}
+      display="flex"
+      flexDirection="column"
     >
       {/* World Header */}
       <Box
@@ -87,98 +94,107 @@ export function ChannelSidebar({
       </Box>
 
       {/* Channel List */}
-      <VStack gap={0} align="stretch" p={2}>
-        {/* Channels Header */}
-        <Flex align="center" justify="space-between" px={2} py={1}>
-          <Text
-            color="gray.400"
-            fontSize="xs"
-            fontWeight="semibold"
-            textTransform="uppercase"
-            letterSpacing="0.5px"
-          >
-            频道
-          </Text>
-          {worldId && <CreateChannelModal worldId={worldId} />}
-        </Flex>
+      <Box flex={1} overflowY="auto">
+        <VStack gap={0} align="stretch" p={2}>
+          {/* Channels Header */}
+          <Flex align="center" justify="space-between" px={2} py={1}>
+            <Text
+              color="gray.400"
+              fontSize="xs"
+              fontWeight="semibold"
+              textTransform="uppercase"
+              letterSpacing="0.5px"
+            >
+              频道
+            </Text>
+            {worldId && selectedRole === 'gm' && (
+              <CreateChannelModal worldId={worldId} />
+            )}
+          </Flex>
 
-        {/* Channel List */}
-        <VStack gap={0} align="stretch">
-          {channels.map((channel) => {
-            const IconComponent = channelIcons[channel.type] || Hash
-            const isSelected = selectedChannelId === channel.id
+          {/* Channel List */}
+          <VStack gap={0} align="stretch">
+            {channels.map((channel) => {
+              const IconComponent = channelIcons[channel.type] || Hash
+              const isSelected = selectedChannelId === channel.id
 
-            return (
-              <Flex key={channel.id} align="center" width="full">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  width="full"
-                  justifyContent="flex-start"
-                  color={isSelected ? 'white' : 'gray.300'}
-                  bg={isSelected ? 'gray.600' : 'transparent'}
-                  fontSize="sm"
-                  fontWeight="normal"
-                  py={1}
-                  px={2}
-                  _hover={{
-                    bg: isSelected ? 'gray.600' : 'gray.700',
-                    color: 'white',
-                  }}
-                  onClick={() => onChannelSelect?.(channel.id)}
-                >
-                  <Flex align="center" justify="space-between" width="full">
-                    <Flex align="center" gap={2}>
-                      <IconComponent
-                        size={16}
-                        color={isSelected ? 'white' : '#9ca3af'}
-                      />
-                      <Text>{channel.name}</Text>
+              return (
+                <Flex key={channel.id} align="center" width="full">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    width="full"
+                    justifyContent="flex-start"
+                    color={isSelected ? 'white' : 'gray.300'}
+                    bg={isSelected ? 'gray.600' : 'transparent'}
+                    fontSize="sm"
+                    fontWeight="normal"
+                    py={1}
+                    px={2}
+                    _hover={{
+                      bg: isSelected ? 'gray.600' : 'gray.700',
+                      color: 'white',
+                    }}
+                    onClick={() => onChannelSelect?.(channel.id)}
+                  >
+                    <Flex align="center" justify="space-between" width="full">
+                      <Flex align="center" gap={2}>
+                        <IconComponent
+                          size={16}
+                          color={isSelected ? 'white' : '#9ca3af'}
+                        />
+                        <Text>{channel.name}</Text>
+                      </Flex>
+                      {channel.readonly && (
+                        <Badge size="xs" bg="yellow.600" color="white">
+                          只读
+                        </Badge>
+                      )}
+                      {canDeleteChannel(channel) && selectedRole === 'gm' && (
+                        <Menu.Root>
+                          <Menu.Trigger asChild>
+                            <IconButton
+                              variant="ghost"
+                              size="sm"
+                              color="gray.400"
+                              _hover={{ color: 'white', bg: 'gray.700' }}
+                              p={1}
+                              minW="auto"
+                              height="auto"
+                            >
+                              <MoreHorizontal />
+                            </IconButton>
+                          </Menu.Trigger>
+                          <Portal>
+                            <Menu.Positioner>
+                              <Menu.Content>
+                                <Menu.Item
+                                  value="delete-channel"
+                                  onClick={() =>
+                                    handleDeleteChannel(channel.id)
+                                  }
+                                  color="red.400"
+                                  _hover={{ bg: 'red.600', color: 'white' }}
+                                >
+                                  <Trash2 size={14} />
+                                  <Text>删除频道</Text>
+                                </Menu.Item>
+                              </Menu.Content>
+                            </Menu.Positioner>
+                          </Portal>
+                        </Menu.Root>
+                      )}
                     </Flex>
-                    {channel.readonly && (
-                      <Badge size="xs" bg="yellow.600" color="white">
-                        只读
-                      </Badge>
-                    )}
-                    {canDeleteChannel(channel) && (
-                      <Menu.Root>
-                        <Menu.Trigger asChild>
-                          <IconButton
-                            variant="ghost"
-                            size="sm"
-                            color="gray.400"
-                            _hover={{ color: 'white', bg: 'gray.700' }}
-                            p={1}
-                            minW="auto"
-                            height="auto"
-                          >
-                            <MoreHorizontal />
-                          </IconButton>
-                        </Menu.Trigger>
-                        <Portal>
-                          <Menu.Positioner>
-                            <Menu.Content>
-                              <Menu.Item
-                                value="delete-channel"
-                                onClick={() => handleDeleteChannel(channel.id)}
-                                color="red.400"
-                                _hover={{ bg: 'red.600', color: 'white' }}
-                              >
-                                <Trash2 size={14} />
-                                <Text>删除频道</Text>
-                              </Menu.Item>
-                            </Menu.Content>
-                          </Menu.Positioner>
-                        </Portal>
-                      </Menu.Root>
-                    )}
-                  </Flex>
-                </Button>
-              </Flex>
-            )
-          })}
+                  </Button>
+                </Flex>
+              )
+            })}
+          </VStack>
         </VStack>
-      </VStack>
+      </Box>
+
+      {/* Role Selector */}
+      <RoleSelector selectedRole={selectedRole} onRoleChange={onRoleChange} />
     </Box>
   )
 }
