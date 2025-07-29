@@ -214,6 +214,7 @@ export function ChatLayout() {
         worldCharacters={worldCharacters}
         selectedCharacter={selectedCharacter}
         selectedRole={selectedRole}
+        worldId={selectedWorldId}
         onSendMessage={handleSendMessage}
         onStartTyping={() =>
           selectedChannelId && socketService.startTyping(selectedChannelId)

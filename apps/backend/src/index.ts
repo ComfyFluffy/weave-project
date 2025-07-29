@@ -1,3 +1,5 @@
+import 'dotenv/config'
+
 import express from 'express'
 import http from 'http'
 import cors from 'cors'
@@ -5,6 +7,7 @@ import { Server } from 'socket.io'
 import type { Channel, Message, PlayerCharacter } from '@weave/types'
 import { worlds, messages } from './mock'
 import { nanoid } from 'nanoid'
+import aiRoutes from './routes/ai'
 
 const app = express()
 const server = http.createServer(app)
@@ -41,6 +44,9 @@ const connectedUsers: {
 } = {}
 
 app.use(express.json())
+
+// API routes
+app.use('/api/ai', aiRoutes)
 
 // REST API endpoints
 app.get('/', (req, res) => {

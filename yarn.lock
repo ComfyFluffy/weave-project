@@ -2625,9 +2625,11 @@ __metadata:
     "@types/node": "npm:^24.1.0"
     "@weave/types": "workspace:^"
     cors: "npm:^2.8.5"
+    dotenv: "npm:^17.2.1"
     express: "npm:^5.1.0"
     globals: "npm:^16.3.0"
     nanoid: "npm:^5.1.5"
+    openai: "npm:^5.10.2"
     socket.io: "npm:^4.8.1"
     ts-node-dev: "npm:^2.0.0"
     typescript: "npm:^5.8.3"
@@ -3087,6 +3089,13 @@ __metadata:
   dependencies:
     esutils: "npm:^2.0.2"
   checksum: 10c0/b6416aaff1f380bf56c3b552f31fdf7a69b45689368deca72d28636f41c16bb28ec3ebc40ace97db4c1afc0ceeb8120e8492fe0046841c94c2933b2e30a7d5ac
+  languageName: node
+  linkType: hard
+
+"dotenv@npm:^17.2.1":
+  version: 17.2.1
+  resolution: "dotenv@npm:17.2.1"
+  checksum: 10c0/918dd2f9d8b8f86b0afabad9534793d51de3718c437f9e7b6525628cf68c1d4ae768cc37a5afff38c066f58a8ecf549f4ac6cd5617485bd328e826112cc2650a
   languageName: node
   linkType: hard
 
@@ -5150,6 +5159,23 @@ __metadata:
   dependencies:
     wrappy: "npm:1"
   checksum: 10c0/5d48aca287dfefabd756621c5dfce5c91a549a93e9fdb7b8246bc4c4790aa2ec17b34a260530474635147aeb631a2dcc8b32c613df0675f96041cbb8244517d0
+  languageName: node
+  linkType: hard
+
+"openai@npm:^5.10.2":
+  version: 5.10.2
+  resolution: "openai@npm:5.10.2"
+  peerDependencies:
+    ws: ^8.18.0
+    zod: ^3.23.8
+  peerDependenciesMeta:
+    ws:
+      optional: true
+    zod:
+      optional: true
+  bin:
+    openai: bin/cli
+  checksum: 10c0/c08896a5d20722f3bd1a72522768ffc7c053a4df94f7b7f064c9946110070187264e6e3bf01c3abeb861e5602c65329d6aec485989338bae8ce8d3d81160fca9
   languageName: node
   linkType: hard
 

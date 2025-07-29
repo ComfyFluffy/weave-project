@@ -12,6 +12,7 @@ import {
 import { Send, Smile, Plus, Hash, User } from 'lucide-react'
 import { useState } from 'react'
 import { MessageList } from './MessageList'
+import { AISuggestionsModal } from '../AISuggestionsModal'
 import { useTypingIndicator } from '../../hooks/useTypingIndicator'
 import { TYPING_INDICATOR_TIMEOUT } from '../../constants/ui'
 import type { Message, Channel, PlayerCharacter } from '@weave/types'
@@ -24,6 +25,7 @@ interface ChatAreaProps {
   worldCharacters?: PlayerCharacter[]
   selectedCharacter?: PlayerCharacter | null
   selectedRole: UserRole
+  worldId?: string
   onSendMessage?: (content: string) => void
   onStartTyping?: () => void
   onStopTyping?: () => void
@@ -38,6 +40,7 @@ export function ChatArea({
   worldCharacters = [],
   selectedCharacter,
   selectedRole,
+  worldId,
   onSendMessage,
   onStartTyping,
   onStopTyping,
@@ -68,11 +71,14 @@ export function ChatArea({
   }
 
   const handleSendMessage = () => {
-    if (messageInput.trim() && onSendMessage && !currentChannel.readonly) {
+    if (messageInput.trim() && onSendMessage) {
       onSendMessage(messageInput.trim())
       setMessageInput('')
-      handleTypingStop()
     }
+  }
+
+  const handleUseSuggestion = (suggestion: string) => {
+    setMessageInput(suggestion)
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -245,6 +251,30 @@ export function ChatArea({
                 transform="translateY(-50%)"
                 gap={1}
               >
+                {/* AI Suggestions Button - Only show for GM */}
+                {selectedRole === 'gm' && worldId && channel && (
+                  <AISuggestionsModal
+                    worldId={worldId}
+                    channelId={channel.id}
+                    onUseSuggestion={handleUseSuggestion}
+                    mode="narrator"
+                  />
+                )}
+
+                {/* AI Suggestions Button - Only show for players with selected character */}
+                {selectedRole === 'player' &&
+                  worldId &&
+                  channel &&
+                  selectedCharacter && (
+                    <AISuggestionsModal
+                      worldId={worldId}
+                      channelId={channel.id}
+                      mode="player"
+                      characterName={selectedCharacter.name}
+                      onUseSuggestion={handleUseSuggestion}
+                    />
+                  )}
+
                 <IconButton
                   size="sm"
                   variant="ghost"
