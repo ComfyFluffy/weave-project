@@ -1,5 +1,9 @@
 import express from 'express'
-import { generateNarratorSuggestions, generatePlayerSuggestions, generateNPCDialogue } from '../services/aiService'
+import {
+  generateNarratorSuggestions,
+  generatePlayerSuggestions,
+  generateNPCDialogue,
+} from '../services/aiService'
 import { worlds, messages } from '../mock'
 
 const router = express.Router()
@@ -10,17 +14,19 @@ router.post('/narrator-suggestions', async (req, res) => {
     const { worldId, channelId, customInstruction } = req.body
 
     if (!worldId || !channelId) {
-      return res.status(400).json({ error: 'worldId and channelId are required' })
+      return res
+        .status(400)
+        .json({ error: 'worldId and channelId are required' })
     }
 
     // Find the world
-    const world = worlds.find(w => w.id === worldId)
+    const world = worlds.find((w) => w.id === worldId)
     if (!world) {
       return res.status(404).json({ error: 'World not found' })
     }
 
     // Find the channel
-    const channel = world.channels.find(c => c.id === channelId)
+    const channel = world.channels.find((c) => c.id === channelId)
     if (!channel) {
       return res.status(404).json({ error: 'Channel not found' })
     }
@@ -34,7 +40,7 @@ router.post('/narrator-suggestions', async (req, res) => {
       worldState: world.state,
       recentMessages,
       channelName: channel.name,
-      customInstruction
+      customInstruction,
     }
 
     // Generate suggestions
@@ -44,14 +50,13 @@ router.post('/narrator-suggestions', async (req, res) => {
       success: true,
       suggestions: aiResponse.suggestions,
       reasoning: aiResponse.reasoning,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     })
-
   } catch (error) {
     console.error('Error generating narrator suggestions:', error)
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to generate suggestions',
-      message: error instanceof Error ? error.message : 'Unknown error'
+      message: error instanceof Error ? error.message : 'Unknown error',
     })
   }
 })
@@ -62,17 +67,19 @@ router.post('/player-suggestions', async (req, res) => {
     const { worldId, channelId, characterName, customInstruction } = req.body
 
     if (!worldId || !channelId) {
-      return res.status(400).json({ error: 'worldId and channelId are required' })
+      return res
+        .status(400)
+        .json({ error: 'worldId and channelId are required' })
     }
 
     // Find the world
-    const world = worlds.find(w => w.id === worldId)
+    const world = worlds.find((w) => w.id === worldId)
     if (!world) {
       return res.status(404).json({ error: 'World not found' })
     }
 
     // Find the channel
-    const channel = world.channels.find(c => c.id === channelId)
+    const channel = world.channels.find((c) => c.id === channelId)
     if (!channel) {
       return res.status(404).json({ error: 'Channel not found' })
     }
@@ -86,7 +93,7 @@ router.post('/player-suggestions', async (req, res) => {
       worldState: world.state,
       recentMessages,
       channelName: channel.name,
-      customInstruction
+      customInstruction,
     }
 
     // Generate player action suggestions
@@ -97,14 +104,13 @@ router.post('/player-suggestions', async (req, res) => {
       suggestions: aiResponse.suggestions,
       reasoning: aiResponse.reasoning,
       characterName: characterName || null,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     })
-
   } catch (error) {
     console.error('Error generating player suggestions:', error)
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to generate player suggestions',
-      message: error instanceof Error ? error.message : 'Unknown error'
+      message: error instanceof Error ? error.message : 'Unknown error',
     })
   }
 })
@@ -115,19 +121,19 @@ router.post('/npc-dialogue', async (req, res) => {
     const { worldId, channelId, npcName, playerMessage } = req.body
 
     if (!worldId || !channelId || !npcName || !playerMessage) {
-      return res.status(400).json({ 
-        error: 'worldId, channelId, npcName, and playerMessage are required' 
+      return res.status(400).json({
+        error: 'worldId, channelId, npcName, and playerMessage are required',
       })
     }
 
     // Find the world
-    const world = worlds.find(w => w.id === worldId)
+    const world = worlds.find((w) => w.id === worldId)
     if (!world) {
       return res.status(404).json({ error: 'World not found' })
     }
 
     // Find the channel
-    const channel = world.channels.find(c => c.id === channelId)
+    const channel = world.channels.find((c) => c.id === channelId)
     if (!channel) {
       return res.status(404).json({ error: 'Channel not found' })
     }
@@ -140,7 +146,7 @@ router.post('/npc-dialogue', async (req, res) => {
     const context = {
       worldState: world.state,
       recentMessages,
-      channelName: channel.name
+      channelName: channel.name,
     }
 
     // Generate NPC dialogue
@@ -150,14 +156,13 @@ router.post('/npc-dialogue', async (req, res) => {
       success: true,
       dialogue,
       npcName,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     })
-
   } catch (error) {
     console.error('Error generating NPC dialogue:', error)
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to generate dialogue',
-      message: error instanceof Error ? error.message : 'Unknown error'
+      message: error instanceof Error ? error.message : 'Unknown error',
     })
   }
 })

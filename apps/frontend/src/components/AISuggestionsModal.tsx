@@ -53,7 +53,12 @@ export function AISuggestionsModal({
       const response =
         mode === 'narrator'
           ? await getNarratorSuggestions(worldId, channelId, instruction)
-          : await getPlayerSuggestions(worldId, channelId, characterName, instruction)
+          : await getPlayerSuggestions(
+              worldId,
+              channelId,
+              characterName,
+              instruction
+            )
       setSuggestions(response)
     } catch (err) {
       setError(err instanceof Error ? err.message : '获取AI建议失败')
@@ -129,20 +134,28 @@ export function AISuggestionsModal({
                           size="sm"
                           color="gray.400"
                           _hover={{ color: 'white' }}
-                          onClick={() => setShowInstructionInput(!showInstructionInput)}
+                          onClick={() =>
+                            setShowInstructionInput(!showInstructionInput)
+                          }
                           width="100%"
                           justifyContent="space-between"
                         >
                           <Text>自定义指令 (可选)</Text>
-                          {showInstructionInput ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                          {showInstructionInput ? (
+                            <ChevronUp size={16} />
+                          ) : (
+                            <ChevronDown size={16} />
+                          )}
                         </Button>
                       </Collapsible.Trigger>
-                      
+
                       <Collapsible.Content>
                         <Box mt={3}>
                           <Textarea
                             value={customInstruction}
-                            onChange={(e) => setCustomInstruction(e.target.value)}
+                            onChange={(e) =>
+                              setCustomInstruction(e.target.value)
+                            }
                             placeholder={
                               mode === 'narrator'
                                 ? '例如：请生成一些与魔法相关的剧情发展，注重角色间的对话互动...'

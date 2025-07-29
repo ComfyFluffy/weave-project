@@ -384,7 +384,8 @@ export const messages: { [channelId: string]: Message[] } = {
       authorId: 'p2',
       authorName: '法师玩家',
       characterName: '梅林',
-      content: '我在角落找了个安静的座位，拿出魔法书假装阅读，实际上在暗中观察酒馆里的其他人。',
+      content:
+        '我在角落找了个安静的座位，拿出魔法书假装阅读，实际上在暗中观察酒馆里的其他人。',
       timestamp: new Date('2024-01-15T20:07:00Z'),
       type: 'user',
     },
@@ -395,7 +396,8 @@ export const messages: { [channelId: string]: Message[] } = {
       authorId: 'p1',
       authorName: '龙骑司玩家',
       characterName: '阿尔萨斯',
-      content: '我向酒保询问："最近镇上有什么有趣的事情发生吗？听说北边的森林里有些不寻常的动静？"',
+      content:
+        '我向酒保询问："最近镇上有什么有趣的事情发生吗？听说北边的森林里有些不寻常的动静？"',
       timestamp: new Date('2024-01-15T20:10:00Z'),
       type: 'user',
     },
@@ -406,7 +408,8 @@ export const messages: { [channelId: string]: Message[] } = {
       authorId: 'p2',
       authorName: '法师玩家',
       characterName: '梅林',
-      content: '听到阿尔萨斯的问话，我竖起耳朵仔细聆听，同时准备好随时加入对话。',
+      content:
+        '听到阿尔萨斯的问话，我竖起耳朵仔细聆听，同时准备好随时加入对话。',
       timestamp: new Date('2024-01-15T20:12:00Z'),
       type: 'user',
     },
