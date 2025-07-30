@@ -1,5 +1,5 @@
 import { createOpenAI } from '@ai-sdk/openai'
-import { createProviderRegistry, generateText, streamText } from 'ai'
+import { createProviderRegistry, streamText } from 'ai'
 
 export const registry = createProviderRegistry({
   openai: createOpenAI({
@@ -14,23 +14,19 @@ export const openai = registry.languageModel(
 
 // Test
 console.log('OpenAI model initialized:', openai)
-streamText({
-  model: openai,
-  messages: [
-    { role: 'system', content: 'You are a helpful assistant.' },
-    { role: 'user', content: 'What is the capital of France?' },
-  ],
-  onFinish: (text) => {
-    console.log('AI response:', text)
-  },
-  onError: (error) => {
-    console.error('Error during AI response:', error)
-  },
-  onChunk: (chunk) => {
-    console.log('Received chunk:', chunk)
-  },
-  onAbort: () => {
-    console.log('AI response aborted')
-  },
-  maxRetries: 1,
-})
+;(async () => {
+  const { textStream } = streamText({
+    model: openai,
+    messages: [
+      { role: 'system', content: 'You are a helpful assistant.' },
+      { role: 'user', content: 'How is the climate in France?' },
+    ],
+    maxRetries: 1,
+    maxTokens: 100,
+  })
+
+  for await (const chunk of textStream) {
+    process.stdout.write(chunk)
+  }
+  console.log('\nStream completed.')
+})()

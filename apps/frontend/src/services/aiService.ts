@@ -1,5 +1,4 @@
 import { useChat } from '@ai-sdk/react'
-import { DefaultChatTransport } from 'ai'
 
 const API_BASE_URL = 'http://localhost:3001/api'
 
@@ -25,13 +24,11 @@ export const useWorldChat = (
   selectedRole?: string
 ) =>
   useChat({
-    transport: new DefaultChatTransport({
-      api: `${API_BASE_URL}/ai/chat`,
-      body: {
-        worldId,
-        channelId,
-        characterId: selectedCharacterId,
-        role: selectedRole,
-      },
-    }),
+    api: `${API_BASE_URL}/ai/chat`,
+    body: {
+      worldId,
+      channelId,
+      characterId: selectedCharacterId,
+      role: selectedRole,
+    },
   })

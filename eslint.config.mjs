@@ -11,7 +11,7 @@ export default [
   js.configs.recommended,
 
   // TypeScript configuration for all files
-  ...tseslint.configs.recommended,
+  ...tseslint.configs.recommendedTypeChecked,
 
   // Base configuration for all files
   {
@@ -19,11 +19,19 @@ export default [
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
     },
     rules: {
       // Common rules for all environments
       '@typescript-eslint/no-unused-vars': 'warn',
       '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-unsafe-assignment': 'warn',
+      '@typescript-eslint/no-unsafe-call': 'warn',
+      '@typescript-eslint/no-unsafe-member-access': 'warn',
+      '@typescript-eslint/no-unsafe-return': 'warn',
       'prefer-const': 'error',
       'no-var': 'error',
     },
@@ -129,6 +137,7 @@ export default [
       '**/.yarn/**',
       '**/.pnp.*',
       '**/coverage/**',
+      'eslint.config.mjs',
     ],
   },
 ]

@@ -1,5 +1,17 @@
-import { Box } from '@chakra-ui/react'
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
+import {
+  Box,
+  VStack,
+  HStack,
+  Text,
+  Textarea,
+  IconButton,
+  Avatar,
+  Flex,
+  Spinner,
+} from '@chakra-ui/react'
+import { Send, User, Bot } from 'lucide-react'
+import { type Message } from '@ai-sdk/react'
 import { useWorldChat } from '../services/aiService'
 
 interface AIChatSectionProps {
@@ -15,97 +27,210 @@ export function AIChatSection({
   selectedCharacterId,
   selectedRole,
 }: AIChatSectionProps) {
-  const { messages, sendMessage, status } = useWorldChat(
+  const [input, setInput] = useState('')
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  const { messages, isLoading, append } = useWorldChat(
     worldId,
     channelId,
     selectedCharacterId,
     selectedRole
   )
-  const [input, setInput] = useState('')
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages])
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!input.trim() || isLoading) return
+
+    const userMessage = input.trim()
+    setInput('')
+
+    await append({
+      role: 'user',
+      content: userMessage,
+    })
+  }
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleSubmit(e)
+    }
+  }
 
   return (
-    <>
-      {messages.map((message) => (
-        <div key={message.id}>
-          {message.role === 'user' ? 'User: ' : 'AI: '}
-          {message.parts.map((part, index) =>
-            part.type === 'text' ? <span key={index}>{part.text}</span> : null
-          )}
-        </div>
-      ))}
+    <Box
+      height="60%"
+      bg="gray.900"
+      border="1px solid"
+      borderColor="gray.700"
+      borderRadius="md"
+      display="flex"
+      flexDirection="column"
+    >
+      {/* Header */}
+      <Box
+        p={3}
+        borderBottom="1px solid"
+        borderColor="gray.700"
+        display="flex"
+        alignItems="center"
+        gap={2}
+      >
+        <Bot size={16} color="white" />
+        <Text color="white" fontWeight="medium" fontSize="sm">
+          AI 助手
+        </Text>
+      </Box>
 
-      <form
-        onSubmit={(e) => {
-          e.preventDefault()
-          if (input.trim()) {
-            sendMessage({ text: input })
-            setInput('')
-          }
+      {/* Messages Area */}
+      <Box
+        flex={1}
+        overflowY="auto"
+        p={4}
+        css={{
+          '&::-webkit-scrollbar': {
+            width: '4px',
+          },
+          '&::-webkit-scrollbar-track': {
+            width: '6px',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            background: 'gray.600',
+            borderRadius: '24px',
+          },
         }}
       >
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          disabled={status !== 'ready'}
-          placeholder="Say something..."
-        />
-        <button type="submit" disabled={status !== 'ready'}>
-          Submit
-        </button>
-      </form>
-    </>
+        <VStack gap={4} align="stretch">
+          {messages.length === 0 ? (
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              height="200px"
+              color="gray.400"
+              fontSize="sm"
+              textAlign="center"
+            >
+              开始与 AI 对话，探索游戏世界...
+            </Box>
+          ) : (
+            messages.map((message, index) => (
+              <MessageItem
+                key={index}
+                message={message}
+                isLoading={isLoading && index === messages.length - 1}
+              />
+            ))
+          )}
+          <div ref={messagesEndRef} />
+        </VStack>
+      </Box>
+
+      {/* Input Area */}
+      <Box
+        p={4}
+        borderTop="1px solid"
+        borderColor="gray.700"
+        bg="gray.800"
+        borderBottomRadius="md"
+      >
+        <form onSubmit={handleSubmit}>
+          <HStack gap={2}>
+            <Textarea
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyPress}
+              placeholder="询问 AI 关于游戏世界的任何问题..."
+              bg="gray.700"
+              border="1px solid"
+              borderColor="gray.600"
+              color="white"
+              _placeholder={{ color: 'gray.400' }}
+              _focus={{
+                borderColor: 'blue.500',
+                boxShadow: '0 0 0 1px var(--chakra-colors-blue-500)',
+              }}
+              resize="none"
+              rows={1}
+            />
+            <IconButton
+              type="submit"
+              size="md"
+              colorScheme="blue"
+              disabled={!input.trim() || isLoading}
+              loading={isLoading}
+            >
+              <Send size={16} />
+            </IconButton>
+          </HStack>
+        </form>
+      </Box>
+    </Box>
   )
 }
 
-function CustomChatMessages() {
-  const { messages, isLoading, append } = useChatUI()
+interface MessageItemProps {
+  message: Message
+  isLoading?: boolean
+}
+
+function MessageItem({ message, isLoading }: MessageItemProps) {
+  const isUser = message.role === 'user'
 
   return (
-    <ChatMessages>
-      <ChatMessages.List className="px-4 py-4 h-full overflow-y-auto">
-        {messages.length === 0 ? (
-          <Box
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            height="100%"
-            color="gray.400"
-            fontSize="sm"
-          >
-            开始与 AI 对话，探索游戏世界...
-          </Box>
-        ) : (
-          messages.map((message, index) => (
-            <Box key={index} mb={4}>
-              <ChatMessage
-                message={message}
-                isLast={index === messages.length - 1}
-                className="items-start"
-              >
-                <ChatMessage.Avatar>
-                  <Box
-                    width="32px"
-                    height="32px"
-                    borderRadius="full"
-                    bg={message.role === 'user' ? 'blue.600' : 'green.600'}
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    color="white"
-                    fontSize="sm"
-                    fontWeight="bold"
-                  >
-                    {message.role === 'user' ? '你' : 'AI'}
-                  </Box>
-                </ChatMessage.Avatar>
-                <ChatMessage.Content isLoading={isLoading} append={append}>
-                  <ChatMessage.Content.Markdown className="text-white prose prose-invert max-w-none" />
-                </ChatMessage.Content>
-              </ChatMessage>
-            </Box>
-          ))
+    <Flex
+      direction="row"
+      align="flex-start"
+      gap={3}
+      justify={isUser ? 'flex-end' : 'flex-start'}
+    >
+      {!isUser && (
+        <Avatar.Root size="sm" bg="green.600">
+          <Avatar.Fallback>
+            <Bot size={16} />
+          </Avatar.Fallback>
+        </Avatar.Root>
+      )}
+
+      <Box
+        maxWidth="75%"
+        bg={isUser ? 'blue.600' : 'gray.700'}
+        color="white"
+        px={4}
+        py={3}
+        borderRadius="lg"
+        borderTopLeftRadius={!isUser ? 'sm' : 'lg'}
+        borderTopRightRadius={isUser ? 'sm' : 'lg'}
+        position="relative"
+      >
+        <Text fontSize="sm" whiteSpace="pre-wrap">
+          {message.content}
+        </Text>
+        {isLoading && !isUser && (
+          <Flex align="center" gap={2} mt={2}>
+            <Spinner size="xs" />
+            <Text fontSize="xs" color="gray.300">
+              AI 正在思考...
+            </Text>
+          </Flex>
         )}
-      </ChatMessages.List>
-    </ChatMessages>
+      </Box>
+
+      {isUser && (
+        <Avatar.Root size="sm" bg="blue.600">
+          <Avatar.Fallback>
+            <User size={16} />
+          </Avatar.Fallback>
+        </Avatar.Root>
+      )}
+    </Flex>
   )
 }

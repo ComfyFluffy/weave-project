@@ -1,5 +1,5 @@
 import express from 'express'
-import { convertToModelMessages, ModelMessage, streamText, UIMessage } from 'ai'
+import { Message, streamText } from 'ai'
 import { openai } from '../services/aiService'
 import { getWorldState, getChannelMessages } from '../services/dataService'
 
@@ -15,7 +15,7 @@ router.post('/chat', async (req, res) => {
       characterId,
       role: playerRole,
     } = req.body as {
-      messages: UIMessage[]
+      messages: Message[]
       worldId: string
       channelId: string
       characterId: string
@@ -29,7 +29,7 @@ router.post('/chat', async (req, res) => {
       : []
 
     // Build context for AI
-    const contextMessages: ModelMessage[] = []
+    const contextMessages: Message[] = []
 
     // System message with world context
     const systemContext = buildSystemContext(
@@ -39,21 +39,29 @@ router.post('/chat', async (req, res) => {
       characterId
     )
     contextMessages.push({
+      id: 'system',
       role: 'system',
       content: systemContext,
     })
 
     // Add user messages
-    contextMessages.push(...convertToModelMessages(userMessages))
+    contextMessages.push(...userMessages)
+
+    console.log('AI chat context messages:', contextMessages)
 
     const result = streamText({
       model: openai,
       messages: contextMessages,
       temperature: 0.7,
-      maxOutputTokens: 1000,
     })
+    ;(async () => {
+      for await (const chunk of result.textStream) {
+        process.stdout.write(chunk)
+      }
+      console.log('\nStream completed.')
+    })()
 
-    return result.toUIMessageStreamResponse()
+    result.pipeDataStreamToResponse(res)
   } catch (error) {
     console.error('AI chat error:', error)
     res.status(500).json({ error: 'Failed to process AI chat request' })

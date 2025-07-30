@@ -5,30 +5,6 @@ __metadata:
   version: 8
   cacheKey: 10c0
 
-"@ai-sdk/gateway@npm:1.0.0-beta.17":
-  version: 1.0.0-beta.17
-  resolution: "@ai-sdk/gateway@npm:1.0.0-beta.17"
-  dependencies:
-    "@ai-sdk/provider": "npm:2.0.0-beta.1"
-    "@ai-sdk/provider-utils": "npm:3.0.0-beta.8"
-  peerDependencies:
-    zod: ^3.25.76 || ^4
-  checksum: 10c0/044d4292f41c1e53196e5a5ccda87fc6e96ff2f58bb7b455da2f89c1d1c2291a790bda93be3d886848b121fde7df102c1864c4416da9d4aaf060ac69e829341a
-  languageName: node
-  linkType: hard
-
-"@ai-sdk/openai@npm:2.0.0-beta.14":
-  version: 2.0.0-beta.14
-  resolution: "@ai-sdk/openai@npm:2.0.0-beta.14"
-  dependencies:
-    "@ai-sdk/provider": "npm:2.0.0-beta.1"
-    "@ai-sdk/provider-utils": "npm:3.0.0-beta.8"
-  peerDependencies:
-    zod: ^3.25.76 || ^4
-  checksum: 10c0/c8508f114a03832fa6ba0aa589769923ae4cfe80b8aca1ffa56b275d86c8dbc5df68e57e1139a2da7d0f1e659bb81f899ad5125d86ac7d6e86906e6bfe21f64c
-  languageName: node
-  linkType: hard
-
 "@ai-sdk/openai@npm:^1.3.23":
   version: 1.3.23
   resolution: "@ai-sdk/openai@npm:1.3.23"
@@ -54,35 +30,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ai-sdk/provider-utils@npm:3.0.0-beta.8":
-  version: 3.0.0-beta.8
-  resolution: "@ai-sdk/provider-utils@npm:3.0.0-beta.8"
-  dependencies:
-    "@ai-sdk/provider": "npm:2.0.0-beta.1"
-    "@standard-schema/spec": "npm:^1.0.0"
-    eventsource-parser: "npm:^3.0.3"
-    zod-to-json-schema: "npm:^3.24.1"
-  peerDependencies:
-    zod: ^3.25.76 || ^4
-  checksum: 10c0/ce8e1098f18c515d9f58d786c568323ee561466bf8397784a5da4509fb733462fb635cf76261d17c63bd48f911de3fbfd500c4d72456f1f67ba2f48ff5467e7f
-  languageName: node
-  linkType: hard
-
 "@ai-sdk/provider@npm:1.1.3":
   version: 1.1.3
   resolution: "@ai-sdk/provider@npm:1.1.3"
   dependencies:
     json-schema: "npm:^0.4.0"
   checksum: 10c0/40e080e223328e7c89829865e9c48f4ce8442a6a59f7ed5dfbdb4f63e8d859a76641e2d31e91970dd389bddb910f32ec7c3dbb0ce583c119e5a1e614ea7b8bc4
-  languageName: node
-  linkType: hard
-
-"@ai-sdk/provider@npm:2.0.0-beta.1":
-  version: 2.0.0-beta.1
-  resolution: "@ai-sdk/provider@npm:2.0.0-beta.1"
-  dependencies:
-    json-schema: "npm:^0.4.0"
-  checksum: 10c0/2d76518d2b3d5ac6a3838730032faea31e1bb5c5a526f40c6cb7e906c59a52a664b2b67e7420fe25611e9783e8a20f0241c8b922eee6f02bb49c1b4afd60f58b
   languageName: node
   linkType: hard
 
@@ -1200,13 +1153,6 @@ __metadata:
   version: 3.1.2
   resolution: "@socket.io/component-emitter@npm:3.1.2"
   checksum: 10c0/c4242bad66f67e6f7b712733d25b43cbb9e19a595c8701c3ad99cbeb5901555f78b095e24852f862fffb43e96f1d8552e62def885ca82ae1bb05da3668fd87d7
-  languageName: node
-  linkType: hard
-
-"@standard-schema/spec@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "@standard-schema/spec@npm:1.0.0"
-  checksum: 10c0/a1ab9a8bdc09b5b47aa8365d0e0ec40cc2df6437be02853696a0e377321653b0d3ac6f079a8c67d5ddbe9821025584b1fb71d9cc041a6666a96f1fadf2ece15f
   languageName: node
   linkType: hard
 
@@ -2564,22 +2510,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ai@npm:5.0.0-beta.32":
-  version: 5.0.0-beta.32
-  resolution: "ai@npm:5.0.0-beta.32"
-  dependencies:
-    "@ai-sdk/gateway": "npm:1.0.0-beta.17"
-    "@ai-sdk/provider": "npm:2.0.0-beta.1"
-    "@ai-sdk/provider-utils": "npm:3.0.0-beta.8"
-    "@opentelemetry/api": "npm:1.9.0"
-  peerDependencies:
-    zod: ^3.25.76 || ^4
-  bin:
-    ai: dist/bin/ai.min.js
-  checksum: 10c0/01cd1896fb9c75e9c0841e4457a8559488d5624eae19f3ec6db7ea16393224f599d2505f822f814665967e327f46d5d4cf93a852c38b73292184046993af35be
-  languageName: node
-  linkType: hard
-
 "ai@npm:^4.3.19":
   version: 4.3.19
   resolution: "ai@npm:4.3.19"
@@ -2789,12 +2719,12 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "backend@workspace:apps/backend"
   dependencies:
-    "@ai-sdk/openai": "npm:2.0.0-beta.14"
+    "@ai-sdk/openai": "npm:^1.3.23"
     "@types/cors": "npm:^2.8.19"
     "@types/express": "npm:^5.0.3"
     "@types/node": "npm:^24.1.0"
     "@weave/types": "workspace:^"
-    ai: "npm:5.0.0-beta.32"
+    ai: "npm:^4.3.19"
     cors: "npm:^2.8.5"
     dotenv: "npm:^17.2.1"
     express: "npm:^5.1.0"
@@ -3844,13 +3774,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eventsource-parser@npm:^3.0.3":
-  version: 3.0.3
-  resolution: "eventsource-parser@npm:3.0.3"
-  checksum: 10c0/2594011630efba56cafafc8ed6bd9a50db8f6d5dd62089b0950346e7961828c16efe07a588bdea3ba79e568fd9246c8163824a2ffaade767e1fdb2270c1fae0b
-  languageName: node
-  linkType: hard
-
 "exponential-backoff@npm:^3.1.1":
   version: 3.1.2
   resolution: "exponential-backoff@npm:3.1.2"
@@ -4058,7 +3981,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "frontend@workspace:apps/frontend"
   dependencies:
-    "@ai-sdk/openai": "npm:^1.3.23"
     "@ai-sdk/react": "npm:^1.2.12"
     "@chakra-ui/react": "npm:^3.22.0"
     "@emotion/react": "npm:^11.14.0"
