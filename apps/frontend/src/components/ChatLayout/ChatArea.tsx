@@ -9,10 +9,9 @@ import {
   Menu,
   Portal,
 } from '@chakra-ui/react'
-import { Send, Smile, Plus, Hash, User } from 'lucide-react'
+import { Send, Plus, Hash, User } from 'lucide-react'
 import { useState } from 'react'
 import { MessageList } from './MessageList'
-import { AISuggestionsModal } from '../AISuggestionsModal'
 import { useTypingIndicator } from '../../hooks/useTypingIndicator'
 import { TYPING_INDICATOR_TIMEOUT } from '../../constants/ui'
 import type { Message, Channel, PlayerCharacter } from '@weave/types'
@@ -251,38 +250,6 @@ export function ChatArea({
                 transform="translateY(-50%)"
                 gap={1}
               >
-                {/* AI Suggestions Button - Only show for GM */}
-                {selectedRole === 'gm' && worldId && channel && (
-                  <AISuggestionsModal
-                    worldId={worldId}
-                    channelId={channel.id}
-                    onUseSuggestion={handleUseSuggestion}
-                    mode="narrator"
-                  />
-                )}
-
-                {/* AI Suggestions Button - Only show for players with selected character */}
-                {selectedRole === 'player' &&
-                  worldId &&
-                  channel &&
-                  selectedCharacter && (
-                    <AISuggestionsModal
-                      worldId={worldId}
-                      channelId={channel.id}
-                      mode="player"
-                      characterName={selectedCharacter.name}
-                      onUseSuggestion={handleUseSuggestion}
-                    />
-                  )}
-
-                <IconButton
-                  size="sm"
-                  variant="ghost"
-                  color="gray.400"
-                  _hover={{ color: 'white' }}
-                >
-                  <Smile size={16} />
-                </IconButton>
                 <IconButton
                   size="sm"
                   variant="ghost"

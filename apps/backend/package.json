@@ -5,13 +5,16 @@
     "dev": "ts-node-dev --respawn --transpile-only ./src/index.ts"
   },
   "dependencies": {
+    "@ai-sdk/openai": "2.0.0-beta.14",
     "@weave/types": "workspace:^",
+    "ai": "5.0.0-beta.32",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "nanoid": "^5.1.5",
     "openai": "^5.10.2",
-    "socket.io": "^4.8.1"
+    "socket.io": "^4.8.1",
+    "zod": "^4.0.13"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",

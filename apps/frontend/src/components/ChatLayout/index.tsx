@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { WorldSidebar } from './WorldSidebar'
 import { ChannelSidebar } from './ChannelSidebar'
 import { ChatArea } from './ChatArea'
-import { MemberList } from './MemberList'
+import { AIWorldPanel } from '../AIWorldPanel'
 import {
   CharacterCreationModal,
   CharacterSelectionModal,
@@ -226,10 +226,13 @@ export function ChatLayout() {
         onOpenCharacterModal={handleOpenCharacterModal}
       />
 
-      {/* Member List */}
-      <MemberList
-        members={currentWorld?.members}
-        onOpenCharacterManagement={() => setShowCharacterSelection(true)}
+      {/* AI World Panel - World Data Viewer and AI Chat */}
+      <AIWorldPanel
+        worldData={currentWorld?.state}
+        worldId={selectedWorldId}
+        channelId={selectedChannelId}
+        selectedCharacterId={selectedCharacter?.id}
+        selectedRole={selectedRole}
       />
 
       {/* Character Selection Modal - opened through member list management button */}

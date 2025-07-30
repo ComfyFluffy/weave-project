@@ -1,170 +1,90 @@
 import express from 'express'
-import {
-  generateNarratorSuggestions,
-  generatePlayerSuggestions,
-  generateNPCDialogue,
-} from '../services/aiService'
-import { worlds, messages } from '../mock'
+import { convertToModelMessages, ModelMessage, streamText, UIMessage } from 'ai'
+import { openai } from '../services/aiService'
+import { getWorldState, getChannelMessages } from '../services/dataService'
 
 const router = express.Router()
 
-// Generate AI suggestions for narrator
-router.post('/narrator-suggestions', async (req, res) => {
+// AI Chat endpoint using AI SDK streaming
+router.post('/chat', async (req, res) => {
   try {
-    const { worldId, channelId, customInstruction } = req.body
-
-    if (!worldId || !channelId) {
-      return res
-        .status(400)
-        .json({ error: 'worldId and channelId are required' })
+    const {
+      messages: userMessages,
+      worldId,
+      channelId,
+      characterId,
+      role: playerRole,
+    } = req.body as {
+      messages: UIMessage[]
+      worldId: string
+      channelId: string
+      characterId: string
+      role: string
     }
 
-    // Find the world
-    const world = worlds.find((w) => w.id === worldId)
-    if (!world) {
-      return res.status(404).json({ error: 'World not found' })
-    }
+    // Get world context
+    const worldData = worldId ? await getWorldState(worldId) : null
+    const recentMessages = channelId
+      ? await getChannelMessages(channelId, 20)
+      : []
 
-    // Find the channel
-    const channel = world.channels.find((c) => c.id === channelId)
-    if (!channel) {
-      return res.status(404).json({ error: 'Channel not found' })
-    }
+    // Build context for AI
+    const contextMessages: ModelMessage[] = []
 
-    // Get recent messages for context
-    const channelMessages = messages[channelId] || []
-    const recentMessages = channelMessages.slice(-10) // Last 10 messages
-
-    // Prepare AI context
-    const context = {
-      worldState: world.state,
+    // System message with world context
+    const systemContext = buildSystemContext(
+      worldData,
       recentMessages,
-      channelName: channel.name,
-      customInstruction,
-    }
-
-    // Generate suggestions
-    const aiResponse = await generateNarratorSuggestions(context)
-
-    res.json({
-      success: true,
-      suggestions: aiResponse.suggestions,
-      reasoning: aiResponse.reasoning,
-      timestamp: new Date().toISOString(),
+      playerRole,
+      characterId
+    )
+    contextMessages.push({
+      role: 'system',
+      content: systemContext,
     })
+
+    // Add user messages
+    contextMessages.push(...convertToModelMessages(userMessages))
+
+    const result = streamText({
+      model: openai,
+      messages: contextMessages,
+      temperature: 0.7,
+      maxOutputTokens: 1000,
+    })
+
+    return result.toUIMessageStreamResponse()
   } catch (error) {
-    console.error('Error generating narrator suggestions:', error)
-    res.status(500).json({
-      error: 'Failed to generate suggestions',
-      message: error instanceof Error ? error.message : 'Unknown error',
-    })
+    console.error('AI chat error:', error)
+    res.status(500).json({ error: 'Failed to process AI chat request' })
   }
 })
 
-// Generate AI suggestions for player actions
-router.post('/player-suggestions', async (req, res) => {
-  try {
-    const { worldId, channelId, characterName, customInstruction } = req.body
+function buildSystemContext(
+  worldData: any,
+  recentMessages: any[],
+  role: string,
+  characterId?: string
+) {
+  return `你是一个专业的桌游助手，帮助玩家和游戏主持人管理和探索游戏世界。
 
-    if (!worldId || !channelId) {
-      return res
-        .status(400)
-        .json({ error: 'worldId and channelId are required' })
-    }
+角色信息：
+- 当前用户角色: ${role === 'gm' ? '游戏主持人 (GM)' : role === 'player' ? '玩家' : '观察者'}
+${characterId ? `- 当前角色ID: ${characterId}` : ''}
 
-    // Find the world
-    const world = worlds.find((w) => w.id === worldId)
-    if (!world) {
-      return res.status(404).json({ error: 'World not found' })
-    }
+游戏世界数据：
+${worldData ? JSON.stringify(worldData, null, 2) : '暂无世界数据'}
 
-    // Find the channel
-    const channel = world.channels.find((c) => c.id === channelId)
-    if (!channel) {
-      return res.status(404).json({ error: 'Channel not found' })
-    }
+最近的聊天记录：
+${
+  recentMessages.length > 0
+    ? recentMessages
+        .map((msg) => `${msg.characterName || msg.username}: ${msg.content}`)
+        .join('\n')
+    : '暂无聊天记录'
+}
 
-    // Get recent messages for context
-    const channelMessages = messages[channelId] || []
-    const recentMessages = channelMessages.slice(-10) // Last 10 messages
-
-    // Prepare AI context
-    const context = {
-      worldState: world.state,
-      recentMessages,
-      channelName: channel.name,
-      customInstruction,
-    }
-
-    // Generate player action suggestions
-    const aiResponse = await generatePlayerSuggestions(context, characterName)
-
-    res.json({
-      success: true,
-      suggestions: aiResponse.suggestions,
-      reasoning: aiResponse.reasoning,
-      characterName: characterName || null,
-      timestamp: new Date().toISOString(),
-    })
-  } catch (error) {
-    console.error('Error generating player suggestions:', error)
-    res.status(500).json({
-      error: 'Failed to generate player suggestions',
-      message: error instanceof Error ? error.message : 'Unknown error',
-    })
-  }
-})
-
-// Generate NPC dialogue
-router.post('/npc-dialogue', async (req, res) => {
-  try {
-    const { worldId, channelId, npcName, playerMessage } = req.body
-
-    if (!worldId || !channelId || !npcName || !playerMessage) {
-      return res.status(400).json({
-        error: 'worldId, channelId, npcName, and playerMessage are required',
-      })
-    }
-
-    // Find the world
-    const world = worlds.find((w) => w.id === worldId)
-    if (!world) {
-      return res.status(404).json({ error: 'World not found' })
-    }
-
-    // Find the channel
-    const channel = world.channels.find((c) => c.id === channelId)
-    if (!channel) {
-      return res.status(404).json({ error: 'Channel not found' })
-    }
-
-    // Get recent messages for context
-    const channelMessages = messages[channelId] || []
-    const recentMessages = channelMessages.slice(-10)
-
-    // Prepare AI context
-    const context = {
-      worldState: world.state,
-      recentMessages,
-      channelName: channel.name,
-    }
-
-    // Generate NPC dialogue
-    const dialogue = await generateNPCDialogue(npcName, context, playerMessage)
-
-    res.json({
-      success: true,
-      dialogue,
-      npcName,
-      timestamp: new Date().toISOString(),
-    })
-  } catch (error) {
-    console.error('Error generating NPC dialogue:', error)
-    res.status(500).json({
-      error: 'Failed to generate dialogue',
-      message: error instanceof Error ? error.message : 'Unknown error',
-    })
-  }
-})
+请基于以上信息回答用户的问题，提供有用的建议和信息。如果用户询问游戏规则、角色状态、世界设定等，请基于提供的数据进行回答。`
+}
 
 export default router
