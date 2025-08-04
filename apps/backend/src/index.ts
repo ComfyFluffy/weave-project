@@ -4,8 +4,8 @@ import express from 'express'
 import http from 'http'
 import cors from 'cors'
 import { Server } from 'socket.io'
-import type { Channel, Message, PlayerCharacter } from '@weave/types'
-import { worlds, messages } from './mock'
+import type { Message, User, Character } from '@weave/types'
+import { worlds, messages, users, characters, worldState } from './mock'
 import { nanoid } from 'nanoid'
 import aiRoutes from './routes/ai'
 
@@ -33,13 +33,13 @@ const io = new Server(server, {
 
 const PORT = 3001
 
-// Connected users
+// Connected users (active socket connections)
 const connectedUsers: {
   [socketId: string]: {
-    id: string
-    username: string
+    user: User
     worldId?: string
     selectedCharacterId?: string
+    isOnline: boolean
   }
 } = {}
 
@@ -53,15 +53,9 @@ app.get('/', (req, res) => {
   res.send('Weave Backend is running!')
 })
 
+// World endpoints
 app.get('/api/worlds', (req, res) => {
-  // Return simplified world list for sidebar
-  const worldList = worlds.map((world) => ({
-    id: world.id,
-    name: world.name,
-    avatar: getWorldAvatar(world.name),
-    hasNotification: hasUnreadMessages(world.id),
-  }))
-  res.json(worldList)
+  res.json(worlds)
 })
 
 app.get('/api/worlds/:worldId', (req, res) => {
@@ -72,9 +66,13 @@ app.get('/api/worlds/:worldId', (req, res) => {
   res.json(world)
 })
 
-app.get('/api/channels/:channelId/messages', (req, res) => {
-  const channelMessages = messages[req.params.channelId] || []
-  res.json(channelMessages)
+app.get('/api/worlds/:worldId/state', (req, res) => {
+  const { worldId } = req.params
+  if (worldId === '1') {
+    res.json(worldState)
+  } else {
+    res.status(404).json({ error: 'World state not found' })
+  }
 })
 
 // Channel endpoints
@@ -87,178 +85,109 @@ app.get('/api/worlds/:worldId/channels', (req, res) => {
   res.json(world.channels)
 })
 
-app.post('/api/worlds/:worldId/channels', (req, res) => {
-  const { worldId } = req.params
-  const { name, type, description } = req.body
-
-  const world = worlds.find((w) => w.id === worldId)
-  if (!world) {
-    return res.status(404).json({ error: 'World not found' })
-  }
-
-  const newChannel: Channel = {
-    id: `channel_${Date.now()}`,
-    name,
-    type: type || 'ic',
-    description,
-    createdBy: 'system', // In real app, this would be current user
-    createdAt: new Date(),
-  }
-
-  world.channels.push(newChannel)
-  res.status(201).json(newChannel)
-})
-
-app.delete('/api/worlds/:worldId/channels/:channelId', (req, res) => {
-  const { worldId, channelId } = req.params
-
-  const world = worlds.find((w) => w.id === worldId)
-  if (!world) {
-    return res.status(404).json({ error: 'World not found' })
-  }
-
-  const channelIndex = world.channels.findIndex((c) => c.id === channelId)
-  if (channelIndex === -1) {
-    return res.status(404).json({ error: 'Channel not found' })
-  }
-
-  // Prevent deletion of system channels
-  const channel = world.channels[channelIndex]
-  if (channel.type === 'announcement' || channel.type === 'rules') {
-    return res.status(400).json({ error: 'Cannot delete system channels' })
-  }
-
-  world.channels.splice(channelIndex, 1)
-  res.status(204).send()
+app.get('/api/channels/:channelId/messages', (req, res) => {
+  const channelMessages = messages[req.params.channelId] || []
+  res.json(channelMessages)
 })
 
 // Character endpoints
 app.get('/api/worlds/:worldId/characters', (req, res) => {
-  const worldId = req.params.worldId
-  const world = worlds.find((w) => w.id === worldId)
-
-  if (!world) {
-    return res.status(404).json({ error: 'World not found' })
+  const { worldId } = req.params
+  if (worldId === '1') {
+    res.json(characters)
+  } else {
+    res.status(404).json({ error: 'Characters not found' })
   }
-
-  const characters = Object.values(world.state.characters)
-  res.json(characters)
 })
 
 app.post('/api/worlds/:worldId/characters', (req, res) => {
-  const worldId = req.params.worldId
+  const { worldId } = req.params
   const characterData = req.body
 
-  const world = worlds.find((w) => w.id === worldId)
-  if (!world) {
+  if (worldId !== '1') {
     return res.status(404).json({ error: 'World not found' })
   }
 
   // Generate a new character ID
-  const characterId = `char:${nanoid()}`
-  const newCharacter: PlayerCharacter = {
+  const characterId = `char-${nanoid()}`
+  const newCharacter: Character = {
     id: characterId,
-    ...characterData,
+    name: characterData.name,
+    description: characterData.description,
+    is_npc: false,
+    avatar: characterData.avatar || '👤',
   }
 
-  // Add to world's characters
-  world.state.characters[characterId] = newCharacter
+  // Add to characters array
+  characters.push(newCharacter)
+
+  // Add character state to world state
+  worldState.character_states[characterId] = {
+    current_location_name: '金麦酒馆',
+    inventory: [],
+    health: characterData.health || 100,
+    mana: characterData.mana || 50,
+    attributes: characterData.attributes || {
+      strength: 10,
+      dexterity: 10,
+      constitution: 10,
+      intelligence: 10,
+      wisdom: 10,
+      charisma: 10,
+    },
+    properties: characterData.properties || {
+      class: characterData.class || '冒险者',
+      level: '1',
+    },
+    knowledge: [],
+    goals: characterData.goals || [],
+    secrets: [],
+  }
 
   res.status(201).json(newCharacter)
 })
 
-app.put('/api/worlds/:worldId/members/:socketId/character', (req, res) => {
-  const { worldId, socketId } = req.params
-  const { characterId } = req.body
+// User endpoints
+app.get('/api/users', (req, res) => {
+  res.json(users)
+})
 
-  const world = worlds.find((w) => w.id === worldId)
-  if (!world) {
-    return res.status(404).json({ error: 'World not found' })
+app.post('/api/users', (req, res) => {
+  const userData = req.body
+  const userId = `user-${nanoid()}`
+  const newUser: User = {
+    id: userId,
+    username: userData.username,
+    avatar: userData.avatar || '👤',
   }
 
-  const character = world.state.characters[characterId]
-  if (!character) {
-    return res.status(404).json({ error: 'Character not found' })
-  }
-
-  // Update connected user's selected character
-  if (connectedUsers[socketId]) {
-    connectedUsers[socketId].selectedCharacterId = characterId
-  }
-
-  // Update or create member in world
-  let member = world.members.find((m) => m.id === socketId)
-  if (!member) {
-    member = {
-      id: socketId,
-      username: connectedUsers[socketId]?.username || '玩家',
-      role: 'player',
-      isOnline: true,
-    }
-    world.members.push(member)
-  }
-  member.character = character
-
-  res.json({ success: true })
+  users.push(newUser)
+  res.status(201).json(newUser)
 }) // Helper functions
-function getWorldAvatar(worldName: string): string {
-  const avatars: { [key: string]: string } = {
-    龙与地下城: '🐉',
-    赛博朋克2077: '🤖',
-    克苏鲁的呼唤: '🐙',
-  }
-  return avatars[worldName] || '🌍'
-}
-
-function hasUnreadMessages(worldId: string): boolean {
-  // Simple logic: return true for world 1 to show notification
-  return worldId === '1'
-}
-
 function generateMessageId(): string {
-  return Date.now().toString() + Math.random().toString(36).substr(2, 9)
+  return `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
 }
 
-// Helper function to update world members list
-function updateWorldMember(
-  worldId: string,
+// Helper function to get or create user session
+function getUserSession(
   socketId: string,
-  isOnline: boolean = true
+  userData?: { username: string; avatar?: string }
 ) {
-  const world = worlds.find((w) => w.id === worldId)
-  const user = connectedUsers[socketId]
+  if (!connectedUsers[socketId] && userData) {
+    // Create new user session
+    const user: User = {
+      id: `temp-${socketId}`, // Temporary user for session
+      username: userData.username,
+      avatar: userData.avatar || '👤',
+    }
 
-  if (!world || !user) return
-
-  let member = world.members.find((m) => m.id === socketId)
-
-  if (!member && isOnline) {
-    // Create new member
-    member = {
-      id: socketId,
-      username: user.username,
-      role: 'player',
+    connectedUsers[socketId] = {
+      user,
       isOnline: true,
     }
-    world.members.push(member)
-  } else if (member) {
-    // Update existing member
-    member.isOnline = isOnline
-    member.username = user.username
-
-    // Add character if user has one selected
-    if (user.selectedCharacterId) {
-      const character = world.state.characters[user.selectedCharacterId]
-      if (character) {
-        member.character = character
-      }
-    }
   }
 
-  // Remove offline members after some time (immediate for demo)
-  if (!isOnline) {
-    world.members = world.members.filter((m) => m.id !== socketId)
-  }
+  return connectedUsers[socketId]
 }
 
 // Socket.IO event handlers
@@ -266,41 +195,38 @@ io.on('connection', (socket) => {
   console.log('A user connected:', socket.id)
 
   // User joins with basic info
-  socket.on('user:join', (userData: { username: string }) => {
-    connectedUsers[socket.id] = {
-      id: socket.id,
-      username: userData.username,
-    }
-    console.log(`User ${userData.username} joined`)
+  socket.on('user:join', (userData: { username: string; avatar?: string }) => {
+    const session = getUserSession(socket.id, userData)
+    console.log(`User ${session.user.username} joined`)
+
+    // Send user data back
+    socket.emit('user:data', session.user)
   })
 
   // User joins a world
   socket.on('world:join', (worldId: string) => {
-    if (connectedUsers[socket.id]) {
-      // Leave previous world room if any
-      if (connectedUsers[socket.id].worldId) {
-        const oldWorldId = connectedUsers[socket.id].worldId!
-        socket.leave(`world:${oldWorldId}`)
-        updateWorldMember(oldWorldId, socket.id, false) // Mark as offline in old world
-      }
+    const session = connectedUsers[socket.id]
+    if (!session) return
 
-      // Join new world room
-      socket.join(`world:${worldId}`)
-      connectedUsers[socket.id].worldId = worldId
+    // Leave previous world room if any
+    if (session.worldId) {
+      socket.leave(`world:${session.worldId}`)
+    }
 
-      // Update member list in new world
-      updateWorldMember(worldId, socket.id, true)
+    // Join new world room
+    socket.join(`world:${worldId}`)
+    session.worldId = worldId
 
-      console.log(
-        `User ${connectedUsers[socket.id].username} joined world ${worldId}`
-      )
+    console.log(`User ${session.user.username} joined world ${worldId}`)
 
-      // Send world data
-      const world = worlds.find((w) => w.id === worldId)
-      if (world) {
-        socket.emit('world:data', world)
-        // Broadcast updated member list to all users in world
-        io.to(`world:${worldId}`).emit('world:members-updated', world.members)
+    // Send world data
+    const world = worlds.find((w) => w.id === worldId)
+    if (world) {
+      socket.emit('world:data', world)
+
+      // Send world state if available
+      if (worldId === '1') {
+        socket.emit('world:state', worldState)
       }
     }
   })
@@ -327,23 +253,26 @@ io.on('connection', (socket) => {
     'message:send',
     (messageData: {
       channelId: string
-      worldId: string
       content: string
-      characterName?: string
+      characterId?: string
     }) => {
-      const user = connectedUsers[socket.id]
-      if (!user) return
+      const session = connectedUsers[socket.id]
+      if (!session) return
+
+      const { characterId } = messageData
+      const character = characterId
+        ? characters.find((c) => c.id === characterId)
+        : null
 
       const newMessage: Message = {
         id: generateMessageId(),
-        channelId: messageData.channelId,
-        worldId: messageData.worldId,
-        authorId: user.id,
-        authorName: user.username,
+        channel_id: messageData.channelId,
+        user_id: session.user.id,
+        character_id: character?.id,
+        type: character ? 'character' : 'system',
         content: messageData.content,
-        timestamp: new Date(),
-        type: 'user',
-        characterName: messageData.characterName,
+        created_at: new Date(),
+        character_name: character?.name,
       }
 
       // Store message
@@ -363,22 +292,22 @@ io.on('connection', (socket) => {
 
   // Typing indicators
   socket.on('typing:start', (channelId: string) => {
-    const user = connectedUsers[socket.id]
-    if (user) {
+    const session = connectedUsers[socket.id]
+    if (session) {
       socket.to(`channel:${channelId}`).emit('typing:user', {
-        userId: user.id,
-        username: user.username,
+        userId: session.user.id,
+        username: session.user.username,
         typing: true,
       })
     }
   })
 
   socket.on('typing:stop', (channelId: string) => {
-    const user = connectedUsers[socket.id]
-    if (user) {
+    const session = connectedUsers[socket.id]
+    if (session) {
       socket.to(`channel:${channelId}`).emit('typing:user', {
-        userId: user.id,
-        username: user.username,
+        userId: session.user.id,
+        username: session.user.username,
         typing: false,
       })
     }
@@ -388,50 +317,29 @@ io.on('connection', (socket) => {
   socket.on(
     'character:select',
     ({ worldId, characterId }: { worldId: string; characterId: string }) => {
-      const user = connectedUsers[socket.id]
-      if (!user) return
+      const session = connectedUsers[socket.id]
+      if (!session) return
 
-      const world = worlds.find((w) => w.id === worldId)
-      if (!world) return
-
-      const character = world.state.characters[characterId]
+      const character = characters.find((c) => c.id === characterId)
       if (!character) return
 
       // Update user's selected character
-      connectedUsers[socket.id].selectedCharacterId = characterId
-
-      // Update world member
-      updateWorldMember(worldId, socket.id, true)
-
-      // Broadcast updated member list
-      io.to(`world:${worldId}`).emit('world:members-updated', world.members)
+      session.selectedCharacterId = characterId
 
       console.log(
-        `User ${user.username} selected character ${character.name} in world ${worldId}`
+        `User ${session.user.username} selected character ${character.name} in world ${worldId}`
       )
+
+      // Emit character selection confirmation
+      socket.emit('character:selected', character)
     }
   )
 
   // Handle disconnect
   socket.on('disconnect', () => {
-    const user = connectedUsers[socket.id]
-    if (user) {
-      console.log(`User ${user.username} disconnected`)
-
-      // Update world member list if user was in a world
-      if (user.worldId) {
-        updateWorldMember(user.worldId, socket.id, false)
-
-        // Broadcast updated member list
-        const world = worlds.find((w) => w.id === user.worldId)
-        if (world) {
-          io.to(`world:${user.worldId}`).emit(
-            'world:members-updated',
-            world.members
-          )
-        }
-      }
-
+    const session = connectedUsers[socket.id]
+    if (session) {
+      console.log(`User ${session.user.username} disconnected`)
       delete connectedUsers[socket.id]
     }
   })

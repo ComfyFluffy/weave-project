@@ -1,178 +1,123 @@
-// World State Management Types
-export interface WorldState {
-  world_info: {
-    name: string
-    description: string
-    genre: string
-    themes: string[]
-    current_time: string
-    weather?: string
-  }
-  characters: Record<string, PlayerCharacter>
-  key_events_log: TimelineEvent[]
-  npc_status: Record<string, NPCState>
-  locations: Record<string, Location>
-  items: Record<string, Item>
-  active_plots: Plot[]
-  rules: Rule[]
-  lore: LoreEntry[]
+type Id = string // Each type with an ID is going to have a table in the database
+
+export interface User {
+  id: Id
+  username: string
+  avatar?: string
 }
 
-export interface TimelineEvent {
-  id: string
-  timestamp: Date
-  type: 'story' | 'combat' | 'social' | 'exploration' | 'system'
-  title: string
+export interface Channel {
+  id: Id
+  world_id: World['id']
+  name: string
+  type: 'announcement' | 'ooc' | 'ic'
+  description?: string
+  created_by?: User['id']
+  created_at?: Date
+  world_state_id: WorldState['id']
+  messages?: Message['id'][]
+}
+
+export interface World {
+  id: Id
+  name: string
   description: string
-  participants: string[]
-  location: string
+  tags: string[]
+  rules?: string
+  channels: Channel[]
+}
+
+// A potentially large object representing the state of the world. Can be bound to a specific world and multiple channels.
+// Stored directly in the database as a JSON object.
+export interface WorldState {
+  id: Id
+  world_id: World['id']
+  characters: Character[]
+  key_events_log: Event[]
+  character_states: Record<Character['id'], CharacterState>
+  locations: Location[]
+  plots: Plot[]
+  lore: LoreEntry[]
+  current_game_time: string // e.g., "1372年，夏末时节，傍晚"
+  outline?: string // Optional outline of the world or campaign. Can be updated by the GM/LLM.
+}
+
+export interface Event {
+  title: string
+  type: 'story' | 'combat' | 'social' | 'exploration' | 'system'
+  game_time: string // e.g., "1372年，夏末时节，傍晚"
+  description: string
+  participants: Character['id'][]
+  locations: Location['name'][]
   consequences: string[]
   importance: 'low' | 'medium' | 'high' | 'critical'
 }
 
-export interface NPCState {
-  id: string
-  name: string
-  description: string
-  current_location: string
-  personality_traits: string[]
-  relationships: Record<string, Relationship>
-  knowledge: string[]
-  goals: string[]
-  secrets: string[]
-  last_interaction: Date
-  disposition: 'hostile' | 'unfriendly' | 'neutral' | 'friendly' | 'allied'
-}
-
-export interface Relationship {
-  type:
-    | 'family'
-    | 'friend'
-    | 'rival'
-    | 'enemy'
-    | 'romantic'
-    | 'professional'
-    | 'acquaintance'
-  strength: number // -100 to 100
-  history: string[]
-  last_updated: Date
-}
-
 export interface Location {
-  id: string
   name: string
   description: string
-  type: 'town' | 'dungeon' | 'wilderness' | 'building' | 'other'
   connected_locations: string[]
   notable_features: string[]
   current_occupants: string[]
   hidden_secrets: string[]
-  danger_level: number
+  items: Item[] // IDs of items in this location
 }
 
+// TODO: Does this need to be an entry in the database?
 export interface Item {
-  id: string
   name: string
+  count: number
   description: string
-  type: 'weapon' | 'armor' | 'consumable' | 'tool' | 'treasure' | 'key_item'
-  properties: Record<string, unknown>
-  location: string // where it currently is
-  owner?: string // which character owns it
+  type: 'weapon' | 'armor' | 'consumable' | 'tool' | 'key_item' | 'misc'
+  rarity: 'common' | 'uncommon' | 'rare' | 'very_rare' | 'legendary'
+  properties: string[]
 }
 
 export interface Plot {
-  id: string
   title: string
   description: string
-  status: 'active' | 'completed' | 'failed' | 'paused'
-  participants: string[]
+  status: 'active' | 'completed' | 'paused'
+  participants: Character['id'][]
   key_events: string[]
   next_steps: string[]
-  deadline?: Date
   importance: 'main' | 'side' | 'personal'
 }
 
-export interface Rule {
-  id: string
-  name: string
-  description: string
-  category: 'combat' | 'social' | 'magic' | 'skill' | 'general'
-  conditions: string[]
-  effects: string[]
-  examples: string[]
-}
-
 export interface LoreEntry {
-  id: string
   title: string
   content: string
-  category:
-    | 'history'
-    | 'geography'
-    | 'culture'
-    | 'religion'
-    | 'magic'
-    | 'politics'
   tags: string[]
-  related_entries: string[]
   access_level: 'public' | 'gm_only' | 'player_discovered'
 }
 
-export interface PlayerCharacter {
-  id: string
-  name: string
-  class: string
-  hp: number
-  maxHp: number
-  location: string
-  inventory: string[]
-  relationships: Record<string, Relationship>
-  personal_goals: string[]
-  known_lore: string[] // IDs of lore entries this character knows
-  secrets: string[]
-}
-
-export interface World {
+export interface Character {
   id: string
   name: string
   description: string
-  channels: Channel[]
-  members: WorldMember[]
-  state: WorldState
+  is_npc: boolean
+  avatar?: string
 }
 
-export interface Channel {
-  id: string
-  name: string
-  type: 'announcement' | 'rules' | 'ooc' | 'ic'
-  description?: string
-  readonly?: boolean
-  createdBy?: string
-  createdAt?: Date
-}
-
-export interface WorldMember {
-  id: string // socket ID
-  username: string
-  character?: PlayerCharacter
-  role: 'player' | 'gm' | 'spectator'
-  isOnline: boolean
+export interface CharacterState {
+  current_location_name: string
+  inventory: Item[]
+  health: number
+  mana: number
+  attributes: Record<string, number> // e.g., strength, intelligence, etc.
+  properties: Record<string, string> // Additional properties like skills, feats, etc.
+  knowledge: string[]
+  goals: string[]
+  secrets: string[]
 }
 
 export interface Message {
-  id: string
-  channelId: string
-  worldId: string
-  authorId: string
-  authorName: string
+  id: Id
+  channel_id: Channel['id']
+  user_id: User['id']
+  character_id?: Character['id']
+  type: 'character' | 'character-action' | 'system' | 'ai' | 'gm'
   content: string
-  timestamp: Date
-  type: 'user' | 'system' | 'ai' | 'action'
-  characterName?: string
-}
-
-export interface User {
-  id: string
-  username: string
-  avatar?: string
+  created_at: Date
+  updated_at?: Date
+  character_name?: string
 }

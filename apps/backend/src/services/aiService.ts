@@ -1,5 +1,5 @@
 import { createOpenAI } from '@ai-sdk/openai'
-import { createProviderRegistry, generateText, tool } from 'ai'
+import { createProviderRegistry, streamText, tool } from 'ai'
 import z from 'zod'
 
 export const registry = createProviderRegistry({
@@ -16,7 +16,7 @@ export const openai = registry.languageModel(
 // Test
 console.log('OpenAI model initialized:', openai)
 void (async () => {
-  const result = await generateText({
+  const result = streamText({
     model: openai,
     prompt: 'What is the weather like in San Francisco?',
     maxRetries: 1,
@@ -39,11 +39,12 @@ void (async () => {
         },
       }),
     },
-    toolChoice: 'required',
+    toolChoice: 'auto',
+    maxSteps: 2,
   })
 
-  // for await (const chunk of textStream) {
-  //   process.stdout.write(chunk)
-  // }
-  console.log('\nStream completed.', result)
+  for await (const chunk of result.textStream) {
+    process.stdout.write(chunk)
+  }
+  console.log('\nStream completed.')
 })()
