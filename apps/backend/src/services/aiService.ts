@@ -1,5 +1,6 @@
 import { createOpenAI } from '@ai-sdk/openai'
-import { createProviderRegistry, streamText } from 'ai'
+import { createProviderRegistry, generateText, tool } from 'ai'
+import z from 'zod'
 
 export const registry = createProviderRegistry({
   openai: createOpenAI({
@@ -14,19 +15,35 @@ export const openai = registry.languageModel(
 
 // Test
 console.log('OpenAI model initialized:', openai)
-;(async () => {
-  const { textStream } = streamText({
+void (async () => {
+  const result = await generateText({
     model: openai,
-    messages: [
-      { role: 'system', content: 'You are a helpful assistant.' },
-      { role: 'user', content: 'How is the climate in France?' },
-    ],
+    prompt: 'What is the weather like in San Francisco?',
     maxRetries: 1,
-    maxTokens: 100,
+    // maxTokens: 100,
+    tools: {
+      weather: tool({
+        description: 'Get the weather in a location',
+        parameters: z.object({
+          location: z.string().describe('The location to get the weather for'),
+        }),
+        // eslint-disable-next-line @typescript-eslint/require-await
+        execute: async ({ location }) => {
+          const weather = {
+            location,
+            temperature: 72 + Math.floor(Math.random() * 21) - 10,
+          }
+
+          console.log('Weather tool executed:', weather)
+          return weather
+        },
+      }),
+    },
+    toolChoice: 'required',
   })
 
-  for await (const chunk of textStream) {
-    process.stdout.write(chunk)
-  }
-  console.log('\nStream completed.')
+  // for await (const chunk of textStream) {
+  //   process.stdout.write(chunk)
+  // }
+  console.log('\nStream completed.', result)
 })()

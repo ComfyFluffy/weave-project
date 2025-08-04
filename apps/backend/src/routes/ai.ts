@@ -54,7 +54,7 @@ router.post('/chat', async (req, res) => {
       messages: contextMessages,
       temperature: 0.7,
     })
-    ;(async () => {
+    void (async () => {
       for await (const chunk of result.textStream) {
         process.stdout.write(chunk)
       }
