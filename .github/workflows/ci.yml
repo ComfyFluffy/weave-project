@@ -23,30 +23,26 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
-
-      - name: Cache yarn dependencies
+      - name: Cache pnpm dependencies
         uses: actions/cache@v4
         with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-
+            ${{ runner.os }}-pnpm-
 
       - name: Install dependencies
-        run: yarn install --immutable
+        run: pnpm install --frozen-lockfile
 
       - name: Run ESLint
-        run: yarn lint
+        run: pnpm lint
 
       - name: Check Prettier formatting
-        run: yarn format:check
+        run: pnpm format:check
 
       - name: TypeScript compilation check
         run: |
           echo "Checking backend TypeScript compilation..."
-          cd apps/backend && yarn tsc --noEmit
+          cd apps/backend && pnpm tsc --noEmit
           echo "Checking frontend TypeScript compilation..."
-          cd ../frontend && yarn tsc --noEmit
+          cd ../frontend && pnpm tsc --noEmit
