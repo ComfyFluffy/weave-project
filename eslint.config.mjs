@@ -32,8 +32,10 @@ export default [
       '@typescript-eslint/no-unsafe-call': 'warn',
       '@typescript-eslint/no-unsafe-member-access': 'warn',
       '@typescript-eslint/no-unsafe-return': 'warn',
+      '@typescript-eslint/no-unsafe-argument': 'warn',
       'prefer-const': 'error',
       'no-var': 'error',
+      '@typescript-eslint/require-await': 'warn',
     },
   },
 
@@ -47,7 +49,7 @@ export default [
     },
     rules: {
       // Backend-specific rules
-      '@typescript-eslint/no-require-imports': 'off', // Allow require() in backend if needed
+      // '@typescript-eslint/no-require-imports': 'off', // Allow require() in backend if needed
     },
   },
 
