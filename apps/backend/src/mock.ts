@@ -121,7 +121,7 @@ export const characters: Character[] = [
   },
 ]
 
-//World State
+// World State
 export const worldState: WorldState = {
   id: 'ws-1',
   worldId: '1',
