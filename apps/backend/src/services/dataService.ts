@@ -1,4 +1,4 @@
-import { worlds, messages, worldState } from '../mock'
+import { messages, worldState } from '../mock'
 import { WorldState } from '@weave/types'
 
 export async function getWorldState(
@@ -20,7 +20,7 @@ export async function getChannelMessages(
   return channelMessages
     .sort(
       (a, b) =>
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     )
     .slice(0, limit)
     .reverse()

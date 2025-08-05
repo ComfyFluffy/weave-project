@@ -114,7 +114,7 @@ app.post('/api/worlds/:worldId/characters', (req, res) => {
     id: characterId,
     name: characterData.name,
     description: characterData.description,
-    is_npc: false,
+    isNpc: false,
     avatar: characterData.avatar || '👤',
   }
 
@@ -122,8 +122,8 @@ app.post('/api/worlds/:worldId/characters', (req, res) => {
   characters.push(newCharacter)
 
   // Add character state to world state
-  worldState.character_states[characterId] = {
-    current_location_name: '金麦酒馆',
+  worldState.characterStates[characterId] = {
+    currentLocationName: '金麦酒馆',
     inventory: [],
     health: characterData.health || 100,
     mana: characterData.mana || 50,
@@ -266,13 +266,13 @@ io.on('connection', (socket) => {
 
       const newMessage: Message = {
         id: generateMessageId(),
-        channel_id: messageData.channelId,
-        user_id: session.user.id,
-        character_id: character?.id,
+        channelId: messageData.channelId,
+        userId: session.user.id,
+        characterId: character?.id,
         type: character ? 'character' : 'system',
         content: messageData.content,
-        created_at: new Date(),
-        character_name: character?.name,
+        createdAt: new Date(),
+        characterName: character?.name,
       }
 
       // Store message

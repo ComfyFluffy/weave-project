@@ -8,14 +8,14 @@ export interface User {
 
 export interface Channel {
   id: Id
-  world_id: World['id']
+  worldId: World['id']
   name: string
   type: 'announcement' | 'ooc' | 'ic'
   description?: string
-  created_by?: User['id']
-  created_at?: Date
-  world_state_id: WorldState['id']
-  messages?: Message['id'][]
+  createdBy?: User['id']
+  createdAt?: Date
+  worldStateId: WorldState['id']
+  // messages?: Message['id'][] // Channel owns messages.
 }
 
 export interface World {
@@ -31,21 +31,23 @@ export interface World {
 // Stored directly in the database as a JSON object.
 export interface WorldState {
   id: Id
-  world_id: World['id']
+  worldId: World['id']
   characters: Character[]
-  key_events_log: Event[]
-  character_states: Record<Character['id'], CharacterState>
+  keyEventsLog: Event[]
+  characterStates: Record<Character['id'], CharacterState>
   locations: Location[]
+  items: Record<Item['key'], Item> // Changed from name to id
+  itemTemplates?: ItemTemplate[] // Optional templates
   plots: Plot[]
-  lore: LoreEntry[]
-  current_game_time: string // e.g., "1372年，夏末时节，傍晚"
+  lore: Lore[]
+  currentGameTime: string // e.g., "1372年，夏末时节，傍晚"
   outline?: string // Optional outline of the world or campaign. Can be updated by the GM/LLM.
 }
 
 export interface Event {
   title: string
-  type: 'story' | 'combat' | 'social' | 'exploration' | 'system'
-  game_time: string // e.g., "1372年，夏末时节，傍晚"
+  type: string // e.g., 'story', 'combat', 'social', 'exploration', 'system'
+  gameTime: string // e.g., "1372年，夏末时节，傍晚"
   description: string
   participants: Character['id'][]
   locations: Location['name'][]
@@ -56,21 +58,27 @@ export interface Event {
 export interface Location {
   name: string
   description: string
-  connected_locations: string[]
-  notable_features: string[]
-  current_occupants: string[]
-  hidden_secrets: string[]
-  items: Item[] // IDs of items in this location
+  connectedLocations: string[]
+  notableFeatures: string[]
+  currentOccupants: string[]
+  hiddenSecrets: string[]
+  items: Item['key'][] // Changed from name to key
 }
 
 // TODO: Does this need to be an entry in the database?
-export interface Item {
+export type Item = {
+  key: string // Unique identifier for each item instance
+  count?: number // Optional: for consumables or stackable items
+  templateName?: ItemTemplate['name'] // Optional: reference to item template for common items
+} & Partial<ItemTemplate> // Optional: can include properties from the template
+
+export interface ItemTemplate {
   name: string
-  count: number
   description: string
-  type: 'weapon' | 'armor' | 'consumable' | 'tool' | 'key_item' | 'misc'
-  rarity: 'common' | 'uncommon' | 'rare' | 'very_rare' | 'legendary'
-  properties: string[]
+  type: 'weapon' | 'armor' | 'consumable' | 'tool' | 'key-item' | 'misc'
+  rarity: 'common' | 'uncommon' | 'rare' | 'very-rare' | 'legendary'
+  properties: Record<string, string> // Default properties for this item type
+  stats: Record<string, number>
 }
 
 export interface Plot {
@@ -78,46 +86,50 @@ export interface Plot {
   description: string
   status: 'active' | 'completed' | 'paused'
   participants: Character['id'][]
-  key_events: string[]
-  next_steps: string[]
+  keyEvents: string[]
+  nextSteps: string[]
   importance: 'main' | 'side' | 'personal'
 }
 
-export interface LoreEntry {
+export interface Lore {
   title: string
   content: string
-  tags: string[]
-  access_level: 'public' | 'gm_only' | 'player_discovered'
+  accessLevel: 'public' | 'gm-only' | 'player-discovered'
 }
 
 export interface Character {
   id: string
   name: string
   description: string
-  is_npc: boolean
+  isNpc: boolean
   avatar?: string
 }
 
+export type StatValue = {
+  current: number
+  max?: number // Optional max value for stats like health, mana, etc.
+}
+
 export interface CharacterState {
-  current_location_name: string
-  inventory: Item[]
-  health: number
-  mana: number
+  currentLocationName: string
+  inventory: Item['key'][] // Changed to reference item keys instead of full objects
+  stats: Record<string, StatValue> // e.g., health, mana
   attributes: Record<string, number> // e.g., strength, intelligence, etc.
   properties: Record<string, string> // Additional properties like skills, feats, etc.
-  knowledge: string[]
-  goals: string[]
-  secrets: string[]
+  knowledge: Record<string, string[]> // e.g., spells known, languages spoken
+  goals: Record<string, string[]> // e.g., character goals, quests
+  secrets: Record<string, string[]> // e.g., hidden knowledge, personal secrets
+  discoveredLores: Lore['title'][] // Titles of discovered lore entries
 }
 
 export interface Message {
   id: Id
-  channel_id: Channel['id']
-  user_id: User['id']
-  character_id?: Character['id']
+  channelId: Channel['id']
+  userId?: User['id']
+  characterId?: Character['id']
   type: 'character' | 'character-action' | 'system' | 'ai' | 'gm'
   content: string
-  created_at: Date
-  updated_at?: Date
-  character_name?: string
+  createdAt: Date
+  updatedAt?: Date
+  characterName?: string
 }
