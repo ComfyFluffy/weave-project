@@ -1,6 +1,5 @@
 {
   "name": "backend",
-  "packageManager": "yarn@4.9.2",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only ./src/index.ts"
   },

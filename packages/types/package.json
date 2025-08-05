@@ -2,7 +2,6 @@
   "name": "@weave/types",
   "version": "1.0.0",
   "main": "src/index.ts",
-  "packageManager": "yarn@4.9.2",
   "scripts": {
     "build": "tsc"
   },
