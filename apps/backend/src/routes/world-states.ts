@@ -35,6 +35,27 @@ export function createWorldStateRoutes(dbService: DatabaseService) {
     }
   )
 
+  // GET /api/world-states/by-channel/:channelId - Get world state by channel ID
+  router.get(
+    '/by-channel/:channelId',
+    async (req: Request<{ channelId: string }>, res: Response) => {
+      try {
+        const worldState = await dbService.getWorldStateByChannelId(
+          req.params.channelId
+        )
+        if (!worldState) {
+          return res.status(404).json({ error: 'World state not found' })
+        }
+        res.json(worldState)
+      } catch (error) {
+        console.error('Error fetching world state by channel:', error)
+        res
+          .status(500)
+          .json({ error: 'Failed to fetch world state by channel' })
+      }
+    }
+  )
+
   // POST /api/world-states - Create new world state
   router.post('/', async (req: Request, res: Response) => {
     try {

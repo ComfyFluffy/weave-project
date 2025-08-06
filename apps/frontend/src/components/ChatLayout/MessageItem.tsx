@@ -16,7 +16,7 @@ export function MessageItem({ message, showAvatar }: MessageItemProps) {
     return (
       <Flex gap={3} py={2}>
         <Avatar.Root size="sm" bg={getAuthorColor(message.type)}>
-          <Avatar.Fallback name={message.authorName} />
+          <Avatar.Fallback name={message.characterName || 'User'} />
         </Avatar.Root>
         <Box flex={1}>
           <MessageHeader message={message} />
@@ -44,14 +44,12 @@ function MessageHeader({ message }: { message: Message }) {
         fontSize="sm"
         fontWeight="bold"
       >
-        {message.characterName
-          ? `${message.characterName} (${message.authorName})`
-          : message.authorName}
+        {message.characterName || 'User'}
       </Text>
       <Text color="gray.400" fontSize="xs">
-        {formatTimestamp(message.timestamp)}
+        {formatTimestamp(message.createdAt)}
       </Text>
-      {message.type !== 'user' && <MessageTypeBadge type={message.type} />}
+      {message.type !== 'system' && <MessageTypeBadge type={message.type} />}
     </Flex>
   )
 }

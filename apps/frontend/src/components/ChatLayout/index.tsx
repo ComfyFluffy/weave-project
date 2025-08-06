@@ -3,34 +3,27 @@ import { WorldSidebar } from './WorldSidebar'
 import { ChannelSidebar } from './ChannelSidebar'
 import { ChatArea } from './ChatArea'
 import { AIWorldPanel } from '../AIWorldPanel'
-import {
-  CharacterCreationModal,
-  CharacterSelectionModal,
-} from '../CharacterCreation'
 import { socketService } from '../../services/socketService'
 import type { UserRole } from '../RoleSelector'
 import {
   useWorlds,
   useWorld,
+  useWorldStates,
   useChannelMessages,
   useWorldCharacters,
   useCreateCharacter,
-  useSelectCharacter,
 } from '../../hooks/useQueries'
 import { useChannels } from '../../hooks/useChannels'
-import type { Message, PlayerCharacter } from '@weave/types'
+import type { Message, Character } from '@weave/types'
 import { Flex } from '@chakra-ui/react'
 
 export function ChatLayout() {
   const [selectedWorldId, setSelectedWorldId] = useState<string>('')
   const [selectedChannelId, setSelectedChannelId] = useState<string>('')
   const [selectedRole, setSelectedRole] = useState<UserRole>('player')
-  const [typingUsers, setTypingUsers] = useState<string[]>([])
-  const [currentSocketId] = useState<string>(
-    Math.random().toString(36).substr(2, 9)
-  ) // Generate socket ID
-  const [selectedCharacter, setSelectedCharacter] =
-    useState<PlayerCharacter | null>(null)
+  const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(
+    null
+  )
 
   // Modal states
   const [showCharacterSelection, setShowCharacterSelection] = useState(false)
@@ -39,6 +32,7 @@ export function ChatLayout() {
   // Use React Query hooks for data fetching
   const { data: worlds = [] } = useWorlds()
   const { data: currentWorld } = useWorld(selectedWorldId)
+  const { data: worldStates = [] } = useWorldStates(selectedWorldId)
   const { data: channels = [] } = useChannels(selectedWorldId)
   const { data: messages = [], refetch: refetchMessages } =
     useChannelMessages(selectedChannelId)
@@ -46,7 +40,6 @@ export function ChatLayout() {
 
   // Mutations
   const createCharacterMutation = useCreateCharacter()
-  const selectCharacterMutation = useSelectCharacter()
 
   const currentChannel = channels.find((c) => c.id === selectedChannelId)
 
@@ -69,16 +62,6 @@ export function ChatLayout() {
     socketService.onMessageHistory((_messageHistory: Message[]) => {
       // Refetch messages when history is updated
       refetchMessages()
-    })
-
-    socketService.onUserTyping((data) => {
-      setTypingUsers((prev) => {
-        if (data.typing) {
-          return [...prev.filter((u) => u !== data.username), data.username]
-        } else {
-          return prev.filter((u) => u !== data.username)
-        }
-      })
     })
 
     // Cleanup on unmount
@@ -105,7 +88,6 @@ export function ChatLayout() {
   useEffect(() => {
     if (selectedChannelId) {
       socketService.joinChannel(selectedChannelId)
-      setTypingUsers([]) // Clear typing indicators
       refetchMessages() // Refresh messages for the new channel
     }
   }, [selectedChannelId, refetchMessages])
@@ -118,29 +100,6 @@ export function ChatLayout() {
 
   const handleChannelSelect = (channelId: string) => {
     setSelectedChannelId(channelId)
-  }
-
-  const handleCreateCharacter = async (
-    character: Omit<PlayerCharacter, 'id'>
-  ) => {
-    if (!selectedWorldId) return
-
-    try {
-      const newCharacter = await createCharacterMutation.mutateAsync({
-        worldId: selectedWorldId,
-        character,
-      })
-
-      // Auto-select the newly created character
-      setSelectedCharacter(newCharacter)
-      await selectCharacterMutation.mutateAsync({
-        worldId: selectedWorldId,
-        socketId: currentSocketId,
-        characterId: newCharacter.id,
-      })
-    } catch (error) {
-      console.error('Failed to create character:', error)
-    }
   }
 
   const handleSendMessage = (content: string) => {
@@ -171,7 +130,7 @@ export function ChatLayout() {
     )
   }
 
-  const handleSelectCharacter = (character: PlayerCharacter | null) => {
+  const handleSelectCharacter = (character: Character | null) => {
     setSelectedCharacter(character)
     setShowCharacterSelection(false)
   }
@@ -189,7 +148,12 @@ export function ChatLayout() {
     <Flex height="100vh" width="100vw" bg="gray.900">
       {/* World/Server List */}
       <WorldSidebar
-        worlds={worlds}
+        worlds={worlds.map((world) => ({
+          id: world.id,
+          name: world.name,
+          avatar: '🌍', // Default world avatar
+          hasNotification: false,
+        }))}
         selectedWorldId={selectedWorldId}
         onWorldSelect={handleWorldSelect}
         onCreateWorld={handleCreateWorld}
@@ -210,49 +174,21 @@ export function ChatLayout() {
       <ChatArea
         channel={currentChannel}
         messages={messages}
-        typingUsers={typingUsers}
         worldCharacters={worldCharacters}
         selectedCharacter={selectedCharacter}
         selectedRole={selectedRole}
-        worldId={selectedWorldId}
         onSendMessage={handleSendMessage}
-        onStartTyping={() =>
-          selectedChannelId && socketService.startTyping(selectedChannelId)
-        }
-        onStopTyping={() =>
-          selectedChannelId && socketService.stopTyping(selectedChannelId)
-        }
         onSelectCharacter={handleSelectCharacter}
         onOpenCharacterModal={handleOpenCharacterModal}
       />
 
       {/* AI World Panel - World Data Viewer and AI Chat */}
       <AIWorldPanel
-        worldData={currentWorld?.state}
+        worldData={worldStates[0]} // Use the first world state
         worldId={selectedWorldId}
         channelId={selectedChannelId}
         selectedCharacterId={selectedCharacter?.id}
         selectedRole={selectedRole}
-      />
-
-      {/* Character Selection Modal - opened through member list management button */}
-      <CharacterSelectionModal
-        isOpen={showCharacterSelection}
-        onClose={() => setShowCharacterSelection(false)}
-        characters={worldCharacters}
-        selectedCharacterId={selectedCharacter?.id}
-        onSelectCharacter={handleSelectCharacter}
-        onCreateNew={() => {
-          setShowCharacterSelection(false)
-          setShowCharacterCreation(true)
-        }}
-      />
-
-      {/* Character Creation Modal */}
-      <CharacterCreationModal
-        isOpen={showCharacterCreation}
-        onClose={() => setShowCharacterCreation(false)}
-        onCreateCharacter={handleCreateCharacter}
       />
     </Flex>
   )

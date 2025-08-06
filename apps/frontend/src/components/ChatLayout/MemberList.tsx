@@ -8,11 +8,11 @@ import {
   IconButton,
 } from '@chakra-ui/react'
 import { Settings } from 'lucide-react'
-import { getRoleColor, getRoleLabel, getStatusColor } from '../../utils/ui'
-import type { WorldMember } from '@weave/types'
+import { getRoleColor, getRoleLabel } from '../../utils/ui'
+import type { User } from '@weave/types'
 
 interface MemberListProps {
-  members?: WorldMember[]
+  members?: User[]
   onOpenCharacterManagement?: () => void
 }
 
@@ -60,48 +60,13 @@ export function MemberList({
               transition="background 0.2s"
             >
               <Flex align="center" gap={3}>
-                <Avatar.Root size="sm" bg={getRoleColor(member.role)}>
+                <Avatar.Root size="sm" bg="blue.500">
                   <Avatar.Fallback name={member.username} />
                 </Avatar.Root>
                 <Box flex={1}>
-                  <Flex align="center" gap={2}>
-                    <Text color="white" fontSize="sm" fontWeight="medium">
-                      {member.username}
-                    </Text>
-                    <Badge
-                      size="xs"
-                      bg={getRoleColor(member.role)}
-                      color="white"
-                    >
-                      {getRoleLabel(member.role)}
-                    </Badge>
-                  </Flex>
-
-                  {member.character && (
-                    <VStack gap={1} align="stretch" mt={1}>
-                      <Text color="gray.300" fontSize="xs">
-                        角色: {member.character.name} ({member.character.class})
-                      </Text>
-                      <Flex align="center" gap={2}>
-                        <Text color="gray.400" fontSize="xs">
-                          HP:
-                        </Text>
-                        <Text
-                          color={getStatusColor(
-                            member.character.hp,
-                            member.character.maxHp
-                          )}
-                          fontSize="xs"
-                          fontWeight="medium"
-                        >
-                          {member.character.hp}/{member.character.maxHp}
-                        </Text>
-                      </Flex>
-                      <Text color="gray.400" fontSize="xs">
-                        位置: {member.character.location}
-                      </Text>
-                    </VStack>
-                  )}
+                  <Text color="white" fontSize="sm" fontWeight="medium">
+                    {member.username}
+                  </Text>
                 </Box>
               </Flex>
             </Box>

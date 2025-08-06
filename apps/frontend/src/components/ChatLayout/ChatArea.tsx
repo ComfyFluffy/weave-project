@@ -4,7 +4,6 @@ import {
   Text,
   Input,
   IconButton,
-  Badge,
   Button,
   Menu,
   Portal,
@@ -12,61 +11,46 @@ import {
 import { Send, Plus, Hash, User } from 'lucide-react'
 import { useState } from 'react'
 import { MessageList } from './MessageList'
-import { useTypingIndicator } from '../../hooks/useTypingIndicator'
-import { TYPING_INDICATOR_TIMEOUT } from '../../constants/ui'
-import type { Message, Channel, PlayerCharacter } from '@weave/types'
+import type { Message, Channel, Character } from '@weave/types'
 import type { UserRole } from '../RoleSelector'
 
 interface ChatAreaProps {
   channel?: Channel
   messages?: Message[]
-  typingUsers?: string[]
-  worldCharacters?: PlayerCharacter[]
-  selectedCharacter?: PlayerCharacter | null
   selectedRole: UserRole
-  worldId?: string
+  worldCharacters?: Character[]
+  selectedCharacter?: Character | null
   onSendMessage?: (content: string) => void
-  onStartTyping?: () => void
-  onStopTyping?: () => void
-  onSelectCharacter?: (character: PlayerCharacter | null) => void
+  onSelectCharacter?: (character: Character | null) => void
   onOpenCharacterModal?: () => void
 }
 
 export function ChatArea({
   channel,
   messages = [],
-  typingUsers = [],
+  selectedRole,
   worldCharacters = [],
   selectedCharacter,
-  selectedRole,
-  worldId,
   onSendMessage,
-  onStartTyping,
-  onStopTyping,
   onSelectCharacter,
   onOpenCharacterModal,
 }: ChatAreaProps) {
   const [messageInput, setMessageInput] = useState('')
-  const { handleTypingStart, handleTypingStop } = useTypingIndicator(
-    onStartTyping,
-    onStopTyping,
-    TYPING_INDICATOR_TIMEOUT
-  )
 
   // Default fallback channel
   const currentChannel: Channel = channel || {
     id: 'no-channel',
+    worldId: '',
     name: '选择一个频道',
     type: 'ooc',
     description: '请从左侧选择一个频道开始对话',
-    readonly: true,
+    worldStateId: '',
+    createdAt: new Date(),
   }
 
-  // Handle typing indicators
+  // Handle input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    setMessageInput(value)
-    handleTypingStart(value.trim().length > 0)
+    setMessageInput(e.target.value)
   }
 
   const handleSendMessage = () => {
@@ -76,9 +60,10 @@ export function ChatArea({
     }
   }
 
-  const handleUseSuggestion = (suggestion: string) => {
-    setMessageInput(suggestion)
-  }
+  // Remove unused suggestion handler for now
+  // const handleUseSuggestion = (suggestion: string) => {
+  //   setMessageInput(suggestion)
+  // }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -96,11 +81,6 @@ export function ChatArea({
           <Text fontWeight="bold" color="white" fontSize="lg">
             {currentChannel.name}
           </Text>
-          {currentChannel.readonly && (
-            <Badge bg="yellow.600" color="white" size="sm">
-              只读
-            </Badge>
-          )}
         </Flex>
         {currentChannel.description && (
           <Text color="gray.400" fontSize="sm" mt={1}>
@@ -112,23 +92,10 @@ export function ChatArea({
       {/* Messages Area */}
       <Box flex={1} overflow="hidden">
         <MessageList messages={messages} />
-
-        {/* Typing Indicators */}
-        {typingUsers.length > 0 && (
-          <Box px={4} py={2} bg="gray.750">
-            <Text color="gray.400" fontSize="sm">
-              {typingUsers.length === 1
-                ? `${typingUsers[0]} 正在输入...`
-                : typingUsers.length === 2
-                  ? `${typingUsers[0]} 和 ${typingUsers[1]} 正在输入...`
-                  : `${typingUsers.slice(0, -1).join(', ')} 和 ${typingUsers[typingUsers.length - 1]} 正在输入...`}
-            </Text>
-          </Box>
-        )}
       </Box>
 
       {/* Message Input */}
-      {!currentChannel.readonly && selectedRole !== 'spectator' && (
+      {selectedRole !== 'spectator' && (
         <Box p={4}>
           <Flex gap={2} align="flex-end">
             <IconButton
@@ -197,7 +164,7 @@ export function ChatArea({
                         >
                           <Text>{character.name}</Text>
                           <Text fontSize="xs" color="gray.400">
-                            {character.class}
+                            {character.description}
                           </Text>
                         </Flex>
                       </Menu.Item>

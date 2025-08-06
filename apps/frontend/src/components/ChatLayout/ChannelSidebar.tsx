@@ -4,7 +4,6 @@ import {
   Text,
   Button,
   Flex,
-  Badge,
   Menu,
   Portal,
   IconButton,
@@ -63,7 +62,7 @@ export function ChannelSidebar({
   }
 
   const canDeleteChannel = (channel: Channel) => {
-    return channel.type !== 'announcement' && channel.type !== 'rules'
+    return channel.type !== 'announcement'
   }
 
   return (
@@ -145,11 +144,6 @@ export function ChannelSidebar({
                         />
                         <Text>{channel.name}</Text>
                       </Flex>
-                      {channel.readonly && (
-                        <Badge size="xs" bg="yellow.600" color="white">
-                          只读
-                        </Badge>
-                      )}
                       {canDeleteChannel(channel) && selectedRole === 'gm' && (
                         <Menu.Root>
                           <Menu.Trigger asChild>

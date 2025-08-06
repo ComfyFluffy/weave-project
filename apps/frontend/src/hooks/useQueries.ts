@@ -1,11 +1,12 @@
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query'
 import { apiService } from '../services/apiService'
-import type { World, Message } from '@weave/types'
+import type { World, WorldState, Message } from '@weave/types'
 
 // Query keys
 export const queryKeys = {
   worlds: ['worlds'] as const,
   world: (worldId: string) => ['world', worldId] as const,
+  worldStates: (worldId: string) => ['worldStates', worldId] as const,
   channelMessages: (channelId: string) =>
     ['channelMessages', channelId] as const,
   worldCharacters: (worldId: string) => ['worldCharacters', worldId] as const,
@@ -28,6 +29,15 @@ export function useWorld(worldId: string | null) {
   })
 }
 
+// World states query
+export function useWorldStates(worldId: string | null) {
+  return useQuery({
+    queryKey: queryKeys.worldStates(worldId || ''),
+    queryFn: () => apiService.fetchWorldStatesByWorldId(worldId!),
+    enabled: !!worldId,
+  })
+}
+
 // Channel messages query
 export const useChannelMessages = (channelId: string) => {
   return useQuery({
@@ -43,7 +53,7 @@ export const useChannelMessages = (channelId: string) => {
 export const useWorldCharacters = (worldId: string) => {
   return useQuery({
     queryKey: queryKeys.worldCharacters(worldId),
-    queryFn: () => apiService.fetchWorldCharacters(worldId),
+    queryFn: () => apiService.fetchCharactersByWorldId(worldId),
     enabled: !!worldId,
     staleTime: 60000, // Characters update less frequently
   })
@@ -53,40 +63,13 @@ export const useCreateCharacter = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({
-      worldId,
-      character,
-    }: {
-      worldId: string
-      character: Parameters<typeof apiService.createCharacter>[1]
-    }) => apiService.createCharacter(worldId, character),
-    onSuccess: (_, { worldId }) => {
+    mutationFn: (character: Parameters<typeof apiService.createCharacter>[0]) =>
+      apiService.createCharacter(character),
+    onSuccess: (newCharacter) => {
       // Invalidate and refetch world characters
       queryClient.invalidateQueries({
-        queryKey: queryKeys.worldCharacters(worldId),
+        queryKey: queryKeys.worldCharacters(newCharacter.id),
       })
-      // Also invalidate world data to update member list and world state
-      queryClient.invalidateQueries({ queryKey: queryKeys.world(worldId) })
-    },
-  })
-}
-
-export const useSelectCharacter = () => {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: ({
-      worldId,
-      socketId,
-      characterId,
-    }: {
-      worldId: string
-      socketId: string
-      characterId: string
-    }) => apiService.selectCharacter(worldId, socketId, characterId),
-    onSuccess: (_, { worldId }) => {
-      // Invalidate world data to update member list with selected character
-      queryClient.invalidateQueries({ queryKey: queryKeys.world(worldId) })
     },
   })
 }

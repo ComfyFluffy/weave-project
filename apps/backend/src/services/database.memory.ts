@@ -74,6 +74,16 @@ export class MockDatabaseService implements DatabaseService {
     )
   }
 
+  async getWorldStateByChannelId(
+    channelId: string
+  ): Promise<WorldState | null> {
+    const result = await this.getChannelById(channelId)
+    if (result) {
+      return this.worldStates[result.channel.worldStateId] || null
+    }
+    return null
+  }
+
   async createWorldState(
     worldStateData: Omit<WorldState, 'id'>
   ): Promise<WorldState> {

@@ -52,21 +52,21 @@ export const formatTimestamp = (timestamp: Date) => {
 }
 
 export const shouldShowAvatar = (
-  currentMessage: { authorId: string; characterName?: string; timestamp: Date },
+  currentMessage: { userId?: string; characterName?: string; createdAt: Date },
   previousMessage: {
-    authorId: string
+    userId?: string
     characterName?: string
-    timestamp: Date
+    createdAt: Date
   } | null,
   timeThreshold: number = 300000
 ) => {
   if (!previousMessage) return true
 
   return (
-    previousMessage.authorId !== currentMessage.authorId ||
+    previousMessage.userId !== currentMessage.userId ||
     previousMessage.characterName !== currentMessage.characterName ||
-    new Date(currentMessage.timestamp).getTime() -
-      new Date(previousMessage.timestamp).getTime() >
+    new Date(currentMessage.createdAt).getTime() -
+      new Date(previousMessage.createdAt).getTime() >
       timeThreshold
   )
 }

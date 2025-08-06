@@ -20,6 +20,7 @@ export interface DatabaseService {
   // WorldState operations
   getWorldStateById(id: string): Promise<WorldState | null>
   getWorldStatesByWorldId(worldId: string): Promise<WorldState[]>
+  getWorldStateByChannelId(channelId: string): Promise<WorldState | null>
   createWorldState(worldState: Omit<WorldState, 'id'>): Promise<WorldState>
   updateWorldState(
     id: string,
