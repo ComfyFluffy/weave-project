@@ -1,4 +1,4 @@
-# 世界状态管理系统 - 实现计划
+# 世界状态管理系统 - 实现计划 (更新版)
 
 ## 当前状态分析
 
@@ -8,16 +8,23 @@
 - ✅ 基础的世界和频道管理
 - ✅ 角色选择和创建系统
 - ✅ 实时消息传递 (Socket.IO)
+- ✅ **完整的世界状态数据结构定义**
+- ✅ **内存数据库实现**
+- ✅ **示例数据集和完整的世界场景**
+- ✅ **完整的API路由系统**
+- ✅ **数据库服务层实现**
 
 ### 现有数据结构
 
-- 基础的 `WorldState` 接口已定义
-- 简单的角色、世界、消息类型
-- 内存数据存储 (mock.ts)
+- ✅ 基础的 `WorldState` 接口已定义
+- ✅ 完整的角色、世界、消息类型
+- ✅ 内存数据存储 (mock.ts) 已实现
+- ✅ 物品系统、剧情系统、事件日志等完整实现
+- ✅ 完整的API路由系统，支持所有实体的CRUD操作
 
 ## 下一步实现重点
 
-### 1. 扩展世界状态数据结构 ✅
+### 1. 扩展世界状态数据结构 ✅ (已完成)
 
 - [x] 更新 TypeScript 类型定义
 - [x] 包含所有新的实体类型 (NPCState, Location, Plot 等)
@@ -25,38 +32,59 @@
 
 ### 2. 实现基础的状态管理 API
 
-**优先级: 高**
+**优先级: 高** ✅ (已完成)
 
-#### 后端 API 路由
+#### 后端 API 路由 (完整实现)
 
 ```typescript
 // 获取世界状态
-GET /api/worlds/:id/state
+GET /api/world-states/:id
+
+// 更新世界状态 (完整替换)
+PUT /api/world-states/:id
 
 // 更新世界状态 (部分更新)
-PATCH /api/worlds/:id/state
+PATCH /api/world-states/:id
+
+// 删除世界状态
+DELETE /api/world-states/:id
 
 // 获取特定实体
-GET /api/worlds/:id/characters/:characterId
-GET /api/worlds/:id/npcs/:npcId
-GET /api/worlds/:id/locations/:locationId
+GET /api/world-states/:id/characters
+GET /api/world-states/:id/characters/:characterId
+GET /api/world-states/:id/locations
+GET /api/world-states/:id/locations/:locationName
+GET /api/world-states/:id/plots
+GET /api/world-states/:id/plots/:plotTitle
+GET /api/world-states/:id/events
 
 // 添加新实体
-POST /api/worlds/:id/events
-POST /api/worlds/:id/npcs
-POST /api/worlds/:id/plots
+POST /api/world-states/:id/characters
+POST /api/world-states/:id/locations
+POST /api/world-states/:id/plots
+POST /api/world-states/:id/events
+
+// 更新实体
+PUT /api/world-states/:id/characters/:characterId
+PUT /api/world-states/:id/locations/:locationName
+PUT /api/world-states/:id/plots/:plotTitle
+
+// 删除实体
+DELETE /api/world-states/:id/characters/:characterId
+DELETE /api/world-states/:id/locations/:locationName
+DELETE /api/world-states/:id/plots/:plotTitle
 ```
 
-#### 需要实现的功能
+#### 已实现的功能
 
-1. **状态读取服务**: 从内存/数据库获取世界状态
-2. **状态更新服务**: 支持部分更新，保持数据一致性
-3. **事件记录系统**: 自动记录重要的游戏事件
-4. **变更通知**: 通过 Socket.IO 实时通知状态变化
+1. ✅ **状态读取服务**: 从内存/数据库获取世界状态
+2. ✅ **状态更新服务**: 支持部分更新，保持数据一致性
+3. ✅ **事件记录系统**: 自动记录重要的游戏事件
+4. **变更通知**: 通过 Socket.IO 实时通知状态变化 (待实现)
 
 ### 3. 创建世界状态管理界面
 
-**优先级: 高**
+**优先级: 高** (进行中)
 
 #### GM 控制面板组件
 
@@ -78,6 +106,15 @@ POST /api/worlds/:id/plots
 - KnownLore: 已知传说/知识
 - RelationshipMap: 关系图
 ```
+
+#### 当前进度
+
+- [ ] WorldStateOverview: 世界状态总览
+- [ ] CharacterStatusPanel: 角色状态面板
+- [ ] NPCManager: NPC 管理器
+- [ ] EventTimeline: 事件时间线
+- [ ] PlotTracker: 剧情追踪器
+- [ ] LocationExplorer: 地点浏览器
 
 ### 4. 智能状态更新系统
 
@@ -114,33 +151,37 @@ POST /api/worlds/:id/plots
 
 ## 实现顺序 (接下来2周)
 
-### Week 1: 基础设施
+### Week 1: 基础设施 ✅ (已完成)
 
-1. **Day 1-2**: 更新后端 mock 数据以匹配新的类型定义
-2. **Day 3-4**: 实现基础的状态管理 API 路由
+1. **Day 1-2**: 完善后端 API 路由以匹配现有的类型定义 ✅
+2. **Day 3-4**: 实现状态管理服务层 ✅
 3. **Day 5-7**: 创建 GM 控制面板的基础组件结构
 
 ### Week 2: 功能实现
 
-1. **Day 8-10**: 实现世界状态的增删改查功能
+1. **Day 8-10**: 实现世界状态的增删改查功能 ✅
 2. **Day 11-12**: 添加实时状态同步 (Socket.IO)
 3. **Day 13-14**: 创建基础的状态管理界面
 
 ## 具体文件结构
 
-### 后端新增文件
+### 后端现有文件
 
 ```
 apps/backend/src/
 ├── services/
-│   ├── worldStateService.ts    # 世界状态管理服务
-│   ├── eventService.ts         # 事件记录服务
-│   └── notificationService.ts  # 实时通知服务
+│   ├── database.interface.ts   # 数据库服务接口
+│   ├── database.memory.ts      # 内存数据库实现
+│   └── aiService.ts            # AI服务
 ├── routes/
-│   └── worldState.ts          # 世界状态 API 路由
-└── utils/
-    ├── stateValidator.ts      # 状态验证工具
-    └── eventDetector.ts       # 事件检测工具
+│   ├── world-states.ts         # 世界状态 API 路由
+│   ├── characters.ts           # 角色 API 路由
+│   ├── items.ts                # 物品 API 路由
+│   ├── messages.ts             # 消息 API 路由
+│   ├── users.ts                # 用户 API 路由
+│   ├── worlds.ts               # 世界 API 路由
+│   └── ai.ts                   # AI API 路由
+└── mock.ts                     # 示例数据
 ```
 
 ### 前端新增文件
@@ -192,15 +233,15 @@ apps/frontend/src/
 ### 第一阶段目标 (2周后)
 
 - [x] 新的类型定义完全实现
-- [ ] 基础的状态 CRUD API 可用
+- [x] 基础的状态 CRUD API 可用
 - [ ] GM 可以通过界面查看和编辑世界状态
 - [ ] 状态变化能实时同步到所有客户端
 - [ ] 至少完成 3 个核心组件 (概览、角色面板、事件时间线)
 
 ### 验收标准
 
-1. GM 可以添加、编辑、删除 NPC
-2. 角色状态变化会自动记录到事件日志
+1. GM 可以添加、编辑、删除 NPC ✅
+2. 角色状态变化会自动记录到事件日志 ✅
 3. 玩家可以查看自己的角色详细信息
 4. 所有状态变化都会实时同步
 5. 界面响应速度 < 200ms
@@ -221,4 +262,4 @@ apps/frontend/src/
 
 ---
 
-这个实现计划将为项目奠定坚实的世界状态管理基础，为后续的 AI 集成和高级功能做好准备。
+这个更新后的实现计划反映了项目的实际进展，并为下一步开发提供了明确的指导。
