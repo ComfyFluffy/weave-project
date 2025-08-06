@@ -1,10 +1,4 @@
-import type {
-  WorldState,
-  Character,
-  Location,
-  Plot,
-  Event,
-} from '@weave/types'
+import type { WorldState, Character, Location, Plot, Event } from '@weave/types'
 import { apiService } from './apiService'
 
 class WorldStateService {

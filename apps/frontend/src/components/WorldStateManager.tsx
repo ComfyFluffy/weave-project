@@ -39,9 +39,12 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
   useEffect(() => {
     // Subscribe to world state updates
     socketService.subscribeToWorldState(worldStateId)
-    
+
     // Listen for updates
-    const handleWorldStateUpdate = (data: { worldStateId: string; worldState: any }) => {
+    const handleWorldStateUpdate = (data: {
+      worldStateId: string
+      worldState: any
+    }) => {
       if (data.worldStateId === worldStateId) {
         if (data.worldState === null) {
           // World state was deleted
@@ -52,9 +55,9 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
         }
       }
     }
-    
+
     socketService.onWorldStateUpdate(handleWorldStateUpdate)
-    
+
     // Cleanup
     return () => {
       socketService.unsubscribeFromWorldState(worldStateId)
@@ -104,62 +107,63 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
             刷新
           </Button>
         </HStack>
-        
+
         <HStack gap={2} borderBottom="1px solid" borderColor="gray.600" pb={2}>
-          <Button 
-            variant={activeTab === 'overview' ? 'solid' : 'outline'} 
-            colorPalette="purple" 
+          <Button
+            variant={activeTab === 'overview' ? 'solid' : 'outline'}
+            colorPalette="purple"
             size="sm"
             onClick={() => setActiveTab('overview')}
           >
             概览
           </Button>
-          <Button 
-            variant={activeTab === 'characters' ? 'solid' : 'outline'} 
-            colorPalette="purple" 
+          <Button
+            variant={activeTab === 'characters' ? 'solid' : 'outline'}
+            colorPalette="purple"
             size="sm"
             onClick={() => setActiveTab('characters')}
           >
             角色
           </Button>
-          <Button 
-            variant={activeTab === 'locations' ? 'solid' : 'outline'} 
-            colorPalette="purple" 
+          <Button
+            variant={activeTab === 'locations' ? 'solid' : 'outline'}
+            colorPalette="purple"
             size="sm"
             onClick={() => setActiveTab('locations')}
           >
             地点
           </Button>
-          <Button 
-            variant={activeTab === 'plots' ? 'solid' : 'outline'} 
-            colorPalette="purple" 
+          <Button
+            variant={activeTab === 'plots' ? 'solid' : 'outline'}
+            colorPalette="purple"
             size="sm"
             onClick={() => setActiveTab('plots')}
           >
             剧情
           </Button>
         </HStack>
-        
+
         <Box height="calc(100% - 80px)" overflowY="auto">
           {activeTab === 'overview' && (
             <WorldStateOverview worldState={worldState} />
           )}
-          
+
           {activeTab === 'characters' && (
             <VStack align="stretch" gap={3}>
               {worldState.characters.map((character) => {
-                const characterState = worldState.characterStates?.[character.id]
+                const characterState =
+                  worldState.characterStates?.[character.id]
                 if (!characterState) return null
-                
+
                 return (
-                  <CharacterStatusPanel 
-                    key={character.id} 
-                    character={character} 
-                    state={characterState} 
+                  <CharacterStatusPanel
+                    key={character.id}
+                    character={character}
+                    state={characterState}
                   />
                 )
               })}
-              
+
               {worldState.characters.length === 0 && (
                 <Text color="gray.500" textAlign="center" py={4}>
                   暂无角色数据
@@ -167,11 +171,11 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
               )}
             </VStack>
           )}
-          
+
           {activeTab === 'locations' && (
             <LocationsExplorer locations={worldState.locations || []} />
           )}
-          
+
           {activeTab === 'plots' && (
             <PlotsTracker plots={worldState.plots || []} />
           )}

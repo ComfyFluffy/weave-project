@@ -36,6 +36,7 @@ To simplify database management for complex, flexible data structures, all compl
 4. **Type Safety**: Maintained at the application layer through TypeScript
 
 Specifically, these fields in `WorldState` are stored together in a single `data` JSON field:
+
 - `keyEventsLog` (Event[])
 - `locations` (Location[])
 - `plots` (Plot[])

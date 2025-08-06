@@ -9,6 +9,7 @@
 **注意：此文档已更新以反映当前的实际实现状态，而非原始计划。**
 
 系统目前已完成基础架构实现：
+
 - [x] 定义完整的核心数据结构（位于 `packages/types`）
 - [x] 实现基础的状态存储和检索（内存数据库）
 - [x] 创建完整的示例数据集和世界场景
@@ -39,30 +40,30 @@ interface WorldState {
   // 基础世界信息
   id: string
   worldId: string
-  
+
   // 角色状态管理
   characters: Character[]
   characterStates: Record<Character['id'], CharacterState>
-  
+
   // 重要事件日志
   keyEventsLog: TimelineEvent[]
-  
+
   // 地点和场景信息
   locations: Location[]
-  
+
   // 物品和道具
   items: Record<Item['key'], Item>
   itemTemplates?: ItemTemplate[]
-  
+
   // 活跃的剧情线
   plots: Plot[]
-  
+
   // 世界规则和机制
   lore: Lore[]
-  
+
   // 游戏时间
   currentGameTime: string
-  
+
   // 世界概述
   outline?: string
 }
@@ -73,6 +74,7 @@ interface WorldState {
 #### 当前实现
 
 目前系统使用内存数据库实现，具备完整的 CRUD 操作能力：
+
 - 世界状态的创建、读取、更新、删除
 - 角色、物品、地点等实体的独立管理
 - 事件日志的自动记录
@@ -114,6 +116,7 @@ interface WorldState {
 ### 1. 角色状态追踪
 
 已实现的字段包括：
+
 - **基础属性**: HP、MP、经验值、等级等
 - **位置追踪**: 当前位置、移动历史
 - **物品管理**: 装备、消耗品、关键物品
@@ -140,6 +143,7 @@ interface Event {
 ### 3. NPC 管理系统
 
 通过通用的 `Character` 接口实现，通过 `isNpc` 字段区分：
+
 - 角色基本信息（名称、描述、头像）
 - NPC 特有属性通过 `CharacterState` 管理
 
@@ -199,6 +203,7 @@ type Item = {
 ### 1. GM 控制面板
 
 计划中的功能模块：
+
 - **世界状态概览**: 显示关键信息摘要
 - **角色状态面板**: 实时查看所有角色状态
 - **事件时间线**: 可视化重要事件序列
@@ -208,6 +213,7 @@ type Item = {
 ### 2. 玩家视图
 
 计划中的功能模块：
+
 - **角色面板**: 查看自己的角色状态
 - **已知信息**: 角色已获得的知识和线索
 - **关系图**: 与其他角色和 NPC 的关系
@@ -216,6 +222,7 @@ type Item = {
 ### 3. 智能助手集成
 
 计划中的功能：
+
 - **状态查询**: 通过自然语言查询世界状态
 - **建议生成**: 基于当前状态生成剧情建议
 - **一致性检查**: 自动检测状态矛盾并提醒

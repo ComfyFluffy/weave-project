@@ -7,19 +7,32 @@ interface WorldStateOverviewProps {
 
 export function WorldStateOverview({ worldState }: WorldStateOverviewProps) {
   return (
-    <Box bg="gray.800" p={4} borderRadius="md" borderWidth="1px" borderColor="gray.600">
+    <Box
+      bg="gray.800"
+      p={4}
+      borderRadius="md"
+      borderWidth="1px"
+      borderColor="gray.600"
+    >
       <VStack align="stretch" gap={4}>
         <HStack justify="space-between">
           <Text fontSize="lg" fontWeight="bold" color="white">
             世界状态概览
           </Text>
-          <Box bg="purple.500" color="white" px={2} py={1} borderRadius="sm" fontSize="sm">
+          <Box
+            bg="purple.500"
+            color="white"
+            px={2}
+            py={1}
+            borderRadius="sm"
+            fontSize="sm"
+          >
             GM 面板
           </Box>
         </HStack>
-        
+
         <Box height="1px" bg="gray.600" />
-        
+
         <VStack align="stretch" gap={3}>
           <HStack justify="space-between">
             <Text fontSize="sm" color="gray.400">
@@ -29,7 +42,7 @@ export function WorldStateOverview({ worldState }: WorldStateOverviewProps) {
               {worldState.currentGameTime}
             </Text>
           </HStack>
-          
+
           <HStack justify="space-between">
             <Text fontSize="sm" color="gray.400">
               角色数量:
@@ -38,7 +51,7 @@ export function WorldStateOverview({ worldState }: WorldStateOverviewProps) {
               {worldState.characters.length}
             </Text>
           </HStack>
-          
+
           <HStack justify="space-between">
             <Text fontSize="sm" color="gray.400">
               地点数量:
@@ -47,26 +60,30 @@ export function WorldStateOverview({ worldState }: WorldStateOverviewProps) {
               {worldState.locations.length}
             </Text>
           </HStack>
-          
+
           <HStack justify="space-between">
             <Text fontSize="sm" color="gray.400">
               活跃剧情:
             </Text>
             <Text fontSize="sm" color="white">
-              {worldState.plots.filter(p => p.status === 'active').length}
+              {worldState.plots.filter((p) => p.status === 'active').length}
             </Text>
           </HStack>
-          
+
           <HStack justify="space-between">
             <Text fontSize="sm" color="gray.400">
               重要事件:
             </Text>
             <Text fontSize="sm" color="white">
-              {worldState.keyEventsLog.filter(e => e.importance === 'critical' || e.importance === 'high').length}
+              {
+                worldState.keyEventsLog.filter(
+                  (e) => e.importance === 'critical' || e.importance === 'high'
+                ).length
+              }
             </Text>
           </HStack>
         </VStack>
-        
+
         {worldState.outline && (
           <>
             <Box height="1px" bg="gray.600" />

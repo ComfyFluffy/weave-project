@@ -109,7 +109,9 @@ class SocketService {
     this.socket?.emit('world-state:unsubscribe', { worldStateId })
   }
 
-  onWorldStateUpdate(callback: (data: { worldStateId: string; worldState: any }) => void) {
+  onWorldStateUpdate(
+    callback: (data: { worldStateId: string; worldState: any }) => void
+  ) {
     this.socket?.on('world-state:updated', callback)
   }
 

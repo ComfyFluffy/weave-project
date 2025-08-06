@@ -35,43 +35,43 @@ export function AIWorldPanel({
       flexDirection="column"
     >
       <HStack gap={2} borderBottom="1px solid" borderColor="gray.600" p={2}>
-        <Button 
-          variant={activeTab === 'worldState' ? 'solid' : 'outline'} 
-          colorPalette="purple" 
+        <Button
+          variant={activeTab === 'worldState' ? 'solid' : 'outline'}
+          colorPalette="purple"
           size="sm"
           onClick={() => setActiveTab('worldState')}
         >
           世界状态
         </Button>
-        <Button 
-          variant={activeTab === 'context' ? 'solid' : 'outline'} 
-          colorPalette="purple" 
+        <Button
+          variant={activeTab === 'context' ? 'solid' : 'outline'}
+          colorPalette="purple"
           size="sm"
           onClick={() => setActiveTab('context')}
         >
           AI 上下文
         </Button>
-        <Button 
-          variant={activeTab === 'chat' ? 'solid' : 'outline'} 
-          colorPalette="purple" 
+        <Button
+          variant={activeTab === 'chat' ? 'solid' : 'outline'}
+          colorPalette="purple"
           size="sm"
           onClick={() => setActiveTab('chat')}
         >
           AI 聊天
         </Button>
       </HStack>
-      
+
       <Box flex={1} overflow="hidden">
         {activeTab === 'worldState' && worldStateId && (
           <WorldStateManager worldStateId={worldStateId} />
         )}
-        
+
         {activeTab === 'context' && (
           <Box height="100%" p={4}>
             <WorldDataViewer worldData={worldData} />
           </Box>
         )}
-        
+
         {activeTab === 'chat' && (
           <Box height="100%" p={4}>
             <AIChatSection
