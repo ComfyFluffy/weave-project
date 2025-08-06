@@ -100,8 +100,21 @@ class SocketService {
     this.socket?.on('typing:user', callback)
   }
 
+  // World state operations
+  subscribeToWorldState(worldStateId: string) {
+    this.socket?.emit('world-state:subscribe', { worldStateId })
+  }
+
+  unsubscribeFromWorldState(worldStateId: string) {
+    this.socket?.emit('world-state:unsubscribe', { worldStateId })
+  }
+
+  onWorldStateUpdate(callback: (data: { worldStateId: string; worldState: any }) => void) {
+    this.socket?.on('world-state:updated', callback)
+  }
+
   // Remove event listeners
-  off(event: string, callback?: (...args: unknown[]) => void) {
+  off(event: string, callback?: (...args: any[]) => void) {
     this.socket?.off(event, callback)
   }
 }

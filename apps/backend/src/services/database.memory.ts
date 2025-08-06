@@ -78,7 +78,7 @@ export class MockDatabaseService implements DatabaseService {
     channelId: string
   ): Promise<WorldState | null> {
     const result = await this.getChannelById(channelId)
-    if (result) {
+    if (result && result.channel.worldStateId) {
       return this.worldStates[result.channel.worldStateId] || null
     }
     return null
