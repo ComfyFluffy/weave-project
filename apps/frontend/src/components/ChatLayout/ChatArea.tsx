@@ -10,6 +10,7 @@ import {
 } from '@chakra-ui/react'
 import { Send, Plus, Hash, User } from 'lucide-react'
 import { useState } from 'react'
+// 导入消息列表组件，该组件负责渲染消息内容，包括Markdown格式的消息
 import { MessageList } from './MessageList'
 import type { Message, Channel, Character } from '@weave/types'
 import type { UserRole } from '../RoleSelector'
@@ -37,7 +38,7 @@ export function ChatArea({
 }: ChatAreaProps) {
   const [messageInput, setMessageInput] = useState('')
 
-  // Default fallback channel
+  // 默认频道，当没有选择频道时显示
   const currentChannel: Channel = channel || {
     id: 'no-channel',
     worldId: '',
@@ -48,23 +49,21 @@ export function ChatArea({
     createdAt: new Date(),
   }
 
-  // Handle input changes
+  // 处理输入框内容变化
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMessageInput(e.target.value)
   }
 
+  // 发送消息处理函数
   const handleSendMessage = () => {
     if (messageInput.trim() && onSendMessage) {
+      // 调用父组件传递的发送消息函数
       onSendMessage(messageInput.trim())
       setMessageInput('')
     }
   }
 
-  // Remove unused suggestion handler for now
-  // const handleUseSuggestion = (suggestion: string) => {
-  //   setMessageInput(suggestion)
-  // }
-
+  // 处理键盘事件，回车发送消息
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
@@ -74,7 +73,7 @@ export function ChatArea({
 
   return (
     <Flex direction="column" flex={1} bg="gray.700">
-      {/* Channel Header */}
+      {/* 频道头部信息 */}
       <Box p={4} borderBottom="1px solid" borderColor="gray.600" bg="gray.750">
         <Flex align="center" gap={2}>
           <Hash size={20} color="#9ca3af" />
@@ -89,12 +88,12 @@ export function ChatArea({
         )}
       </Box>
 
-      {/* Messages Area */}
+      {/* 消息显示区域，使用MessageList组件渲染消息内容，包括Markdown格式的消息 */}
       <Box flex={1} overflow="hidden">
         <MessageList messages={messages} />
       </Box>
 
-      {/* Message Input */}
+      {/* 消息输入区域 */}
       {selectedRole !== 'spectator' && (
         <Box p={4}>
           <Flex gap={2} align="flex-end">
@@ -107,7 +106,7 @@ export function ChatArea({
               <Plus size={20} />
             </IconButton>
 
-            {/* Character Selector - Modified for GM role */}
+            {/* 角色选择器 - 为游戏主持人角色修改 */}
             <Menu.Root>
               <Menu.Trigger asChild>
                 <Button
@@ -133,7 +132,7 @@ export function ChatArea({
               <Portal>
                 <Menu.Positioner>
                   <Menu.Content bg="gray.800" borderColor="gray.600">
-                    {/* GM can post as GM without character */}
+                    {/* 游戏主持人可以不选择角色直接发布消息 */}
                     {selectedRole === 'gm' && (
                       <Menu.Item
                         value="gm"
@@ -170,7 +169,7 @@ export function ChatArea({
                       </Menu.Item>
                     ))}
 
-                    {/* Only allow character creation for players and GMs */}
+                    {/* 仅允许玩家和游戏主持人创建角色 */}
                     {(selectedRole === 'player' || selectedRole === 'gm') && (
                       <Menu.Item
                         value="create-new"
@@ -226,6 +225,12 @@ export function ChatArea({
                   }}
                   onClick={handleSendMessage}
                   disabled={!messageInput.trim()}
+                  css={{
+                    transition: 'all 0.2s ease-in-out',
+                    '&:active': {
+                      transform: 'scale(0.95)'
+                    }
+                  }}
                 >
                   <Send size={16} />
                 </IconButton>
@@ -235,7 +240,7 @@ export function ChatArea({
         </Box>
       )}
 
-      {/* Spectator notice */}
+      {/* 观察者模式提示 */}
       {selectedRole === 'spectator' && (
         <Box p={4} bg="gray.750" borderTop="1px solid" borderColor="gray.700">
           <Text color="gray.400" fontSize="sm" textAlign="center">

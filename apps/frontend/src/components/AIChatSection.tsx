@@ -13,6 +13,8 @@ import {
 import { Send, User, Bot } from 'lucide-react'
 import { type Message } from '@ai-sdk/react'
 import { useWorldChat } from '../services/aiService'
+// 导入统一的Markdown组件，用于优化性能，避免重复渲染相同内容
+import { UnifiedMarkdownRenderer } from './ChatLayout/UnifiedMarkdownRenderer'
 
 interface AIChatSectionProps {
   worldId: string
@@ -52,16 +54,20 @@ export function AIChatSection({
     const userMessage = input.trim()
     setInput('')
 
-    await append({
-      role: 'user',
-      content: userMessage,
-    })
+    try {
+      await append({
+        role: 'user',
+        content: userMessage,
+      })
+    } catch (error) {
+      console.error('Error sending message:', error)
+    }
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
-      handleSubmit(e)
+      void handleSubmit(e)
     }
   }
 
@@ -142,7 +148,11 @@ export function AIChatSection({
         bg="gray.800"
         borderBottomRadius="md"
       >
-        <form onSubmit={handleSubmit}>
+        <form
+          onSubmit={(e) => {
+            void handleSubmit(e)
+          }}
+        >
           <HStack gap={2}>
             <Textarea
               value={input}
@@ -201,28 +211,28 @@ function MessageItem({ message, isLoading }: MessageItemProps) {
       )}
 
       <Box
-        maxWidth="75%"
-        bg={isUser ? 'blue.600' : 'gray.700'}
-        color="white"
-        px={4}
-        py={3}
-        borderRadius="lg"
-        borderTopLeftRadius={!isUser ? 'sm' : 'lg'}
-        borderTopRightRadius={isUser ? 'sm' : 'lg'}
-        position="relative"
-      >
-        <Text fontSize="sm" whiteSpace="pre-wrap">
-          {message.content}
-        </Text>
-        {isLoading && !isUser && (
-          <Flex align="center" gap={2} mt={2}>
-            <Spinner size="xs" />
-            <Text fontSize="xs" color="gray.300">
-              AI 正在思考...
-            </Text>
-          </Flex>
-        )}
-      </Box>
+              maxWidth="75%"
+              bg={isUser ? 'blue.600' : 'gray.700'}
+              color="white"
+              px={4}
+              py={3}
+              borderRadius="lg"
+              borderTopLeftRadius={!isUser ? 'sm' : 'lg'}
+              borderTopRightRadius={isUser ? 'sm' : 'lg'}
+              position="relative"
+            >
+              {/* 使用统一的Markdown组件渲染AI回复的消息内容，提高渲染性能 */}
+              <UnifiedMarkdownRenderer content={message.content} id={message.id} />
+      
+              {isLoading && !isUser && (
+                <Flex align="center" gap={2} mt={2}>
+                  <Spinner size="xs" />
+                  <Text fontSize="xs" color="gray.300">
+                    AI 正在思考...
+                  </Text>
+                </Flex>
+              )}
+            </Box>
 
       {isUser && (
         <Avatar.Root size="sm" bg="blue.600">
