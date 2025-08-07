@@ -26,7 +26,13 @@ export function AuthFlow() {
   }
 
   return (
-    <Flex minHeight="100vh" alignItems="center" justifyContent="center" bg="gray.900" p={4}>
+    <Flex
+      minHeight="100vh"
+      alignItems="center"
+      justifyContent="center"
+      bg="gray.900"
+      p={4}
+    >
       <Box
         width="100%"
         maxWidth="400px"

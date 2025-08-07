@@ -9,7 +9,10 @@ interface RegisterFormProps {
   onSwitchToLogin: () => void
 }
 
-export function RegisterForm({ onRegisterSuccess, onSwitchToLogin }: RegisterFormProps) {
+export function RegisterForm({
+  onRegisterSuccess,
+  onSwitchToLogin,
+}: RegisterFormProps) {
   const [userData, setUserData] = useState<UserRegistration>({
     username: '',
     email: '',
@@ -19,9 +22,9 @@ export function RegisterForm({ onRegisterSuccess, onSwitchToLogin }: RegisterFor
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
-    setUserData(prev => ({
+    setUserData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }))
   }
 
@@ -61,20 +64,20 @@ export function RegisterForm({ onRegisterSuccess, onSwitchToLogin }: RegisterFor
         position="relative"
         _after={{
           content: '""',
-          position: "absolute",
-          bottom: "-5px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          width: "50px",
-          height: "3px",
-          bg: "blue.400",
-          boxShadow: "0 0 5px rgba(100, 149, 237, 0.7)",
-          borderRadius: "2px"
+          position: 'absolute',
+          bottom: '-5px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '50px',
+          height: '3px',
+          bg: 'blue.400',
+          boxShadow: '0 0 5px rgba(100, 149, 237, 0.7)',
+          borderRadius: '2px',
         }}
       >
         用户注册
       </Heading>
-      
+
       <form onSubmit={handleSubmit}>
         <VStack gap={4}>
           <Box width="100%">
@@ -101,12 +104,12 @@ export function RegisterForm({ onRegisterSuccess, onSwitchToLogin }: RegisterFor
                 px={4}
                 borderRadius="md"
                 _hover={{
-                  borderColor: 'blue.300'
+                  borderColor: 'blue.300',
                 }}
               />
             </Box>
           </Box>
-          
+
           <Box width="100%">
             <Text mb={2} color="gray.300" fontWeight="medium">
               邮箱
@@ -131,12 +134,12 @@ export function RegisterForm({ onRegisterSuccess, onSwitchToLogin }: RegisterFor
                 px={4}
                 borderRadius="md"
                 _hover={{
-                  borderColor: 'blue.300'
+                  borderColor: 'blue.300',
                 }}
               />
             </Box>
           </Box>
-          
+
           <Box width="100%">
             <Text mb={2} color="gray.300" fontWeight="medium">
               密码
@@ -161,12 +164,12 @@ export function RegisterForm({ onRegisterSuccess, onSwitchToLogin }: RegisterFor
                 px={4}
                 borderRadius="md"
                 _hover={{
-                  borderColor: 'blue.300'
+                  borderColor: 'blue.300',
                 }}
               />
             </Box>
           </Box>
-          
+
           <Button
             type="submit"
             colorPalette="blue"
@@ -180,11 +183,11 @@ export function RegisterForm({ onRegisterSuccess, onSwitchToLogin }: RegisterFor
             borderRadius="md"
             boxShadow="0 4px 6px rgba(0, 0, 0, 0.1)"
             _hover={{
-              bg: "linear-gradient(135deg, #4f46e5, #6366f1)",
-              boxShadow: "0 0 15px rgba(100, 149, 237, 0.7)"
+              bg: 'linear-gradient(135deg, #4f46e5, #6366f1)',
+              boxShadow: '0 0 15px rgba(100, 149, 237, 0.7)',
             }}
             _active={{
-              transform: "translateY(1px)"
+              transform: 'translateY(1px)',
             }}
             transition="all 0.2s ease-in-out"
           >
@@ -192,9 +195,9 @@ export function RegisterForm({ onRegisterSuccess, onSwitchToLogin }: RegisterFor
           </Button>
         </VStack>
       </form>
-      
+
       <Box height="1px" bg="gray.700" my={6} />
-      
+
       <Text textAlign="center" color="gray.400">
         已有账户？{' '}
         <Button
@@ -203,8 +206,8 @@ export function RegisterForm({ onRegisterSuccess, onSwitchToLogin }: RegisterFor
           onClick={onSwitchToLogin}
           fontWeight="medium"
           _hover={{
-            color: "blue.300",
-            textDecoration: "underline"
+            color: 'blue.300',
+            textDecoration: 'underline',
           }}
         >
           立即登录

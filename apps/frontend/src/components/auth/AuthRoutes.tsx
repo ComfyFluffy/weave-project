@@ -5,11 +5,11 @@ import { RegisterRoute } from './RegisterRoute'
 
 export function AuthRoutes() {
   const { isAuthenticated } = useAuth()
-  
+
   if (isAuthenticated) {
     return <Navigate to="/app" replace />
   }
-  
+
   return (
     <Routes>
       <Route index element={<LoginRoute />} />

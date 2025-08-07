@@ -7,17 +7,17 @@ import './App.css'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth()
-  
+
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />
   }
-  
+
   return children
 }
 
 function AppContent() {
-  const { isAuthenticated } = useAuth();
-  
+  const { isAuthenticated } = useAuth()
+
   return (
     <Routes>
       <Route path="/auth/*" element={<AuthRoutes />} />
@@ -29,7 +29,12 @@ function AppContent() {
           </ProtectedRoute>
         }
       />
-      <Route path="/" element={<Navigate to={isAuthenticated ? "/app" : "/auth/login"} replace />} />
+      <Route
+        path="/"
+        element={
+          <Navigate to={isAuthenticated ? '/app' : '/auth/login'} replace />
+        }
+      />
     </Routes>
   )
 }

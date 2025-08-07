@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 
 export function RegisterRoute() {
   const navigate = useNavigate()
-  
+
   const handleRegisterSuccess = () => {
     // Switch to login form after successful registration
     void navigate('/auth/login')
@@ -38,7 +38,7 @@ export function RegisterRoute() {
         backgroundSize="30px 30px"
         zIndex={0}
       />
-      
+
       {/* 光效 */}
       <Box
         position="absolute"
@@ -53,7 +53,7 @@ export function RegisterRoute() {
         className="rotating-background"
         zIndex={0}
       />
-      
+
       {/* 动画关键帧 */}
       <style>{`
         @keyframes rotate {
@@ -77,7 +77,7 @@ export function RegisterRoute() {
           animation: rotate 20s linear infinite;
         }
       `}</style>
-      
+
       <Box
         width="100%"
         maxWidth="400px"
@@ -91,7 +91,7 @@ export function RegisterRoute() {
         border="1px solid rgba(100, 149, 237, 0.2)"
         animation="float 3s ease-in-out infinite"
         _hover={{
-          animation: 'pulse 2s infinite'
+          animation: 'pulse 2s infinite',
         }}
       >
         <RegisterForm

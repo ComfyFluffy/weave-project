@@ -10,7 +10,10 @@ interface LoginFormProps {
   onSwitchToRegister: () => void
 }
 
-export function LoginForm({ onLoginSuccess, onSwitchToRegister }: LoginFormProps) {
+export function LoginForm({
+  onLoginSuccess,
+  onSwitchToRegister,
+}: LoginFormProps) {
   const [credentials, setCredentials] = useState<UserLogin>({
     email: '',
     password: '',
@@ -20,9 +23,9 @@ export function LoginForm({ onLoginSuccess, onSwitchToRegister }: LoginFormProps
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
-    setCredentials(prev => ({
+    setCredentials((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }))
   }
 
@@ -63,20 +66,20 @@ export function LoginForm({ onLoginSuccess, onSwitchToRegister }: LoginFormProps
         position="relative"
         _after={{
           content: '""',
-          position: "absolute",
-          bottom: "-5px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          width: "50px",
-          height: "3px",
-          bg: "blue.400",
-          boxShadow: "0 0 5px rgba(100, 149, 237, 0.7)",
-          borderRadius: "2px"
+          position: 'absolute',
+          bottom: '-5px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '50px',
+          height: '3px',
+          bg: 'blue.400',
+          boxShadow: '0 0 5px rgba(100, 149, 237, 0.7)',
+          borderRadius: '2px',
         }}
       >
         用户登录
       </Heading>
-      
+
       <form onSubmit={handleSubmit}>
         <VStack gap={4}>
           <Box width="100%">
@@ -103,12 +106,12 @@ export function LoginForm({ onLoginSuccess, onSwitchToRegister }: LoginFormProps
                 px={4}
                 borderRadius="md"
                 _hover={{
-                  borderColor: 'blue.300'
+                  borderColor: 'blue.300',
                 }}
               />
             </Box>
           </Box>
-          
+
           <Box width="100%">
             <Text mb={2} color="gray.300" fontWeight="medium">
               密码
@@ -133,12 +136,12 @@ export function LoginForm({ onLoginSuccess, onSwitchToRegister }: LoginFormProps
                 px={4}
                 borderRadius="md"
                 _hover={{
-                  borderColor: 'blue.300'
+                  borderColor: 'blue.300',
                 }}
               />
             </Box>
           </Box>
-          
+
           <Button
             type="submit"
             colorPalette="blue"
@@ -152,11 +155,11 @@ export function LoginForm({ onLoginSuccess, onSwitchToRegister }: LoginFormProps
             borderRadius="md"
             boxShadow="0 4px 6px rgba(0, 0, 0, 0.1)"
             _hover={{
-              bg: "linear-gradient(135deg, #4f46e5, #6366f1)",
-              boxShadow: "0 0 15px rgba(100, 149, 237, 0.7)"
+              bg: 'linear-gradient(135deg, #4f46e5, #6366f1)',
+              boxShadow: '0 0 15px rgba(100, 149, 237, 0.7)',
             }}
             _active={{
-              transform: "translateY(1px)"
+              transform: 'translateY(1px)',
             }}
             transition="all 0.2s ease-in-out"
           >
@@ -164,9 +167,9 @@ export function LoginForm({ onLoginSuccess, onSwitchToRegister }: LoginFormProps
           </Button>
         </VStack>
       </form>
-      
+
       <Box height="1px" bg="gray.700" my={6} />
-      
+
       <Text textAlign="center" color="gray.400">
         还没有账户？{' '}
         <Button
@@ -175,8 +178,8 @@ export function LoginForm({ onLoginSuccess, onSwitchToRegister }: LoginFormProps
           onClick={onSwitchToRegister}
           fontWeight="medium"
           _hover={{
-            color: "blue.300",
-            textDecoration: "underline"
+            color: 'blue.300',
+            textDecoration: 'underline',
           }}
         >
           立即注册

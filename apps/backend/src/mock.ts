@@ -9,10 +9,38 @@ import {
 
 // Users
 export const users: User[] = [
-  { id: 'user-1', username: '龙骑士玩家', email: 'player1@example.com', password: '$2b$10$abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', avatar: '🛡️' },
-  { id: 'user-2', username: '法师玩家', email: 'player2@example.com', password: '$2b$10$abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', avatar: '🔮' },
-  { id: 'user-3', username: '盗贼玩家', email: 'player3@example.com', password: '$2b$10$abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', avatar: '🗡️' },
-  { id: 'gm-1', username: '游戏主持人', email: 'gm@example.com', password: '$2b$10$abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', avatar: '🎭' },
+  {
+    id: 'user-1',
+    username: '龙骑士玩家',
+    email: 'player1@example.com',
+    password:
+      '$2b$10$abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
+    avatar: '🛡️',
+  },
+  {
+    id: 'user-2',
+    username: '法师玩家',
+    email: 'player2@example.com',
+    password:
+      '$2b$10$abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
+    avatar: '🔮',
+  },
+  {
+    id: 'user-3',
+    username: '盗贼玩家',
+    email: 'player3@example.com',
+    password:
+      '$2b$10$abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
+    avatar: '🗡️',
+  },
+  {
+    id: 'gm-1',
+    username: '游戏主持人',
+    email: 'gm@example.com',
+    password:
+      '$2b$10$abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
+    avatar: '🎭',
+  },
 ]
 
 // Item Templates (reusable item definitions)
