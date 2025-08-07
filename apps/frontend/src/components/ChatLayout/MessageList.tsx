@@ -19,12 +19,12 @@ export function MessageList({ messages }: MessageListProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   // 消息容器引用，用于滚动控制
   const containerRef = useRef<HTMLDivElement>(null)
-  
+
   // 当消息变化时自动滚动到底部
   useEffect(() => {
     scrollToBottom()
   }, [messages])
-  
+
   /**
    * 滚动到消息列表底部
    * 使用平滑滚动效果提升用户体验
@@ -32,13 +32,9 @@ export function MessageList({ messages }: MessageListProps) {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
-  
+
   return (
-    <Box
-      height="100%"
-      overflowY="auto"
-      ref={containerRef}
-    >
+    <Box height="100%" overflowY="auto" ref={containerRef}>
       {/* 消息容器，使用垂直堆叠布局 */}
       <VStack gap={0} align="stretch" p={4}>
         {/* 遍历所有消息并渲染 */}

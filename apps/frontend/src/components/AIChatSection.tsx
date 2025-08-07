@@ -211,28 +211,28 @@ function MessageItem({ message, isLoading }: MessageItemProps) {
       )}
 
       <Box
-              maxWidth="75%"
-              bg={isUser ? 'blue.600' : 'gray.700'}
-              color="white"
-              px={4}
-              py={3}
-              borderRadius="lg"
-              borderTopLeftRadius={!isUser ? 'sm' : 'lg'}
-              borderTopRightRadius={isUser ? 'sm' : 'lg'}
-              position="relative"
-            >
-              {/* 使用统一的Markdown组件渲染AI回复的消息内容，提高渲染性能 */}
-              <UnifiedMarkdownRenderer content={message.content} id={message.id} />
-      
-              {isLoading && !isUser && (
-                <Flex align="center" gap={2} mt={2}>
-                  <Spinner size="xs" />
-                  <Text fontSize="xs" color="gray.300">
-                    AI 正在思考...
-                  </Text>
-                </Flex>
-              )}
-            </Box>
+        maxWidth="75%"
+        bg={isUser ? 'blue.600' : 'gray.700'}
+        color="white"
+        px={4}
+        py={3}
+        borderRadius="lg"
+        borderTopLeftRadius={!isUser ? 'sm' : 'lg'}
+        borderTopRightRadius={isUser ? 'sm' : 'lg'}
+        position="relative"
+      >
+        {/* 使用统一的Markdown组件渲染AI回复的消息内容，提高渲染性能 */}
+        <UnifiedMarkdownRenderer content={message.content} id={message.id} />
+
+        {isLoading && !isUser && (
+          <Flex align="center" gap={2} mt={2}>
+            <Spinner size="xs" />
+            <Text fontSize="xs" color="gray.300">
+              AI 正在思考...
+            </Text>
+          </Flex>
+        )}
+      </Box>
 
       {isUser && (
         <Avatar.Root size="sm" bg="blue.600">

@@ -228,8 +228,8 @@ export function ChatArea({
                   css={{
                     transition: 'all 0.2s ease-in-out',
                     '&:active': {
-                      transform: 'scale(0.95)'
-                    }
+                      transform: 'scale(0.95)',
+                    },
                   }}
                 >
                   <Send size={16} />
