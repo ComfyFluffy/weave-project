@@ -1,85 +1,85 @@
-# Weave - AI增强的在线协作叙事平台线协作叙事平台
+# Weave - AI增强的在线协作叙事平台
 
 > 🎲 **智能化的、永不疲倦的虚拟游戏主持人**  
 > 一个融合了AI技术、拥有高度自由度的实时在线协作叙事平台
 
-[![>ypeScript]( ttps://mg.🎲h*eld*.io/b能dge/TypeS的ript-007ACC?sty永e=f不疲t-squ拟re&logo=游yp持*c ip&ooCo=he)](ttps://www.tslorg/)
-[![Rac](hp://imgap![eldS.ie/badg./ReaIO-20232A?htylt=flat-tquare&l:io=mgec.&logoColor=61DAFB)](httpi://rebcaj/oerg/)
-[![Nodl.js](https://img.shialcs.is/bldg=/Nadu.jg-43853D?soysc=fltt-sqbare&loCl=o0de.js&01goCo(or=ws:te)](https:///od/jssorg/)ocket.io/)
-[![Socket-O](hps://im.shilds./bdg/Socke.IO-blck?sty=fltsquae&lgo=cket.i&bgeClor=010101)](ockt)
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-20232A?style=flat-square&logo=react&logoColor=61DAFB)](https://reactjs.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-43853D?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Socket.IO](https://img.shields.io/badge/Socket.IO-black?style=flat-square&logo=socket.io&badgeColor=010101)](https://socket.io/)
 
---
+---
 
-##🎯🎯愿项目愿景
+## 🎯 项目愿景
 
-Wev旨在打破传统线上跑团（TRPG）的壁垒，通过强大的人工智能为玩家提供一个类似Dcd的、高度整合的社交与游戏空间。我们致力于解决传统模式中主持人构思枯竭、规则复杂、节奏拖沓等核心痛点，让创造故事的乐趣变得前所未有的简单和纯粹。
+Weave 旨在打破传统线上跑团（TRPG）的壁垒，通过强大的人工智能为玩家提供一个类似Discord的、高度整合的社交与游戏空间。我们致力于解决传统模式中主持人构思枯竭、规则复杂、节奏拖沓等核心痛点，让创造故事的乐趣变得前所未有的简单和纯粹。
 
-## 🚀核心特性
+## 🚀 核心特性
 
-###✅已完成功能
+### ✅ 已完成功能
 
-**Discd风格聊天界面**: 熟悉直观的多频道聊天体验
--**实时多人协作**基于Scke.IO的即时通信
-**角色创建与管理**:完整的角色创建和选择系统
-- **世界/频道管理**: 支持多世界、多频道的组织结构Weave 旨在打破传统线上跑团（TRPG）的壁垒，通过强大的人工智能为玩家提供一个类似Discord的、高度整合的社交与游戏空间。我们致力于解决传统模式中主持人构思枯竭、规则复杂、节奏拖沓等核心痛点，让创造故事的乐趣变得前所未有的简单和纯粹。
-- **类型安全架构**:完整的Typecip类型定义体系
--**智能世界状态管理系统**:结构化的事实库/规则库，解决LM长期记忆问题
--**完整的API实现** 世界状态的完整CRUD操作API
+- **Discord风格聊天界面**: 熟悉直观的多频道聊天体验
+- **实时多人协作**: 基于Socket.IO的即时通信
+- **角色创建与管理**: 完整的角色创建和选择系统
+- **世界/频道管理**: 支持多世界、多频道的组织结构
+- **类型安全架构**: 完整的TypeScript类型定义体系
+- **智能世界状态管理系统**: 结构化的事实库/规则库，解决LLM长期记忆问题
+- **完整的API实现**: 世界状态的完整CRUD操作API
 
-### 🚧#开发中功能
+### 🚧 开发中功能
 
--#**AI辅助剧情推进**: LLM融合进故事发展，提供智能建议和选项
-🚀**自动规则判定**玩家行动的智能裁决系统
--**实时状态同步**:通过Wbokt实现实时状态更新
+- **AI辅助剧情推进**: LLM融合进故事发展，提供智能建议和选项
+- **自动规则判定**: 玩家行动的智能裁决系统
+- **实时状态同步**: 通过WebSocket实现实时状态更新
 
-###🔄计划中功能
+### 🔄 计划中功能
 
-- **AI主持人模式**:完全自动化的游戏主持体验
--**LLM辅助内容生成**:世界观、角色、故事的AI辅助创建
-**智能故事导出** AI辅助的游戏记录整理和导出
+- **AI主持人模式**: 完全自动化的游戏主持体验
+- **LLM辅助内容生成**: 世界观、角色、故事的AI辅助创建
+- **智能故事导出**: AI辅助的游戏记录整理和导出
 
 ## 🏗️ 技术架构
 
-###项目结构
+### 项目结构
 
-``
-a-pojec/
-├──ap/
-│###├──✅fronte完d/         #Ra+Vi 前端应用
+```
+weave-project/
+├── apps/
+│   ├── frontend/          # React + Vite 前端应用
 │   │   ├── src/
-│   │ *r│聊  ├── componen面 /- * # UI组件作**: 基于Socket.IO的即时通信
-│- *│管角-│ **│态统 ├── Ch*:L yout/事/期#聊天界面组件
-│ │   │   │   ├── ChrtrCratio/    # 角色创建组件
-│- *│   │   │   └── ui/    # 基础UI组件的API实现**: 世界状态的完整CRUD操作API
-││   │   ├── hk/     # Rac Hk
-│   │   │   ├── rves/####API服务 开发中功能
-│*辅 │   │   └── p进*vid rs/M# 上下文提供者发展，提供智能建议和选项
-│*态:│Wc现└── p更ckag.json
-│└── ckend/### *容# No生成.js + Ex*r*色s 后端服务故事的AI辅助创建
-│- *├── rc/
-│##  结`│├── dex.swea    # 服务器入口ect/
-│├──p   │   ├── mo.ts        # 模拟数据
-││  ─e  │   ├──  ou  s/│       # API路由  ├── src/
-│       │   ├──    vacea/y/    # 数据库服务 聊天界面组件
-│    │  ││  └── l b/    i│    ─#o工具库│   │   └── package.json
-│    k/ └──Npae. ge.j on │   ├── index.ts       # 服务器入口
-├──     ag├s/ mock.ts        # 模拟数据
-│   └──│typ  /           ─a#g共享TypsS类型定义
-│       └──src/dex.s
-├──ds/                  # 项目文档
-│  ├──rd--ngemd    # 世界状态管理系统文档├── packages/
-│ ─ └── im  ement  # n-pla共.md    ─/ # 实现计划 implementation-plan.md       # 实现计划
-└───age.agj.jso`          #根目录配置
+│   │   │   ├── components/    # UI组件
+│   │   │   │   ├── ChatLayout/    # 聊天界面组件
+│   │   │   │   ├── CharacterCreation/    # 角色创建组件
+│   │   │   │   └── ui/    # 基础UI组件
+│   │   │   ├── hooks/     # React Hooks
+│   │   │   ├── services/  # API服务
+│   │   │   └── providers/ # 上下文提供者
+│   │   └── package.json
+│   └── backend/           # Node.js + Express 后端服务
+│       ├── src/
+│       │   ├── index.ts       # 服务器入口
+│       │   ├── mock.ts        # 模拟数据
+│       │   ├── routes/        # API路由
+│       │   ├── services/      # 数据库服务
+│       │   └── lib/           # 工具库
+│       └── package.json
+├── packages/
+│   └── types/             # 共享TypeScript类型定义
+│       └── src/index.ts
+├── docs/                  # 项目文档
+│   ├── world-state-management.md    # 世界状态管理系统文档
+│   └── implementation-plan.md       # 实现计划
+└── package.json           # 根目录配置
+```
 
 ### 技术栈
-###技术栈
+
 #### 前端
-##前端
+
 - **框架**: React 18 + TypeScript
-- **框架**Ret18+TyeScipt
-- **构建工具** 
-- **UI库**QuCryk a UI
-- **状态管理**:CReatQy+Cntx API
+- **构建工具**: Vite
+- **UI库**: Chakra UI
+- **状态管理**: React Query + Context API
 - **实时通信**: Socket.IO Client
 
 #### 后端
