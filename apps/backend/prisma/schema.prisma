@@ -13,3 +13,74 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id            String   @id @default(uuid())
+  username      String   @unique
+  password      String
+  avatar        String?
+  hostingWorlds World[]  @relation(name: "hostsOfWorld")
+  joinedWorlds  World[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Channel {
+  id          String      @id @default(ulid())
+  worldId     String
+  world       World       @relation(fields: [worldId], references: [id])
+  name        String
+  type        ChannelType
+  description String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model World {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  description String?
+  tags        String[]
+  rules       String?
+  hostId      String
+  host        User      @relation(name: "hostsOfWorld", fields: [hostId], references: [id])
+  users       User[]    
+  channels    Channel[]
+  data        Json
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Character {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  avatar      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Message {
+  id          String      @id @default(uuid())
+  channelId   String
+  userId      String?
+  characterId String?
+  type        MessageType
+  content     String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @default(now())
+}
+
+enum ChannelType {
+  OOC
+  IC
+  ANNOUNCEMENT
+}
+
+enum MessageType {
+  CHARACTER
+  ACTION
+  SYSTEM
+  AI
+  GM
+}

@@ -130,7 +130,7 @@ app.use('/api/worlds', createWorldRoutes(dbService))
 app.use('/api/world-states', createWorldStateRoutes(dbService))
 app.use('/api/characters', createCharacterRoutes(dbService))
 app.use('/api/messages', createMessageRoutes(dbService))
-app.use('/api/users', createUserRoutes(dbService))
+app.use('/napi/users', createUserRoutes(dbService))
 app.use('/api/items', createItemRoutes(dbService))
 app.use('/api/ai', createAIRoutes(dbService))
 
