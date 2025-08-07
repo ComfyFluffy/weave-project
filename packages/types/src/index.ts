@@ -34,8 +34,34 @@ export interface User {
   id: Id
   /** Display name of the user */
   username: string
+  /** User's email address */
+  email: string
+  /** Hashed password */
+  password: string
   /** Optional avatar emoji or image URL */
   avatar?: string
+}
+
+/**
+ * UserRegistration represents the data needed to register a new user
+ */
+export interface UserRegistration {
+  /** Display name of the user */
+  username: string
+  /** User's email address */
+  email: string
+  /** Plain text password (will be hashed on server) */
+  password: string
+}
+
+/**
+ * UserLogin represents the data needed to authenticate a user
+ */
+export interface UserLogin {
+  /** User's email address */
+  email: string
+  /** Plain text password */
+  password: string
 }
 
 /**

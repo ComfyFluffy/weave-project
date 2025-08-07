@@ -7,6 +7,7 @@ import {
   defineConfig,
 } from '@chakra-ui/react'
 import { ColorModeProvider, type ColorModeProviderProps } from './color-mode'
+import { Toaster } from './toaster'
 
 const config = defineConfig({
   globalCss: {
@@ -22,6 +23,7 @@ export function Provider(props: ColorModeProviderProps) {
   return (
     <ChakraProvider value={system}>
       <ColorModeProvider {...props} forcedTheme="dark" />
+      <Toaster />
     </ChakraProvider>
   )
 }

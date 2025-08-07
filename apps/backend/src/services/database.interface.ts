@@ -46,6 +46,7 @@ export interface DatabaseService {
   // User operations
   getUsers(): Promise<User[]>
   getUserById(id: string): Promise<User | null>
+  getUserByEmail(email: string): Promise<User | null>
   createUser(user: Omit<User, 'id'>): Promise<User>
   updateUser(id: string, data: Partial<User>): Promise<User | null>
 

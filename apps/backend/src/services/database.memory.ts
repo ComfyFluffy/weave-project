@@ -176,6 +176,10 @@ export class MockDatabaseService implements DatabaseService {
     return this.users.find((u) => u.id === id) || null
   }
 
+  async getUserByEmail(email: string): Promise<User | null> {
+    return this.users.find((u) => u.email === email) || null
+  }
+
   async createUser(userData: Omit<User, 'id'>): Promise<User> {
     const user: User = {
       id: nanoid(),
