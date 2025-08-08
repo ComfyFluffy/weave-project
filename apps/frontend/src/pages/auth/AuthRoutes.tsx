@@ -1,7 +1,7 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router'
 import { useAuth } from '../../providers/AuthProvider'
-import { LoginRoute } from './LoginRoute'
-import { RegisterRoute } from './RegisterRoute'
+import { LoginPage } from './LoginPage'
+import { RegisterPage } from './RegisterPage'
 
 export function AuthRoutes() {
   const { isAuthenticated } = useAuth()
@@ -12,9 +12,9 @@ export function AuthRoutes() {
 
   return (
     <Routes>
-      <Route index element={<LoginRoute />} />
-      <Route path="login" element={<LoginRoute />} />
-      <Route path="register" element={<RegisterRoute />} />
+      <Route index element={<LoginPage />} />
+      <Route path="login" element={<LoginPage />} />
+      <Route path="register" element={<RegisterPage />} />
       <Route path="*" element={<Navigate to="/auth/login" replace />} />
     </Routes>
   )

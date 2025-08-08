@@ -1,20 +1,11 @@
 import { Box, Flex } from '@chakra-ui/react'
-import { LoginForm } from './LoginForm'
-import { useNavigate } from 'react-router-dom'
 import { SharedBackground } from './SharedBackground'
 
-export function LoginRoute() {
-  const navigate = useNavigate()
+interface AuthLayoutProps {
+  children: React.ReactNode
+}
 
-  const handleLoginSuccess = () => {
-    // Redirect to the main app
-    void navigate('/app')
-  }
-
-  const handleSwitchToRegister = () => {
-    void navigate('/auth/register')
-  }
-
+export function AuthLayout({ children }: AuthLayoutProps) {
   return (
     <Flex
       minHeight="100vh"
@@ -39,10 +30,7 @@ export function LoginRoute() {
         backdropFilter="blur(10px)"
         border="1px solid rgba(100, 149, 237, 0.2)"
       >
-        <LoginForm
-          onLoginSuccess={handleLoginSuccess}
-          onSwitchToRegister={handleSwitchToRegister}
-        />
+        {children}
       </Box>
     </Flex>
   )

@@ -1,10 +1,14 @@
 import { useMutation } from '@tanstack/react-query'
-import type { User, UserLogin, UserRegistration } from '@weave/types'
+import type { User } from '@weave/types'
+import type {
+  UserLoginRequest,
+  UserRegistrationRequest,
+} from '@weave/types/apis'
 
 // API 调用函数
 const API_BASE_URL = 'http://localhost:3001/api'
 
-async function registerUser(userData: UserRegistration): Promise<User> {
+async function registerUser(userData: UserRegistrationRequest): Promise<User> {
   const response = await fetch(`${API_BASE_URL}/auth/register`, {
     method: 'POST',
     headers: {
@@ -21,7 +25,7 @@ async function registerUser(userData: UserRegistration): Promise<User> {
   return response.json()
 }
 
-async function loginUser(credentials: UserLogin): Promise<User> {
+async function loginUser(credentials: UserLoginRequest): Promise<User> {
   const response = await fetch(`${API_BASE_URL}/auth/login`, {
     method: 'POST',
     headers: {

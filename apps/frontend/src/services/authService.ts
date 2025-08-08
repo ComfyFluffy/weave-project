@@ -1,9 +1,13 @@
-import type { User, UserLogin, UserRegistration } from '@weave/types'
+import type { User } from '@weave/types'
+import type {
+  UserRegistrationRequest,
+  UserLoginRequest,
+} from '@weave/types/apis'
 
 const API_BASE_URL = 'http://localhost:3001/api'
 
 class AuthService {
-  async register(userData: UserRegistration): Promise<User> {
+  async register(userData: UserRegistrationRequest): Promise<User> {
     console.log('AuthService: Registering user with data:', userData)
     const response = await fetch(`${API_BASE_URL}/auth/register`, {
       method: 'POST',
@@ -25,7 +29,7 @@ class AuthService {
     return user
   }
 
-  async login(credentials: UserLogin): Promise<User> {
+  async login(credentials: UserLoginRequest): Promise<User> {
     console.log('AuthService: Logging in with credentials:', credentials)
     const response = await fetch(`${API_BASE_URL}/auth/login`, {
       method: 'POST',

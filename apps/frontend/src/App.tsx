@@ -1,19 +1,10 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
-import { ChatLayout } from './components/ChatLayout'
+import { Routes, Route, Navigate } from 'react-router'
 import { QueryProvider } from './providers/QueryProvider'
 import { AuthProvider, useAuth } from './providers/AuthProvider'
-import { AuthRoutes } from './components/auth/AuthRoutes'
+import { AuthRoutes } from './pages/auth/AuthRoutes'
+import { ChatLayout } from './components/ChatLayout'
+import { ProtectedRoute } from './components/ProtectedRoute'
 import './App.css'
-
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuth()
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />
-  }
-
-  return children
-}
 
 function AppContent() {
   const { isAuthenticated } = useAuth()
@@ -35,6 +26,7 @@ function AppContent() {
           <Navigate to={isAuthenticated ? '/app' : '/auth/login'} replace />
         }
       />
+      <Route path="*" element={<Navigate to="/auth/login" replace />} />
     </Routes>
   )
 }
