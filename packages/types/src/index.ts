@@ -31,28 +31,6 @@ export interface User {
 }
 
 /**
- * UserRegistration represents the data needed to register a new user
- */
-export interface UserRegistration {
-  /** Display name of the user */
-  username: string
-  /** User's email address */
-  email: string
-  /** Plain text password (will be hashed on server) */
-  password: string
-}
-
-/**
- * UserLogin represents the data needed to authenticate a user
- */
-export interface UserLogin {
-  /** User's email address */
-  email: string
-  /** Plain text password */
-  password: string
-}
-
-/**
  * Channel represents a chat channel within a world
  * Channels are organized by type (announcement, OOC, IC) and belong to a specific world
  */
