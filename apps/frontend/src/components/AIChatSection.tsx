@@ -13,8 +13,7 @@ import {
 import { Send, User, Bot } from 'lucide-react'
 import { type Message } from '@ai-sdk/react'
 import { useWorldChat } from '../services/aiService'
-// 导入统一的Markdown组件，用于优化性能，避免重复渲染相同内容
-import { UnifiedMarkdownRenderer } from './ChatLayout/UnifiedMarkdownRenderer'
+import { MemoizedMarkdown } from './MemoizedMarkdown'
 
 interface AIChatSectionProps {
   worldId: string
@@ -221,8 +220,7 @@ function MessageItem({ message, isLoading }: MessageItemProps) {
         borderTopRightRadius={isUser ? 'sm' : 'lg'}
         position="relative"
       >
-        {/* 使用统一的Markdown组件渲染AI回复的消息内容，提高渲染性能 */}
-        <UnifiedMarkdownRenderer content={message.content} id={message.id} />
+        <MemoizedMarkdown content={message.content} id={message.id} />
 
         {isLoading && !isUser && (
           <Flex align="center" gap={2} mt={2}>

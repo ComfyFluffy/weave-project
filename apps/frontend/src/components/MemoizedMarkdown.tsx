@@ -11,14 +11,22 @@ import {
   Mark,
   List,
   Blockquote,
+  type TextProps,
+  type HeadingProps,
+  type CodeProps,
+  type LinkProps,
+  type EmProps,
+  type MarkProps,
 } from '@chakra-ui/react'
 
-export const markdownComponents = {
+const markdownComponents = {
   // 段落
-  p: ({ ...props }: any) => <Text as="p" mb={4} lineHeight="tall" {...props} />,
+  p: ({ ...props }: TextProps) => (
+    <Text as="p" mb={4} lineHeight="tall" {...props} />
+  ),
 
   // 标题
-  h1: ({ ...props }: any) => (
+  h1: ({ ...props }: HeadingProps) => (
     <Heading
       as="h1"
       size={{ base: '2xl', md: '3xl' }}
@@ -28,7 +36,7 @@ export const markdownComponents = {
     />
   ),
 
-  h2: ({ ...props }: any) => (
+  h2: ({ ...props }: HeadingProps) => (
     <Heading
       as="h2"
       size={{ base: 'xl', md: '2xl' }}
@@ -38,25 +46,25 @@ export const markdownComponents = {
     />
   ),
 
-  h3: ({ ...props }: any) => (
+  h3: ({ ...props }: HeadingProps) => (
     <Heading as="h3" size="lg" mt={4} mb={2} {...props} />
   ),
 
   // 列表
-  ul: ({ ...props }: any) => (
-    <List.Root as="ul" styleType="none" pl={6} mb={4} {...props} />
+  ul: ({ ...props }: List.RootProps) => (
+    <List.Root as="ul" pl={6} mb={4} {...props} />
   ),
 
-  ol: ({ ...props }: any) => (
-    <List.Root as="ol" styleType="decimal" pl={6} mb={4} {...props} />
+  ol: ({ ...props }: List.RootProps) => (
+    <List.Root as="ol" pl={6} mb={4} {...props} />
   ),
 
-  li: ({ ...props }: any) => (
-    <List.Item as="li" mb={1} lineHeight="tall" {...props} />
+  li: ({ ...props }: List.ItemProps) => (
+    <List.Item mb={1} lineHeight="tall" {...props} />
   ),
 
   // 代码块
-  code: ({ className, children, ...props }: any) => {
+  code: ({ className, children, ...props }: CodeProps) => {
     // 检查是否为行内代码元素（没有语言类名）
     const isInline = !className || !/language-(\w+)/.exec(className || '')
 
@@ -96,7 +104,7 @@ export const markdownComponents = {
   },
 
   // 引用块
-  blockquote: ({ children, ...props }: any) => (
+  blockquote: ({ children, ...props }: Blockquote.RootProps) => (
     <Blockquote.Root
       borderLeft="4px solid"
       borderColor="gray.500"
@@ -112,7 +120,7 @@ export const markdownComponents = {
   ),
 
   // 链接
-  a: ({ ...props }: any) => (
+  a: ({ ...props }: LinkProps) => (
     <Link
       as="a"
       color="blue.400"
@@ -126,15 +134,15 @@ export const markdownComponents = {
   ),
 
   // 加粗文本
-  strong: ({ ...props }: any) => (
+  strong: ({ ...props }: TextProps) => (
     <Text as="strong" fontWeight="bold" {...props} />
   ),
 
   // 斜体文本
-  em: ({ ...props }: any) => <Em {...props} />,
+  em: ({ ...props }: EmProps) => <Em {...props} />,
 
   // 高亮文本
-  mark: ({ ...props }: any) => <Mark {...props} />,
+  mark: ({ ...props }: MarkProps) => <Mark {...props} />,
 }
 
 // 解析Markdown内容为块
@@ -164,15 +172,8 @@ const MemoizedMarkdownBlock = memo(
 MemoizedMarkdownBlock.displayName = 'MemoizedMarkdownBlock'
 
 // 统一的Markdown渲染器组件
-export const UnifiedMarkdownRenderer = memo(
-  ({ content, id }: { content: string; id?: string }) => {
-    // 为记忆化生成唯一的ID
-    const generatedId = useMemo(() => {
-      return `markdown-${content.length}`
-    }, [content])
-
-    const contentId = id || generatedId
-
+export const MemoizedMarkdown = memo(
+  ({ content, id }: { content: string; id: string }) => {
     // 将Markdown内容解析为块
     const blocks = useMemo(() => parseMarkdownIntoBlocks(content), [content])
 
@@ -180,14 +181,11 @@ export const UnifiedMarkdownRenderer = memo(
     return (
       <>
         {blocks.map((block, index) => (
-          <MemoizedMarkdownBlock
-            content={block}
-            key={`${contentId}-block_${index}`}
-          />
+          <MemoizedMarkdownBlock content={block} key={`${id}-block_${index}`} />
         ))}
       </>
     )
   }
 )
 
-UnifiedMarkdownRenderer.displayName = 'UnifiedMarkdownRenderer'
+MemoizedMarkdown.displayName = 'UnifiedMarkdownRenderer'

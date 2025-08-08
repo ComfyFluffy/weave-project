@@ -4,7 +4,7 @@ import {
   getAuthorColor,
   formatTimestamp,
 } from '../../utils/ui'
-import { UnifiedMarkdownRenderer } from './UnifiedMarkdownRenderer'
+import { MemoizedMarkdown } from '../MemoizedMarkdown'
 import type { Message } from '@weave/types'
 
 // 定义消息项组件的属性接口
@@ -44,7 +44,7 @@ export function MessageItem({ message, showAvatar }: MessageItemProps) {
           {/* 消息头部：显示用户名和时间戳 */}
           <MessageHeader message={message} />
           {/* 消息内容：使用统一的 Markdown 渲染器 */}
-          <MessageContent content={message.content} />
+          <MessageContent message={message} />
         </Box>
       </Flex>
     )
@@ -57,17 +57,12 @@ export function MessageItem({ message, showAvatar }: MessageItemProps) {
       <Box width="40px" /> {/* Avatar placeholder */}
       <Box flex={1}>
         {/* 只显示消息内容 */}
-        <MessageContent content={message.content} />
+        <MessageContent message={message} />
       </Box>
     </Flex>
   )
 }
 
-/**
- * 消息头部组件 - 显示消息发送者信息和时间戳
- * @param param0 消息对象
- * @returns JSX 元素
- */
 function MessageHeader({ message }: { message: Message }) {
   return (
     <Flex align="baseline" gap={2} mb={1}>
@@ -88,28 +83,15 @@ function MessageHeader({ message }: { message: Message }) {
     </Flex>
   )
 }
-
-/**
- * 消息内容组件 - 负责渲染消息文本内容
- * 使用统一的 Markdown 渲染器，并支持流式渲染
- * @param param0 内容字符串和流式渲染标志
- * @returns JSX 元素
- */
-function MessageContent({ content }: { content: string }) {
+function MessageContent({ message }: { message: Message }) {
   return (
     <Box color="gray.200" fontSize="sm" lineHeight="1.4">
       {/* 使用统一的 Markdown 渲染器渲染内容 */}
-      {/* 传递内容和流式渲染标志 */}
-      <UnifiedMarkdownRenderer content={content} />
+      <MemoizedMarkdown content={message.content} id={message.id} />
     </Box>
   )
 }
 
-/**
- * 消息类型标签组件 - 显示消息类型的徽章
- * @param param0 消息类型
- * @returns JSX 元素
- */
 function MessageTypeBadge({ type }: { type: string }) {
   // 消息类型对应的中文标签
   const labels: Record<string, string> = {
