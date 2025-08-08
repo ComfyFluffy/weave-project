@@ -18,27 +18,23 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null)
 
+  // 初始化时用户未登录
+  // 认证状态将在页面刷新后丢失，需要重新登录
+  // 这样可以避免将敏感信息存储在 localStorage 中
   useEffect(() => {
-    // Check if user is already logged in (from localStorage or session)
-    const storedUser = localStorage.getItem('user')
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser))
-      } catch (error) {
-        console.error('Failed to parse stored user', error)
-        localStorage.removeItem('user')
-      }
-    }
+    // 不再从 localStorage 读取用户信息
+    // 用户需要重新登录以获得认证状态
   }, [])
 
   const login = (userData: User) => {
     setUser(userData)
-    localStorage.setItem('user', JSON.stringify(userData))
+    // 不再将用户信息存储在 localStorage 中
+    // 认证状态仅在内存中保持
   }
 
   const logout = () => {
     setUser(null)
-    localStorage.removeItem('user')
+    // 不再需要从 localStorage 移除用户信息
   }
 
   const value = {

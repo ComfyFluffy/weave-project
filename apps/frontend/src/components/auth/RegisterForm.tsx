@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { Box, Button, Input, VStack, Heading, Text } from '@chakra-ui/react'
 import type { UserRegistration } from '@weave/types'
-import { authService } from '../../services/authService'
 import { toaster } from '../ui/toaster'
+import { useRegister } from '../../hooks/useAuth'
 
 interface RegisterFormProps {
   onRegisterSuccess: () => void
@@ -18,7 +18,7 @@ export function RegisterForm({
     email: '',
     password: '',
   })
-  const [isLoading, setIsLoading] = useState(false)
+  const { mutate: registerMutation, isPending: isRegisterPending } = useRegister()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -28,28 +28,27 @@ export function RegisterForm({
     }))
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     console.log('Register form submitted with data:', userData)
-    setIsLoading(true)
 
-    try {
-      await authService.register(userData)
-      console.log('Registration successful')
-      toaster.success({
-        title: '注册成功',
-        description: '您的账户已创建，请登录',
-      })
-      onRegisterSuccess()
-    } catch (error) {
-      console.error('Registration failed:', error)
-      toaster.error({
-        title: '注册失败',
-        description: error instanceof Error ? error.message : '未知错误',
-      })
-    } finally {
-      setIsLoading(false)
-    }
+    registerMutation(userData, {
+      onSuccess: () => {
+        console.log('Registration successful')
+        toaster.success({
+          title: '注册成功',
+          description: '您的账户已创建，请登录',
+        })
+        onRegisterSuccess()
+      },
+      onError: (error) => {
+        console.error('Registration failed:', error)
+        toaster.error({
+          title: '注册失败',
+          description: error instanceof Error ? error.message : '未知错误',
+        })
+      },
+    })
   }
 
   return (
@@ -174,7 +173,7 @@ export function RegisterForm({
             type="submit"
             colorPalette="blue"
             width="100%"
-            loading={isLoading}
+            loading={isRegisterPending}
             py={6}
             mt={4}
             fontWeight="medium"

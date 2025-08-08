@@ -177,7 +177,7 @@ export class MockDatabaseService implements DatabaseService {
   }
 
   async getUserByEmail(email: string): Promise<User | null> {
-    return this.users.find((u) => u.email === email) || null
+    throw new Error('Method not implemented.')
   }
 
   async createUser(userData: Omit<User, 'id'>): Promise<User> {

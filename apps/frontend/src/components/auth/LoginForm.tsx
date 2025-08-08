@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { Box, Button, Input, VStack, Heading, Text } from '@chakra-ui/react'
 import type { UserLogin } from '@weave/types'
-import { authService } from '../../services/authService'
 import { toaster } from '../ui/toaster'
 import { useAuth } from '../../providers/AuthProvider'
+import { useLogin } from '../../hooks/useAuth'
 
 interface LoginFormProps {
   onLoginSuccess: () => void
@@ -18,8 +18,8 @@ export function LoginForm({
     email: '',
     password: '',
   })
-  const [isLoading, setIsLoading] = useState(false)
   const { login } = useAuth()
+  const { mutate: loginMutation, isPending: isLoginPending } = useLogin()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -29,29 +29,28 @@ export function LoginForm({
     }))
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     console.log('Login form submitted with credentials:', credentials)
-    setIsLoading(true)
 
-    try {
-      const user = await authService.login(credentials)
-      console.log('Login successful, user:', user)
-      login(user)
-      toaster.success({
-        title: '登录成功',
-        description: '欢迎回来！',
-      })
-      onLoginSuccess()
-    } catch (error) {
-      console.error('Login failed:', error)
-      toaster.error({
-        title: '登录失败',
-        description: error instanceof Error ? error.message : '未知错误',
-      })
-    } finally {
-      setIsLoading(false)
-    }
+    loginMutation(credentials, {
+      onSuccess: (user) => {
+        console.log('Login successful, user:', user)
+        login(user)
+        toaster.success({
+          title: '登录成功',
+          description: '欢迎回来！',
+        })
+        onLoginSuccess()
+      },
+      onError: (error) => {
+        console.error('Login failed:', error)
+        toaster.error({
+          title: '登录失败',
+          description: error instanceof Error ? error.message : '未知错误',
+        })
+      },
+    })
   }
 
   return (
@@ -146,7 +145,7 @@ export function LoginForm({
             type="submit"
             colorPalette="blue"
             width="100%"
-            loading={isLoading}
+            loading={isLoginPending}
             py={6}
             mt={4}
             fontWeight="medium"
