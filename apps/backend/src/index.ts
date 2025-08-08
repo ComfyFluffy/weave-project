@@ -14,6 +14,7 @@ import { createMessageRoutes } from './routes/messages'
 import { createUserRoutes } from './routes/users'
 import { createItemRoutes } from './routes/items'
 import { createAIRoutes } from './routes/ai'
+import { createAuthRoutes } from './routes/auth'
 
 const app = express()
 const server = createServer(app)
@@ -133,6 +134,7 @@ app.use('/api/messages', createMessageRoutes(dbService))
 app.use('/api/users', createUserRoutes(dbService))
 app.use('/api/items', createItemRoutes(dbService))
 app.use('/api/ai', createAIRoutes(dbService))
+app.use('/api/auth', createAuthRoutes(dbService))
 
 const PORT = process.env.PORT || 3001
 
