@@ -148,7 +148,7 @@ export const CreateChannelModal = ({ worldId }: CreateChannelModalProps) => {
 
                 <VStack gap={2} mt={2}>
                   <Button
-                    onClick={handleSubmit}
+                    onClick={() => void handleSubmit()}
                     loading={createChannelMutation.isPending}
                     disabled={!name.trim()}
                     size="sm"

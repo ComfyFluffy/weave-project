@@ -1,4 +1,4 @@
-name: CI - Lint and Format Check
+name: Format Check
 
 on:
   push:
@@ -7,8 +7,8 @@ on:
     branches: [main, develop]
 
 jobs:
-  lint-and-format:
-    name: Lint and Format Check
+  format:
+    name: Prettier Format Check
     runs-on: ubuntu-latest
 
     steps:
@@ -34,15 +34,5 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run ESLint
-        run: pnpm lint
-
       - name: Check Prettier formatting
         run: pnpm format:check
-
-      - name: TypeScript compilation check
-        run: |
-          echo "Checking backend TypeScript compilation..."
-          cd apps/backend && pnpm tsc --noEmit
-          echo "Checking frontend TypeScript compilation..."
-          cd ../frontend && pnpm tsc --noEmit

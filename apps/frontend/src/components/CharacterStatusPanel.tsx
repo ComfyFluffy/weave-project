@@ -29,28 +29,16 @@ export function CharacterStatusPanel({
             <Text fontSize="md" fontWeight="bold" color="white">
               {character.name}
             </Text>
-            {character.isNpc && (
-              <Box
-                bg="orange.500"
-                color="white"
-                px={1}
-                py={0.5}
-                borderRadius="sm"
-                fontSize="xs"
-              >
-                NPC
-              </Box>
-            )}
           </HStack>
           <Box
-            bg={character.isNpc ? 'orange.500' : 'blue.500'}
+            bg="blue.500"
             color="white"
             px={1}
             py={0.5}
             borderRadius="sm"
             fontSize="xs"
           >
-            {character.isNpc ? 'NPC' : '玩家角色'}
+            玩家角色
           </Box>
         </HStack>
 

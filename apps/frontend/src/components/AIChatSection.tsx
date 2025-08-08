@@ -13,6 +13,7 @@ import {
 import { Send, User, Bot } from 'lucide-react'
 import { type Message } from '@ai-sdk/react'
 import { useWorldChat } from '../services/aiService'
+import { MemoizedMarkdown } from './MemoizedMarkdown'
 
 interface AIChatSectionProps {
   worldId: string
@@ -52,16 +53,20 @@ export function AIChatSection({
     const userMessage = input.trim()
     setInput('')
 
-    await append({
-      role: 'user',
-      content: userMessage,
-    })
+    try {
+      await append({
+        role: 'user',
+        content: userMessage,
+      })
+    } catch (error) {
+      console.error('Error sending message:', error)
+    }
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
-      handleSubmit(e)
+      void handleSubmit(e)
     }
   }
 
@@ -142,7 +147,11 @@ export function AIChatSection({
         bg="gray.800"
         borderBottomRadius="md"
       >
-        <form onSubmit={handleSubmit}>
+        <form
+          onSubmit={(e) => {
+            void handleSubmit(e)
+          }}
+        >
           <HStack gap={2}>
             <Textarea
               value={input}
@@ -211,9 +220,8 @@ function MessageItem({ message, isLoading }: MessageItemProps) {
         borderTopRightRadius={isUser ? 'sm' : 'lg'}
         position="relative"
       >
-        <Text fontSize="sm" whiteSpace="pre-wrap">
-          {message.content}
-        </Text>
+        <MemoizedMarkdown content={message.content} id={message.id} />
+
         {isLoading && !isUser && (
           <Flex align="center" gap={2} mt={2}>
             <Spinner size="xs" />

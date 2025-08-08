@@ -56,12 +56,12 @@ export function ChatLayout() {
     // Setup socket event listeners
     socketService.onNewMessage((_message: Message) => {
       // Refetch messages when new message arrives
-      refetchMessages()
+      void refetchMessages()
     })
 
     socketService.onMessageHistory((_messageHistory: Message[]) => {
       // Refetch messages when history is updated
-      refetchMessages()
+      void refetchMessages()
     })
 
     // Cleanup on unmount
@@ -88,7 +88,7 @@ export function ChatLayout() {
   useEffect(() => {
     if (selectedChannelId) {
       socketService.joinChannel(selectedChannelId)
-      refetchMessages() // Refresh messages for the new channel
+      void refetchMessages() // Refresh messages for the new channel
     }
   }, [selectedChannelId, refetchMessages])
 

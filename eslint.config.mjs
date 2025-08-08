@@ -140,6 +140,7 @@ export default [
       '**/.pnp.*',
       '**/coverage/**',
       'eslint.config.mjs',
+      '**/generated/**',
     ],
   },
 ]
