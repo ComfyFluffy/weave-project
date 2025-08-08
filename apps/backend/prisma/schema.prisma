@@ -14,76 +14,175 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ===== Core Entity Models =====
+// These models correspond to the TypeScript interfaces defined in packages/types/src/index.ts
+// The field order and documentation are aligned with the TypeScript definitions
+
+/// User represents a person using the platform
+/// Users can be players or game masters
 model User {
-  id              String   @id @default(uuid())
-  username        String   @unique
-  password        String
-  avatar          String?
-  hostingWorlds   World[]  @relation(name: "hostsOfWorld")
+  /// Unique identifier for the user
+  id          String  @id @default(ulid())
+  /// Email address for authentication
+  email       String  @unique
+  /// Password hash for authentication
+  password    String
+  /// Display name of the user
+  displayName String
+  /// Optional avatar emoji or image URL
+  avatar      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  hostingWorlds   World[]     @relation(name: "HostsOfWorld")
   joinedWorlds    World[]
   ownedCharacters Character[]
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
 }
 
+/// Channel represents a chat channel within a world
+/// Channels are organized by type (announcement, OOC, IC) and belong to a specific world
 model Channel {
-  id          String      @id @default(ulid())
-  worldId     String
-  world       World       @relation(fields: [worldId], references: [id])
-  name        String
-  type        ChannelType
-  description String?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  /// Unique identifier for the channel
+  id           String      @id @default(ulid())
+  /// ID of the world this channel belongs to
+  worldId      String
+  /// Name of the channel (e.g., "general", "ooc-chat")
+  name         String
+  /// Type of channel determining its purpose
+  type         ChannelType
+  /// Optional description of the channel's purpose
+  description  String?
+  /// ID of the world state associated with this channel
+  worldStateId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  world      World       @relation(fields: [worldId], references: [id])
+  worldState WorldState? @relation(fields: [worldStateId], references: [id])
 }
 
+/// World represents a complete game universe
+/// Worlds contain channels, characters, and maintain their own world state
 model World {
-  id          String    @id @default(uuid())
-  name        String    @unique
+  /// Unique identifier for the world
+  id          String   @id @default(ulid())
+  /// Name of the world/game
+  name        String   @unique
+  /// Description of the world setting
   description String?
+  /// Tags categorizing the world (e.g., fantasy, sci-fi, horror)
   tags        String[]
+  /// Optional ruleset information
   rules       String?
+  /// ID of the user who hosts/owns this world
   hostId      String
-  host        User      @relation(name: "hostsOfWorld", fields: [hostId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  host        User         @relation(name: "HostsOfWorld", fields: [hostId], references: [id])
   users       User[]
   channels    Channel[]
-  data        Json
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  worldStates WorldState[]
 }
 
+/// WorldState represents the complete dynamic state of a world
+/// This is the core of our intelligent storytelling system, maintaining
+/// all the structured data about characters, locations, plots, and events
+///
+/// Database Storage:
+/// All complex data is stored as a single JSON object in the `state` field
+/// to simplify management of flexible, nested data structures.
+model WorldState {
+  /// Unique identifier for the world state
+  id      String @id @default(ulid())
+  /// ID of the world this state belongs to
+  worldId String
+
+  /// Complete world state data stored as JSON
+  state Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  world      World       @relation(fields: [worldId], references: [id])
+  Channel    Channel[]
+  characters Character[] @relation("WorldStateCharacters")
+}
+
+/// Character represents a person or creature in the game world
+/// Characters can be player-controlled (PC) or non-player (NPC)
+/// NOTE: This model only stores basic character info. Full character state
+/// (location, inventory, stats) is stored in WorldState.characterStates
 model Character {
-  id          String   @id @default(uuid())
-  userId      String   
-  user        User     @relation(fields: [userId], references: [id])
+  /// Unique identifier for the character
+  id          String  @id @default(ulid())
+  /// ID of the user who owns this character
+  ownerId     String
+  /// Name of the character
   name        String
+  /// Description of the character's appearance/personality
   description String?
+  /// Optional avatar emoji or image URL
   avatar      String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  owner       User         @relation(fields: [ownerId], references: [id])
+  worldStates WorldState[] @relation("WorldStateCharacters")
 }
 
+/// Message represents a chat message sent in a channel
+/// Messages can be from users, characters, the system, or AI
 model Message {
-  id          String      @id @default(uuid())
+  /// Unique identifier for the message
+  id          String      @id @default(ulid())
+  /// ID of the channel this message was sent to
   channelId   String
+  /// ID of the user who sent the message (optional for system messages)
   userId      String?
+  /// ID of the character associated with this message (optional)
   characterId String?
+  /// Type determining how the message is displayed
   type        MessageType
+  /// Content/body of the message
   content     String
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @default(now())
+
+  /// Timestamp when the message was created
+  createdAt DateTime @default(now())
+  /// Timestamp when the message was last updated
+  updatedAt DateTime @default(now())
 }
 
+// ===== Enums =====
+// These enums correspond to the TypeScript enums in packages/types/src/index.ts
+
+/// Channel types determining the purpose of a channel
 enum ChannelType {
+  /// Out of Character chat
   OOC
+  /// In Character roleplay
   IC
+  /// Announcements from game masters
   ANNOUNCEMENT
 }
 
+/// Message types determining how messages are displayed
 enum MessageType {
+  /// Message from a character
   CHARACTER
+  /// Action description
   ACTION
+  /// System notification
   SYSTEM
-  AI
+  /// Game master message
   GM
 }

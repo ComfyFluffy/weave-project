@@ -1,6 +1,7 @@
 {
   "name": "backend",
   "scripts": {
+    "db:generate": "prisma generate",
     "dev": "ts-node-dev --respawn --transpile-only ./src/index.ts",
     "type-check": "tsc --noEmit"
   },

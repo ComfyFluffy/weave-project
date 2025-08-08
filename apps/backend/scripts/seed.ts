@@ -1,23 +1,24 @@
-import { PrismaClient } from './apps/backend/src/generated/prisma'
 import { withAccelerate } from '@prisma/extension-accelerate'
 import {
   users as mockUsers,
   worlds as mockWorlds,
   worldState as mockWorldState,
   messages as mockMessages,
-} from './apps/backend/src/mock'
+} from '../src/mock'
+import { PrismaClient } from '../src/generated/prisma'
 
 const prisma = new PrismaClient().$extends(withAccelerate())
 
 async function seed() {
   try {
     console.log('Seeding database...')
-    // Clear existing data
+    // Clear existing data (in correct order due to foreign key constraints)
     await prisma.message.deleteMany()
     await prisma.channel.deleteMany()
+    await prisma.character.deleteMany()
+    await prisma.worldState.deleteMany()
     await prisma.world.deleteMany()
     await prisma.user.deleteMany()
-    await prisma.character.deleteMany()
 
     // Create users
     console.log('Creating users...')
@@ -25,22 +26,36 @@ async function seed() {
       await prisma.user.create({
         data: {
           id: user.id,
-          username: user.username,
-          password: 'password', // In a real app, this would be hashed
-          avatar: user.avatar || null,
+          email: `${user.id}@example.com`, // Generate email from ID
+          password: 'password123', // In a real app, this would be hashed
+          displayName: user.displayName,
+          avatar: user.avatar,
         },
       })
     }
 
     // Create characters
     console.log('Creating characters...')
+    // Assign characters to users (first 3 to players, NPCs to GM)
+    const characterOwnerMap = {
+      'char-1': 'user-1', // 阿尔萨斯 -> 龙骑士玩家
+      'char-2': 'user-2', // 梅林 -> 法师玩家
+      'char-3': 'user-3', // 凯瑟琳 -> 盗贼玩家
+      'npc-1': 'gm-1', // 托尼 -> 游戏主持人
+      'npc-2': 'gm-1', // 艾莉娅 -> 游戏主持人
+    }
+
     for (const character of mockWorldState.characters) {
+      const ownerId =
+        characterOwnerMap[character.id as keyof typeof characterOwnerMap] ||
+        'gm-1'
       await prisma.character.create({
         data: {
           id: character.id,
           name: character.name,
-          description: character.description || null,
-          avatar: character.avatar || null,
+          description: character.description,
+          avatar: character.avatar,
+          ownerId: ownerId,
         },
       })
     }
@@ -48,36 +63,42 @@ async function seed() {
     // Create worlds
     console.log('Creating worlds...')
     for (const world of mockWorlds) {
-      // Prepare the world data to match the Prisma schema
-      const worldData = {
-        keyEventsLog: mockWorldState.keyEventsLog,
-        locations: mockWorldState.locations,
-        plots: mockWorldState.plots,
-        lore: mockWorldState.lore,
-        characters: mockWorldState.characters,
-        characterStates: mockWorldState.characterStates,
-        items: mockWorldState.items,
-        itemTemplates: mockWorldState.itemTemplates,
-        currentGameTime: mockWorldState.currentGameTime,
-        outline: mockWorldState.outline,
-      }
-
       // Get the host user
-      const hostUser = mockUsers.find((u) => u.id === 'gm-1') || mockUsers[0] // Assign the GM as host if available
+      const hostUser = mockUsers.find((u) => u.id === 'gm-1') || mockUsers[0]
 
-      await prisma.world.create({
+      const createdWorld = await prisma.world.create({
         data: {
           id: world.id,
           name: world.name,
-          description: world.description || null,
+          description: world.description,
           tags: world.tags,
-          rules: world.rules || null,
-          host: {
-            connect: { id: hostUser.id },
+          rules: world.rules,
+          hostId: hostUser.id,
+        },
+      })
+
+      // Create world state
+      console.log('Creating world state...')
+      const worldStateData = {
+        keyEventsLog: mockWorldState.state.keyEventsLog,
+        locations: mockWorldState.state.locations,
+        plots: mockWorldState.state.plots,
+        lore: mockWorldState.state.lore,
+        characterStates: mockWorldState.state.characterStates,
+        items: mockWorldState.state.items,
+        itemTemplates: mockWorldState.state.itemTemplates,
+        currentGameTime: mockWorldState.state.currentGameTime,
+        outline: mockWorldState.state.outline,
+      }
+
+      const createdWorldState = await prisma.worldState.create({
+        data: {
+          id: mockWorldState.id,
+          worldId: createdWorld.id,
+          state: worldStateData,
+          characters: {
+            connect: mockWorldState.characters.map((char) => ({ id: char.id })),
           },
-          // Serialize the complex object to JSON string and then parse it back
-          // This ensures proper JSON serialization for Prisma
-          data: JSON.parse(JSON.stringify(worldData)),
         },
       })
 
@@ -88,16 +109,10 @@ async function seed() {
           data: {
             id: channel.id,
             name: channel.name,
-            type:
-              channel.type === 'ic'
-                ? 'IC'
-                : channel.type === 'ooc'
-                  ? 'OOC'
-                  : 'ANNOUNCEMENT',
+            type: channel.type,
             description: channel.description || null,
-            world: {
-              connect: { id: world.id },
-            },
+            worldId: world.id,
+            worldStateId: createdWorldState.id, // Link channel to world state
           },
         })
       }
@@ -110,35 +125,13 @@ async function seed() {
 
     if (mockMessages[channelId]) {
       for (const message of mockMessages[channelId]) {
-        // Map message types from mock data to Prisma enum values
-        let messageType: any = 'SYSTEM' // default
-        switch (message.type) {
-          case 'character':
-            messageType = 'CHARACTER'
-            break
-          case 'character-action':
-            messageType = 'ACTION'
-            break
-          case 'system':
-            messageType = 'SYSTEM'
-            break
-          case 'ai':
-            messageType = 'AI'
-            break
-          case 'gm':
-            messageType = 'GM'
-            break
-          default:
-            messageType = 'SYSTEM'
-        }
-
         await prisma.message.create({
           data: {
             id: message.id,
             channelId: message.channelId,
-            userId: message.userId || null,
-            characterId: message.characterId || null,
-            type: messageType,
+            userId: message.userId,
+            characterId: message.characterId,
+            type: message.type,
             content: message.content,
           },
         })
@@ -153,4 +146,4 @@ async function seed() {
   }
 }
 
-seed()
+void seed()
