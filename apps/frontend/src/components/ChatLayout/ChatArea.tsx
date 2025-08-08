@@ -42,10 +42,9 @@ export function ChatArea({
     id: 'no-channel',
     worldId: '',
     name: '选择一个频道',
-    type: 'ooc',
+    type: 'OOC',
     description: '请从左侧选择一个频道开始对话',
     worldStateId: '',
-    createdAt: new Date(),
   }
 
   // Handle input changes

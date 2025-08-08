@@ -39,7 +39,7 @@ export function WorldStateOverview({ worldState }: WorldStateOverviewProps) {
               当前游戏时间:
             </Text>
             <Text fontSize="sm" color="white">
-              {worldState.currentGameTime}
+              {worldState.state.currentGameTime}
             </Text>
           </HStack>
 
@@ -57,7 +57,7 @@ export function WorldStateOverview({ worldState }: WorldStateOverviewProps) {
               地点数量:
             </Text>
             <Text fontSize="sm" color="white">
-              {worldState.locations.length}
+              {worldState.state.locations.length || 0}
             </Text>
           </HStack>
 
@@ -66,7 +66,8 @@ export function WorldStateOverview({ worldState }: WorldStateOverviewProps) {
               活跃剧情:
             </Text>
             <Text fontSize="sm" color="white">
-              {worldState.plots.filter((p) => p.status === 'active').length}
+              {worldState.state.plots.filter((p: any) => p.status === 'active')
+                .length || 0}
             </Text>
           </HStack>
 
@@ -75,16 +76,15 @@ export function WorldStateOverview({ worldState }: WorldStateOverviewProps) {
               重要事件:
             </Text>
             <Text fontSize="sm" color="white">
-              {
-                worldState.keyEventsLog.filter(
-                  (e) => e.importance === 'critical' || e.importance === 'high'
-                ).length
-              }
+              {worldState.state.keyEventsLog.filter(
+                (e: any) =>
+                  e.importance === 'critical' || e.importance === 'high'
+              ).length || 0}
             </Text>
           </HStack>
         </VStack>
 
-        {worldState.outline && (
+        {worldState.state.outline && (
           <>
             <Box height="1px" bg="gray.600" />
             <VStack align="stretch" gap={2}>
@@ -92,7 +92,7 @@ export function WorldStateOverview({ worldState }: WorldStateOverviewProps) {
                 世界概要:
               </Text>
               <Text fontSize="sm" color="gray.300" fontStyle="italic">
-                {worldState.outline}
+                {worldState.state.outline}
               </Text>
             </VStack>
           </>

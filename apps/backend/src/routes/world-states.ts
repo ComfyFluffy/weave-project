@@ -366,7 +366,7 @@ export function createWorldStateRoutes(
         if (!worldState) {
           return res.status(404).json({ error: 'World state not found' })
         }
-        res.json(worldState.locations)
+        res.json(worldState.state.locations)
       } catch (error) {
         console.error('Error fetching locations:', error)
         res.status(500).json({ error: 'Failed to fetch locations' })
@@ -389,7 +389,10 @@ export function createWorldStateRoutes(
 
         const updatedWorldState = {
           ...worldState,
-          locations: [...worldState.locations, newLocation],
+          state: {
+            ...worldState.state,
+            locations: [...worldState.state.locations, newLocation],
+          },
         }
 
         const result = await dbService.updateWorldState(
@@ -427,23 +430,26 @@ export function createWorldStateRoutes(
         }
 
         // Find and update location
-        const locationIndex = worldState.locations.findIndex(
-          (l) => l.name === req.params.locationName
+        const locationIndex = worldState.state.locations.findIndex(
+          (l: any) => l.name === req.params.locationName
         )
         if (locationIndex === -1) {
           return res.status(404).json({ error: 'Location not found' })
         }
 
         const updatedLocation = {
-          ...worldState.locations[locationIndex],
+          ...worldState.state.locations[locationIndex],
           ...req.body,
         }
-        const updatedLocations = [...worldState.locations]
+        const updatedLocations = [...worldState.state.locations]
         updatedLocations[locationIndex] = updatedLocation
 
         const updatedWorldState = {
           ...worldState,
-          locations: updatedLocations,
+          state: {
+            ...worldState.state,
+            locations: updatedLocations,
+          },
         }
 
         const result = await dbService.updateWorldState(
@@ -481,7 +487,7 @@ export function createWorldStateRoutes(
         }
 
         // Check if location exists
-        const locationIndex = worldState.locations.findIndex(
+        const locationIndex = worldState.state.locations.findIndex(
           (l) => l.name === req.params.locationName
         )
         if (locationIndex === -1) {
@@ -489,12 +495,15 @@ export function createWorldStateRoutes(
         }
 
         // Remove location
-        const updatedLocations = worldState.locations.filter(
+        const updatedLocations = worldState.state.locations.filter(
           (l) => l.name !== req.params.locationName
         )
         const updatedWorldState = {
           ...worldState,
-          locations: updatedLocations,
+          state: {
+            ...worldState.state,
+            locations: updatedLocations,
+          },
         }
 
         const result = await dbService.updateWorldState(
@@ -529,7 +538,7 @@ export function createWorldStateRoutes(
         if (!worldState) {
           return res.status(404).json({ error: 'World state not found' })
         }
-        res.json(worldState.plots)
+        res.json(worldState.state.plots)
       } catch (error) {
         console.error('Error fetching plots:', error)
         res.status(500).json({ error: 'Failed to fetch plots' })
@@ -552,7 +561,10 @@ export function createWorldStateRoutes(
 
         const updatedWorldState = {
           ...worldState,
-          plots: [...worldState.plots, newPlot],
+          state: {
+            ...worldState.state,
+            plots: [...worldState.state.plots, newPlot],
+          },
         }
 
         const result = await dbService.updateWorldState(
@@ -587,20 +599,26 @@ export function createWorldStateRoutes(
         }
 
         // Find and update plot
-        const plotIndex = worldState.plots.findIndex(
+        const plotIndex = worldState.state.plots.findIndex(
           (p) => p.title === req.params.plotTitle
         )
         if (plotIndex === -1) {
           return res.status(404).json({ error: 'Plot not found' })
         }
 
-        const updatedPlot = { ...worldState.plots[plotIndex], ...req.body }
-        const updatedPlots = [...worldState.plots]
+        const updatedPlot = {
+          ...worldState.state.plots[plotIndex],
+          ...req.body,
+        }
+        const updatedPlots = [...worldState.state.plots]
         updatedPlots[plotIndex] = updatedPlot
 
         const updatedWorldState = {
           ...worldState,
-          plots: updatedPlots,
+          state: {
+            ...worldState.state,
+            plots: updatedPlots,
+          },
         }
 
         const result = await dbService.updateWorldState(
@@ -635,7 +653,7 @@ export function createWorldStateRoutes(
         }
 
         // Check if plot exists
-        const plotIndex = worldState.plots.findIndex(
+        const plotIndex = worldState.state.plots.findIndex(
           (p) => p.title === req.params.plotTitle
         )
         if (plotIndex === -1) {
@@ -643,12 +661,15 @@ export function createWorldStateRoutes(
         }
 
         // Remove plot
-        const updatedPlots = worldState.plots.filter(
+        const updatedPlots = worldState.state.plots.filter(
           (p) => p.title !== req.params.plotTitle
         )
         const updatedWorldState = {
           ...worldState,
-          plots: updatedPlots,
+          state: {
+            ...worldState.state,
+            plots: updatedPlots,
+          },
         }
 
         const result = await dbService.updateWorldState(
@@ -683,7 +704,7 @@ export function createWorldStateRoutes(
         if (!worldState) {
           return res.status(404).json({ error: 'World state not found' })
         }
-        res.json(worldState.keyEventsLog)
+        res.json(worldState.state.keyEventsLog)
       } catch (error) {
         console.error('Error fetching events:', error)
         res.status(500).json({ error: 'Failed to fetch events' })
@@ -709,7 +730,10 @@ export function createWorldStateRoutes(
 
         const updatedWorldState = {
           ...worldState,
-          keyEventsLog: [...worldState.keyEventsLog, newEvent],
+          state: {
+            ...worldState.state,
+            keyEventsLog: [...worldState.state.keyEventsLog, newEvent],
+          },
         }
 
         const result = await dbService.updateWorldState(

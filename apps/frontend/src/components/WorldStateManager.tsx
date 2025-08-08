@@ -152,7 +152,7 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
             <VStack align="stretch" gap={3}>
               {worldState.characters.map((character) => {
                 const characterState =
-                  worldState.characterStates?.[character.id]
+                  worldState.state.characterStates?.[character.id]
                 if (!characterState) return null
 
                 return (
@@ -173,11 +173,11 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
           )}
 
           {activeTab === 'locations' && (
-            <LocationsExplorer locations={worldState.locations || []} />
+            <LocationsExplorer locations={worldState.state?.locations || []} />
           )}
 
           {activeTab === 'plots' && (
-            <PlotsTracker plots={worldState.plots || []} />
+            <PlotsTracker plots={worldState.state?.plots || []} />
           )}
         </Box>
       </VStack>

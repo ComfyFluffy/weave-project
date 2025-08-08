@@ -189,7 +189,7 @@ export type StatValue = {
  */
 export interface CharacterState {
   /** Name of the location where this character currently is */
-  currentLocationName: string
+  currentLocationName: Location['name']
   /** Keys of items in this character's inventory */
   inventory: Item['key'][]
   /** Character's numerical stats (health, mana, etc.) */

@@ -61,11 +61,11 @@ export function MemberList({
             >
               <Flex align="center" gap={3}>
                 <Avatar.Root size="sm" bg="blue.500">
-                  <Avatar.Fallback name={member.username} />
+                  <Avatar.Fallback name={member.displayName} />
                 </Avatar.Root>
                 <Box flex={1}>
                   <Text color="white" fontSize="sm" fontWeight="medium">
-                    {member.username}
+                    {member.displayName}
                   </Text>
                 </Box>
               </Flex>
