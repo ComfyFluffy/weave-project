@@ -6,6 +6,7 @@ import {
 } from '../../utils/ui'
 import { MemoizedMarkdown } from '../MemoizedMarkdown'
 import type { Message } from '@weave/types'
+import { MessageType } from '@weave/types'
 
 // 定义消息项组件的属性接口
 // message: 消息对象，包含内容、类型、时间等信息
@@ -37,7 +38,7 @@ export function MessageItem({ message, showAvatar }: MessageItemProps) {
       <Flex gap={3} py={2} css={fadeInAnimation}>
         {/* 用户头像组件，根据消息类型设置不同背景色 */}
         <Avatar.Root size="sm" bg={getAuthorColor(message.type)}>
-          <Avatar.Fallback name={message.characterName || 'User'} />
+          <Avatar.Fallback name={'User'} />
         </Avatar.Root>
         {/* 消息内容容器 */}
         <Box flex={1}>
@@ -72,14 +73,15 @@ function MessageHeader({ message }: { message: Message }) {
         fontSize="sm"
         fontWeight="bold"
       >
-        {message.characterName || 'User'}
+        {'User'}
       </Text>
       {/* 消息创建时间戳 */}
       <Text color="gray.400" fontSize="xs">
         {formatTimestamp(message.createdAt)}
       </Text>
-      {/* 消息类型标签（系统消息除外） */}
-      {message.type !== 'system' && <MessageTypeBadge type={message.type} />}
+      {message.type !== MessageType.SYSTEM && (
+        <MessageTypeBadge type={message.type} />
+      )}
     </Flex>
   )
 }

@@ -12,7 +12,6 @@ import {
   Hash,
   Volume2,
   Settings,
-  BookOpen,
   MessageSquare,
   Sword,
   MoreHorizontal,
@@ -34,10 +33,9 @@ interface ChannelSidebarProps {
 }
 
 const channelIcons = {
-  announcement: Volume2,
-  rules: BookOpen,
-  ooc: MessageSquare,
-  ic: Sword,
+  ANNOUNCEMENT: Volume2,
+  OOC: MessageSquare,
+  IC: Sword,
 }
 
 export function ChannelSidebar({
@@ -59,10 +57,6 @@ export function ChannelSidebar({
     } catch (error) {
       console.error('Failed to delete channel:', error)
     }
-  }
-
-  const canDeleteChannel = (channel: Channel) => {
-    return channel.type !== 'announcement'
   }
 
   return (
@@ -144,7 +138,7 @@ export function ChannelSidebar({
                         />
                         <Text>{channel.name}</Text>
                       </Flex>
-                      {canDeleteChannel(channel) && selectedRole === 'gm' && (
+                      {selectedRole === 'gm' && (
                         <Menu.Root>
                           <Menu.Trigger asChild>
                             <IconButton
@@ -165,7 +159,7 @@ export function ChannelSidebar({
                                 <Menu.Item
                                   value="delete-channel"
                                   onClick={() =>
-                                    handleDeleteChannel(channel.id)
+                                    void handleDeleteChannel(channel.id)
                                   }
                                   color="red.400"
                                   _hover={{ bg: 'red.600', color: 'white' }}
