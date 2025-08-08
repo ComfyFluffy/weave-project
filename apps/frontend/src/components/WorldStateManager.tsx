@@ -6,7 +6,7 @@ import { LocationsExplorer } from './LocationsExplorer'
 import { PlotsTracker } from './PlotsTracker'
 import { worldStateService } from '../services/worldStateService'
 import { socketService } from '../services/socketService'
-import type { WorldState, Character } from '@weave/types'
+import type { WorldState } from '@weave/types'
 
 interface WorldStateManagerProps {
   worldStateId: string
@@ -18,6 +18,7 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState('overview')
 
+  // TODO: Use hooks
   const fetchWorldState = useCallback(async () => {
     try {
       setLoading(true)
@@ -32,7 +33,7 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
   }, [worldStateId])
 
   useEffect(() => {
-    fetchWorldState()
+    void fetchWorldState()
   }, [fetchWorldState])
 
   // Subscribe to real-time updates
@@ -65,8 +66,8 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
     }
   }, [worldStateId])
 
-  const handleRefresh = async () => {
-    await fetchWorldState()
+  const handleRefresh = () => {
+    void fetchWorldState()
   }
 
   if (loading) {

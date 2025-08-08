@@ -12,7 +12,7 @@ const API_BASE_URL = 'http://localhost:3001/api'
 
 class ApiService {
   // World endpoints
-  async fetchWorlds(): Promise<World[]> {
+  fetchWorlds = async (): Promise<World[]> => {
     const response = await fetch(`${API_BASE_URL}/worlds`)
     if (!response.ok) {
       throw new Error('Failed to fetch worlds')
@@ -20,7 +20,7 @@ class ApiService {
     return response.json()
   }
 
-  async fetchWorld(worldId: string): Promise<World> {
+  fetchWorld = async (worldId: string): Promise<World> => {
     const response = await fetch(`${API_BASE_URL}/worlds/${worldId}`)
     if (!response.ok) {
       throw new Error('Failed to fetch world')
@@ -28,7 +28,7 @@ class ApiService {
     return response.json()
   }
 
-  async createWorld(worldData: Omit<World, 'id'>): Promise<World> {
+  createWorld = async (worldData: Omit<World, 'id'>): Promise<World> => {
     const response = await fetch(`${API_BASE_URL}/worlds`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -38,7 +38,10 @@ class ApiService {
     return response.json()
   }
 
-  async updateWorld(worldId: string, data: Partial<World>): Promise<World> {
+  updateWorld = async (
+    worldId: string,
+    data: Partial<World>
+  ): Promise<World> => {
     const response = await fetch(`${API_BASE_URL}/worlds/${worldId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -48,7 +51,7 @@ class ApiService {
     return response.json()
   }
 
-  async deleteWorld(worldId: string): Promise<void> {
+  deleteWorld = async (worldId: string): Promise<void> => {
     const response = await fetch(`${API_BASE_URL}/worlds/${worldId}`, {
       method: 'DELETE',
     })
@@ -56,7 +59,7 @@ class ApiService {
   }
 
   // World State endpoints
-  async fetchWorldState(worldStateId: string): Promise<WorldState> {
+  fetchWorldState = async (worldStateId: string): Promise<WorldState> => {
     const response = await fetch(`${API_BASE_URL}/world-states/${worldStateId}`)
     if (!response.ok) {
       throw new Error('Failed to fetch world state')
@@ -64,7 +67,9 @@ class ApiService {
     return response.json()
   }
 
-  async fetchWorldStatesByWorldId(worldId: string): Promise<WorldState[]> {
+  fetchWorldStatesByWorldId = async (
+    worldId: string
+  ): Promise<WorldState[]> => {
     const response = await fetch(
       `${API_BASE_URL}/world-states/by-world/${worldId}`
     )
@@ -103,7 +108,7 @@ class ApiService {
   }
 
   // Character endpoints
-  async fetchCharactersByWorldId(worldId: string): Promise<Character[]> {
+  fetchCharactersByWorldId = async (worldId: string): Promise<Character[]> => {
     const response = await fetch(
       `${API_BASE_URL}/characters/by-world/${worldId}`
     )
@@ -113,7 +118,7 @@ class ApiService {
     return response.json()
   }
 
-  async fetchCharacter(characterId: string): Promise<Character> {
+  fetchCharacter = async (characterId: string): Promise<Character> => {
     const response = await fetch(`${API_BASE_URL}/characters/${characterId}`)
     if (!response.ok) {
       throw new Error('Failed to fetch character')
@@ -146,7 +151,7 @@ class ApiService {
     return response.json()
   }
 
-  async deleteCharacter(characterId: string): Promise<void> {
+  deleteCharacter = async (characterId: string): Promise<void> => {
     const response = await fetch(`${API_BASE_URL}/characters/${characterId}`, {
       method: 'DELETE',
     })
@@ -168,7 +173,9 @@ class ApiService {
     return response.json()
   }
 
-  async createMessage(messageData: Omit<Message, 'id'>): Promise<Message> {
+  createMessage = async (
+    messageData: Omit<Message, 'id'>
+  ): Promise<Message> => {
     const response = await fetch(`${API_BASE_URL}/messages`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -191,7 +198,7 @@ class ApiService {
     return response.json()
   }
 
-  async deleteMessage(messageId: string): Promise<void> {
+  deleteMessage = async (messageId: string): Promise<void> => {
     const response = await fetch(`${API_BASE_URL}/messages/${messageId}`, {
       method: 'DELETE',
     })
@@ -207,7 +214,7 @@ class ApiService {
     return response.json()
   }
 
-  async fetchUser(userId: string): Promise<User> {
+  fetchUser = async (userId: string): Promise<User> => {
     const response = await fetch(`${API_BASE_URL}/users/${userId}`)
     if (!response.ok) {
       throw new Error('Failed to fetch user')
@@ -215,7 +222,7 @@ class ApiService {
     return response.json()
   }
 
-  async createUser(userData: Omit<User, 'id'>): Promise<User> {
+  createUser = async (userData: Omit<User, 'id'>): Promise<User> => {
     const response = await fetch(`${API_BASE_URL}/users`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -225,7 +232,7 @@ class ApiService {
     return response.json()
   }
 
-  async updateUser(userId: string, data: Partial<User>): Promise<User> {
+  updateUser = async (userId: string, data: Partial<User>): Promise<User> => {
     const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -244,7 +251,7 @@ class ApiService {
     return response.json()
   }
 
-  async fetchItemTemplate(name: string): Promise<ItemTemplate> {
+  fetchItemTemplate = async (name: string): Promise<ItemTemplate> => {
     const response = await fetch(
       `${API_BASE_URL}/items/templates/${encodeURIComponent(name)}`
     )
@@ -254,7 +261,9 @@ class ApiService {
     return response.json()
   }
 
-  async createItemTemplate(template: ItemTemplate): Promise<ItemTemplate> {
+  createItemTemplate = async (
+    template: ItemTemplate
+  ): Promise<ItemTemplate> => {
     const response = await fetch(`${API_BASE_URL}/items/templates`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -277,7 +286,7 @@ class ApiService {
   }
 
   // Legacy channel methods for backward compatibility
-  async getChannels(worldId: string): Promise<Channel[]> {
+  getChannels = async (worldId: string): Promise<Channel[]> => {
     const world = await this.fetchWorld(worldId)
     return world.channels
   }
@@ -292,7 +301,7 @@ class ApiService {
     )
   }
 
-  async deleteChannel(worldId: string, channelId: string): Promise<void> {
+  deleteChannel = async (worldId: string, channelId: string): Promise<void> => {
     // This would need to be implemented on the backend to remove channels from worlds
     throw new Error(
       'Delete channel not implemented in new backend architecture'
@@ -300,7 +309,7 @@ class ApiService {
   }
 
   // Legacy compatibility methods (can be removed once frontend is fully updated)
-  async fetchWorldCharacters(worldId: string): Promise<Character[]> {
+  fetchWorldCharacters = async (worldId: string): Promise<Character[]> => {
     return this.fetchCharactersByWorldId(worldId)
   }
 }

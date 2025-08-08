@@ -16,7 +16,7 @@ export const useCreateChannel = (worldId: string) => {
     mutationFn: (data: { name: string; type?: string; description?: string }) =>
       apiService.createChannel(worldId, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['channels', worldId] })
+      void queryClient.invalidateQueries({ queryKey: ['channels', worldId] })
     },
   })
 }
@@ -28,7 +28,7 @@ export const useDeleteChannel = (worldId: string) => {
     mutationFn: (channelId: string) =>
       apiService.deleteChannel(worldId, channelId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['channels', worldId] })
+      void queryClient.invalidateQueries({ queryKey: ['channels', worldId] })
     },
   })
 }

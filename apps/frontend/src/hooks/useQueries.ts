@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query'
 import { apiService } from '../services/apiService'
-import type { World, WorldState, Message } from '@weave/types'
+import type { World, Message } from '@weave/types'
 
 // Query keys
 export const queryKeys = {
@@ -67,7 +67,7 @@ export const useCreateCharacter = () => {
       apiService.createCharacter(character),
     onSuccess: (newCharacter) => {
       // Invalidate and refetch world characters
-      queryClient.invalidateQueries({
+      void queryClient.invalidateQueries({
         queryKey: queryKeys.worldCharacters(newCharacter.id),
       })
     },
@@ -97,11 +97,11 @@ export function useQueryUpdates() {
   }
 
   const invalidateWorldData = (worldId: string) => {
-    queryClient.invalidateQueries({ queryKey: queryKeys.world(worldId) })
+    return queryClient.invalidateQueries({ queryKey: queryKeys.world(worldId) })
   }
 
   const invalidateChannelMessages = (channelId: string) => {
-    queryClient.invalidateQueries({
+    return queryClient.invalidateQueries({
       queryKey: queryKeys.channelMessages(channelId),
     })
   }
