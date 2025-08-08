@@ -27,7 +27,6 @@ export function RegisterRoute() {
     >
       <SharedBackground />
 
-
       <Box
         width="100%"
         maxWidth="400px"

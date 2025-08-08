@@ -17,7 +17,7 @@ export function SharedBackground() {
         backgroundSize="30px 30px"
         zIndex={0}
       />
-      
+
       {/* 光效 */}
       <Box
         position="absolute"

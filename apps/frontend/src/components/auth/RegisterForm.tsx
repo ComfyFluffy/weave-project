@@ -18,7 +18,8 @@ export function RegisterForm({
     email: '',
     password: '',
   })
-  const { mutate: registerMutation, isPending: isRegisterPending } = useRegister()
+  const { mutate: registerMutation, isPending: isRegisterPending } =
+    useRegister()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
