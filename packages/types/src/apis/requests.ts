@@ -7,11 +7,15 @@ export const UserRegistrationRequestSchema = z.object({
   email: z.string().email(),
   password: z.string().min(1).max(100),
 })
+export type UserRegistrationRequest = z.infer<
+  typeof UserRegistrationRequestSchema
+>
 
 export const UserLoginRequestSchema = z.object({
   email: z.string().email(),
   password: z.string().min(1).max(100),
 })
+export type UserLoginRequest = z.infer<typeof UserLoginRequestSchema>
 
 // ===== Worlds =====
 export const WorldIdRequestParamSchema = z.object({ id: z.string().min(1) })
