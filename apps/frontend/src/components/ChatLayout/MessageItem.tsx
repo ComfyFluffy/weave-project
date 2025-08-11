@@ -6,7 +6,6 @@ import {
 } from '../../utils/ui'
 import { MemoizedMarkdown } from '../MemoizedMarkdown'
 import type { Message } from '@weave/types'
-import { MessageType } from '@weave/types'
 
 // 定义消息项组件的属性接口
 // message: 消息对象，包含内容、类型、时间等信息
@@ -79,9 +78,7 @@ function MessageHeader({ message }: { message: Message }) {
       <Text color="gray.400" fontSize="xs">
         {formatTimestamp(message.createdAt)}
       </Text>
-      {message.type !== MessageType.SYSTEM && (
-        <MessageTypeBadge type={message.type} />
-      )}
+      {message.type !== 'system' && <MessageTypeBadge type={message.type} />}
     </Flex>
   )
 }

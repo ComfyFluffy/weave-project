@@ -31,9 +31,7 @@ export interface User {
   avatar?: string
 }
 
-export const ChannelTypeSchema = z.enum(['OOC', 'IC', 'ANNOUNCEMENT'])
-
-export const ChannelType = ChannelTypeSchema.enum
+export const ChannelTypeSchema = z.enum(['ooc', 'ic', 'announcement'])
 
 export type ChannelType = z.infer<typeof ChannelTypeSchema>
 
@@ -122,9 +120,7 @@ export interface Message {
   updatedAt?: Date
 }
 
-export const MessageTypeSchema = z.enum(['CHARACTER', 'ACTION', 'SYSTEM', 'GM'])
-
-export const MessageType = MessageTypeSchema.enum
+export const MessageTypeSchema = z.enum(['character', 'action', 'system', 'gm'])
 
 export type MessageType = z.infer<typeof MessageTypeSchema>
 
