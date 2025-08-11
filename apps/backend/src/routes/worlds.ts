@@ -1,72 +1,98 @@
 import { Router, Request, Response } from 'express'
 import { DatabaseService } from '../services/database.interface'
 import { World } from '@weave/types'
+import {
+  WorldIdRequestParamSchema,
+  WorldCreateRequestSchema,
+} from '@weave/types/apis'
 
 export function createWorldRoutes(dbService: DatabaseService) {
   const router = Router()
 
   // GET /api/worlds - Get all worlds
-  router.get('/', async (req: Request, res: Response) => {
+  router.get('/', async (_req: Request, res: Response) => {
     try {
       const worlds = await dbService.getWorlds()
-      res.json(worlds)
+      res.superjson(worlds)
     } catch (error) {
       console.error('Error fetching worlds:', error)
-      res.status(500).json({ error: 'Failed to fetch worlds' })
+      res.superjson({ error: 'Failed to fetch worlds' }, 500)
     }
   })
 
   // GET /api/worlds/:id - Get world by ID
   router.get('/:id', async (req: Request<{ id: string }>, res: Response) => {
     try {
+      const parsed = WorldIdRequestParamSchema.safeParse(req.params)
+      if (!parsed.success) {
+        return res.superjson({ error: 'Invalid world id' }, 400)
+      }
       const world = await dbService.getWorldById(req.params.id)
       if (!world) {
-        return res.status(404).json({ error: 'World not found' })
+        return res.superjson({ error: 'World not found' }, 404)
       }
-      res.json(world)
+      res.superjson(world)
     } catch (error) {
       console.error('Error fetching world:', error)
-      res.status(500).json({ error: 'Failed to fetch world' })
+      res.superjson({ error: 'Failed to fetch world' }, 500)
     }
   })
 
   // POST /api/worlds - Create new world
   router.post('/', async (req: Request, res: Response) => {
     try {
-      const worldData: Omit<World, 'id'> = req.body
+      const parsed = WorldCreateRequestSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.superjson({ error: 'Invalid world body' }, 400)
+      }
+      const worldData: Omit<World, 'id'> = parsed.data
       const world = await dbService.createWorld(worldData)
-      res.status(201).json(world)
+      res.superjson(world, 201)
     } catch (error) {
       console.error('Error creating world:', error)
-      res.status(500).json({ error: 'Failed to create world' })
+      res.superjson({ error: 'Failed to create world' }, 500)
     }
   })
 
   // PUT /api/worlds/:id - Update world
   router.put('/:id', async (req: Request<{ id: string }>, res: Response) => {
     try {
-      const world = await dbService.updateWorld(req.params.id, req.body)
-      if (!world) {
-        return res.status(404).json({ error: 'World not found' })
+      const idParsed = WorldIdRequestParamSchema.safeParse(req.params)
+      if (!idParsed.success) {
+        return res.superjson({ error: 'Invalid world id' }, 400)
       }
-      res.json(world)
+      // allow partial updates for now, validate known fields only
+      const partialWorld = WorldCreateRequestSchema.partial()
+      const bodyParsed = partialWorld.safeParse(req.body)
+      if (!bodyParsed.success) {
+        return res.superjson({ error: 'Invalid world body' }, 400)
+      }
+      const world = await dbService.updateWorld(req.params.id, bodyParsed.data)
+      if (!world) {
+        return res.superjson({ error: 'World not found' }, 404)
+      }
+      res.superjson(world)
     } catch (error) {
       console.error('Error updating world:', error)
-      res.status(500).json({ error: 'Failed to update world' })
+      res.superjson({ error: 'Failed to update world' }, 500)
     }
   })
 
   // DELETE /api/worlds/:id - Delete world
   router.delete('/:id', async (req: Request<{ id: string }>, res: Response) => {
     try {
+      const parsed = WorldIdRequestParamSchema.safeParse(req.params)
+      if (!parsed.success) {
+        return res.superjson({ error: 'Invalid world id' }, 400)
+      }
       const deleted = await dbService.deleteWorld(req.params.id)
       if (!deleted) {
-        return res.status(404).json({ error: 'World not found' })
+        return res.superjson({ error: 'World not found' }, 404)
       }
       res.status(204).send()
     } catch (error) {
       console.error('Error deleting world:', error)
-      res.status(500).json({ error: 'Failed to delete world' })
+      res.superjson({ error: 'Failed to delete world' }, 500)
     }
   })
 
@@ -77,12 +103,12 @@ export function createWorldRoutes(dbService: DatabaseService) {
       try {
         const result = await dbService.getChannelById(req.params.channelId)
         if (!result) {
-          return res.status(404).json({ error: 'Channel not found' })
+          return res.superjson({ error: 'Channel not found' }, 404)
         }
-        res.json(result)
+        res.superjson(result)
       } catch (error) {
         console.error('Error fetching channel:', error)
-        res.status(500).json({ error: 'Failed to fetch channel' })
+        res.superjson({ error: 'Failed to fetch channel' }, 500)
       }
     }
   )

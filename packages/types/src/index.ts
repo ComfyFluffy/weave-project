@@ -12,6 +12,7 @@
  * flexibility of document databases (for complex game state data).
  */
 
+import z from 'zod'
 import type { WorldState } from './state'
 
 /** Generic ID type used for all entities */
@@ -29,6 +30,12 @@ export interface User {
   /** Optional avatar emoji or image URL */
   avatar?: string
 }
+
+export const ChannelTypeSchema = z.enum(['OOC', 'IC', 'ANNOUNCEMENT'])
+
+export const ChannelType = ChannelTypeSchema.enum
+
+export type ChannelType = z.infer<typeof ChannelTypeSchema>
 
 /**
  * Channel represents a chat channel within a world
@@ -48,6 +55,15 @@ export interface Channel {
   /** ID of the world state associated with this channel */
   worldStateId?: WorldState['id']
 }
+
+export const ChannelSchema = z.object({
+  id: z.string(),
+  worldId: z.string(),
+  name: z.string(),
+  type: ChannelTypeSchema,
+  description: z.string().optional(),
+  worldStateId: z.string().optional(),
+})
 
 /**
  * World represents a complete game universe
@@ -106,21 +122,10 @@ export interface Message {
   updatedAt?: Date
 }
 
-export const ChannelType = {
-  OOC: 'OOC', // Out of Character
-  IC: 'IC', // In Character
-  ANNOUNCEMENT: 'ANNOUNCEMENT', // Announcement
-} as const
+export const MessageTypeSchema = z.enum(['CHARACTER', 'ACTION', 'SYSTEM', 'GM'])
 
-export type ChannelType = (typeof ChannelType)[keyof typeof ChannelType]
+export const MessageType = MessageTypeSchema.enum
 
-export const MessageType = {
-  CHARACTER: 'CHARACTER',
-  ACTION: 'ACTION',
-  SYSTEM: 'SYSTEM',
-  GM: 'GM',
-} as const
-
-export type MessageType = (typeof MessageType)[keyof typeof MessageType]
+export type MessageType = z.infer<typeof MessageTypeSchema>
 
 export * from './state'

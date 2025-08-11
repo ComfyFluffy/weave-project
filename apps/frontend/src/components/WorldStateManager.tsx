@@ -4,9 +4,9 @@ import { WorldStateOverview } from './WorldStateOverview'
 import { CharacterStatusPanel } from './CharacterStatusPanel'
 import { LocationsExplorer } from './LocationsExplorer'
 import { PlotsTracker } from './PlotsTracker'
-import { worldStateService } from '../services/worldStateService'
 import { socketService } from '../services/socketService'
 import type { WorldState } from '@weave/types'
+import { apiService } from '../services/apiService'
 
 interface WorldStateManagerProps {
   worldStateId: string
@@ -22,7 +22,7 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
   const fetchWorldState = useCallback(async () => {
     try {
       setLoading(true)
-      const data = await worldStateService.fetchWorldState(worldStateId)
+      const data = await apiService.fetchWorldState(worldStateId)
       setWorldState(data)
     } catch (err) {
       setError('Failed to load world state data')
@@ -44,7 +44,7 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
     // Listen for updates
     const handleWorldStateUpdate = (data: {
       worldStateId: string
-      worldState: any
+      worldState: WorldState
     }) => {
       if (data.worldStateId === worldStateId) {
         if (data.worldState === null) {

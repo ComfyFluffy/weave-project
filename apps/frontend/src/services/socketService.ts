@@ -1,5 +1,5 @@
 import { io, Socket } from 'socket.io-client'
-import type { Message, World } from '@weave/types'
+import type { Message, World, WorldState } from '@weave/types'
 
 class SocketService {
   private socket: Socket | null = null
@@ -110,7 +110,7 @@ class SocketService {
   }
 
   onWorldStateUpdate(
-    callback: (data: { worldStateId: string; worldState: any }) => void
+    callback: (data: { worldStateId: string; worldState: WorldState }) => void
   ) {
     this.socket?.on('world-state:updated', callback)
   }

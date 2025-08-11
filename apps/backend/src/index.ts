@@ -15,6 +15,7 @@ import { createUserRoutes } from './routes/users'
 import { createItemRoutes } from './routes/items'
 import { createAIRoutes } from './routes/ai'
 import { createAuthRoutes } from './routes/auth'
+import { superjsonMiddleware } from './lib/response'
 
 const app = express()
 const server = createServer(app)
@@ -36,6 +37,7 @@ app.use(
   })
 )
 app.use(express.json())
+app.use(superjsonMiddleware())
 
 // Current active users per channel
 const activeUsers: Record<string, Set<string>> = {}
@@ -126,9 +128,17 @@ io.on('connection', (socket) => {
   })
 })
 
+// World state update emitter (Socket.IO broadcast hook)
+const emitWorldStateUpdate = (worldStateId: string, worldState: any) => {
+  io.to(worldStateId).emit('world-state:updated', { worldStateId, worldState })
+}
+
 // Mount API routes
 app.use('/api/worlds', createWorldRoutes(dbService))
-app.use('/api/world-states', createWorldStateRoutes(dbService))
+app.use(
+  '/api/world-states',
+  createWorldStateRoutes(dbService, emitWorldStateUpdate)
+)
 app.use('/api/characters', createCharacterRoutes(dbService))
 app.use('/api/messages', createMessageRoutes(dbService))
 app.use('/api/users', createUserRoutes(dbService))

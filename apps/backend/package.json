@@ -6,6 +6,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "superjson": "^2.2.1",
     "@ai-sdk/openai": "^1.3.23",
     "@prisma/client": "6.13.0",
     "@types/bcrypt": "^6.0.0",

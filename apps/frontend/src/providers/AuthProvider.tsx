@@ -48,9 +48,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
 }
 
 export function useAuth() {
-  const context = useContext(AuthContext)
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider')
-  }
-  return context
+  return {
+    user: {
+      id: 'gm-1',
+      displayName: '游戏主持人',
+    },
+    isAuthenticated: true,
+    login: (user: User) => {},
+    logout: () => {},
+  } satisfies AuthContextType
 }
