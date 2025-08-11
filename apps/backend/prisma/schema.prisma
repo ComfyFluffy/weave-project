@@ -168,21 +168,21 @@ model Message {
 /// Channel types determining the purpose of a channel
 enum ChannelType {
   /// Out of Character chat
-  OOC
+  ooc
   /// In Character roleplay
-  IC
+  ic
   /// Announcements from game masters
-  ANNOUNCEMENT
+  announcement
 }
 
 /// Message types determining how messages are displayed
 enum MessageType {
   /// Message from a character
-  CHARACTER
+  character
   /// Action description
-  ACTION
+  action
   /// System notification
-  SYSTEM
+  system
   /// Game master message
-  GM
+  gm
 }

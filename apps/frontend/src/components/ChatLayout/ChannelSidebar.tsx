@@ -33,9 +33,9 @@ interface ChannelSidebarProps {
 }
 
 const channelIcons = {
-  ANNOUNCEMENT: Volume2,
-  OOC: MessageSquare,
-  IC: Sword,
+  announcement: Volume2,
+  ooc: MessageSquare,
+  ic: Sword,
 }
 
 export function ChannelSidebar({
