@@ -14,8 +14,10 @@ import { createMessageRoutes } from './routes/messages'
 import { createUserRoutes } from './routes/users'
 import { createItemRoutes } from './routes/items'
 import { createAIRoutes } from './routes/ai'
-import { createAuthRoutes } from './routes/auth'
 import { superjsonMiddleware } from './lib/response'
+import { createAuthRouter } from './routes/auth'
+import { initServer, createExpressEndpoints } from '@ts-rest/express'
+import { authContract } from '@weave/types/apis'
 
 const app = express()
 const server = createServer(app)
@@ -144,7 +146,12 @@ app.use('/api/messages', createMessageRoutes(dbService))
 app.use('/api/users', createUserRoutes(dbService))
 app.use('/api/items', createItemRoutes(dbService))
 app.use('/api/ai', createAIRoutes(dbService))
-app.use('/api/auth', createAuthRoutes(dbService))
+
+// Setup ts-rest auth routes
+const authRouter = createAuthRouter();
+createExpressEndpoints(authContract, authRouter, app, {
+  logInitialization: true,
+});
 
 const PORT = process.env.PORT || 3001
 

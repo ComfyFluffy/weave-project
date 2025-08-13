@@ -22,14 +22,16 @@ export type Id = string // Each type with an ID is going to have a table in the 
  * User represents a person using the platform
  * Users can be players or game masters
  */
-export interface User {
+export const UserSchema = z.object({
   /** Unique identifier for the user */
-  id: Id
+  id: z.string(),
   /** Display name of the user */
-  displayName: string
+  displayName: z.string(),
   /** Optional avatar emoji or image URL */
-  avatar?: string
-}
+  avatar: z.string().optional(),
+})
+
+export type User = z.infer<typeof UserSchema>
 
 export const ChannelTypeSchema = z.enum(['ooc', 'ic', 'announcement'])
 

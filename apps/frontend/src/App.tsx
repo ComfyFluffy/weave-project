@@ -15,9 +15,7 @@ function AppContent() {
       <Route
         path="/app/*"
         element={
-          <ProtectedRoute>
             <ChatLayout />
-          </ProtectedRoute>
         }
       />
       <Route

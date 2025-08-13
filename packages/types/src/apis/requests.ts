@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { ChannelSchema } from '..'
 
-// ===== Users (legacy simple interfaces kept for reference) =====
+// ===== Users =====
 export const UserRegistrationRequestSchema = z.object({
   displayName: z.string().min(1).max(100),
   email: z.string().email(),
