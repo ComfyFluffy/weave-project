@@ -12,12 +12,7 @@ function AppContent() {
   return (
     <Routes>
       <Route path="/auth/*" element={<AuthRoutes />} />
-      <Route
-        path="/app/*"
-        element={
-            <ChatLayout />
-        }
-      />
+      <Route path="/app/*" element={<ChatLayout />} />
       <Route
         path="/"
         element={

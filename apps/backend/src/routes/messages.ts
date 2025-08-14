@@ -1,6 +1,8 @@
 import { Router, Request, Response } from 'express'
 import { DatabaseService } from '../services/database.interface'
 import { Message } from '@weave/types'
+import { initServer } from '@ts-rest/express'
+import { messageContract } from '../../../../packages/types/src/apis/contracts/message'
 
 export function createMessageRoutes(dbService: DatabaseService) {
   const router = Router()
@@ -64,4 +66,25 @@ export function createMessageRoutes(dbService: DatabaseService) {
   })
 
   return router
+}
+
+export function createMessageRouter(dbService: DatabaseService) {
+  const s = initServer()
+  return s.router(messageContract, {
+    getMessagesByChannelId: async ({ params }) => {
+      const messages = await dbService.getMessagesByChannelId(params.channelId)
+      if (!messages) {
+        return {
+          status: 400,
+          body: {
+            message: 'Messages not found!',
+          },
+        }
+      }
+      return {
+        status: 200,
+        body: { messages },
+      }
+    },
+  })
 }

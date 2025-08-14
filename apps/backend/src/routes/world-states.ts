@@ -8,6 +8,8 @@ import {
   Event,
   Item,
 } from '@weave/types'
+import { initServer } from '@ts-rest/express'
+import { worldStateContract } from '../../../../packages/types/src/apis/contracts/world-state'
 
 export function createWorldStateRoutes(
   dbService: DatabaseService,
@@ -756,6 +758,30 @@ export function createWorldStateRoutes(
       }
     }
   )
-
   return router
+}
+
+export function createWorldStateRouter(dbService: DatabaseService) {
+  const s = initServer()
+  return s.router(worldStateContract, {
+    getWorldStateByWorldId: async ({ params }) => {
+      try {
+        const worldStates = await dbService.getWorldStatesByWorldId(
+          params.worldId
+        )
+        return {
+          status: 200,
+          body: worldStates,
+        }
+      } catch (error) {
+        console.error('Error fetching world states by world id:', error)
+        return {
+          status: 500,
+          body: {
+            message: 'Failed to fetch world states',
+          },
+        }
+      }
+    },
+  })
 }

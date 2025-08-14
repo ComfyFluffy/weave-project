@@ -13,7 +13,6 @@
  */
 
 import z from 'zod'
-import type { WorldState } from './state'
 
 /** Generic ID type used for all entities */
 export type Id = string // Each type with an ID is going to have a table in the database
@@ -33,28 +32,12 @@ export const UserSchema = z.object({
 
 export type User = z.infer<typeof UserSchema>
 
-export const ChannelTypeSchema = z.enum(['ooc', 'ic', 'announcement'])
-
-export type ChannelType = z.infer<typeof ChannelTypeSchema>
-
 /**
  * Channel represents a chat channel within a world
  * Channels are organized by type (announcement, OOC, IC) and belong to a specific world
  */
-export interface Channel {
-  /** Unique identifier for the channel */
-  id: Id
-  /** ID of the world this channel belongs to */
-  worldId: World['id']
-  /** Name of the channel (e.g., "general", "ooc-chat") */
-  name: string
-  /** Type of channel determining its purpose */
-  type: ChannelType
-  /** Optional description of the channel's purpose */
-  description?: string
-  /** ID of the world state associated with this channel */
-  worldStateId?: WorldState['id']
-}
+export const ChannelTypeSchema = z.enum(['ooc', 'ic', 'announcement'])
+export type ChannelType = z.infer<typeof ChannelTypeSchema>
 
 export const ChannelSchema = z.object({
   id: z.string(),
@@ -64,66 +47,71 @@ export const ChannelSchema = z.object({
   description: z.string().optional(),
   worldStateId: z.string().optional(),
 })
-
+export type Channel = z.infer<typeof ChannelSchema>
 /**
  * World represents a complete game universe
  * Worlds contain channels, characters, and maintain their own world state
  */
-export interface World {
+export const WorldSchema = z.object({
   /** Unique identifier for the world */
-  id: Id
+  id: z.string(),
   /** Name of the world/game */
-  name: string
+  name: z.string(),
   /** Description of the world setting */
-  description: string
+  description: z.string(),
   /** Tags categorizing the world (e.g., fantasy, sci-fi, horror) */
-  tags: string[]
+  tags: z.array(z.string()),
   /** Optional ruleset information */
-  rules?: string
+  rules: z.string().optional(),
   /** List of channels in this world */
-  channels: Channel[]
-}
+  channels: z.array(ChannelSchema),
+})
 
+export type World = z.infer<typeof WorldSchema>
 /**
  * Character represents a person or creature in the game world
  */
-export interface Character {
-  /** Unique identifier for the character */
-  id: string
-  /** Name of the character */
-  name: string
-  /** Description of the character's appearance/personality */
-  description: string
-  /** Optional avatar emoji or image URL */
-  avatar?: string
-}
+export const CharacterSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string(),
+  avatar: z.string().optional(),
+})
+export type Character = z.infer<typeof CharacterSchema>
 
 /**
  * Message represents a chat message sent in a channel
  * Messages can be from users, characters, the system, or AI
  */
-export interface Message {
-  /** Unique identifier for the message */
-  id: Id
-  /** ID of the channel this message was sent to */
-  channelId: Channel['id']
-  /** ID of the user who sent the message */
-  userId?: User['id']
-  /** ID of the character associated with this message */
-  characterId?: Character['id']
-  /** Type determining how the message is displayed */
-  type: MessageType
-  /** Content/body of the message */
-  content: string
-
-  /** Timestamp when the message was created */
-  createdAt: Date
-  /** Timestamp when the message was last updated */
-  updatedAt?: Date
-}
-
 export const MessageTypeSchema = z.enum(['character', 'action', 'system', 'gm'])
-
+export const MessageSchema = z.object({
+  /** Unique identifier for the message */
+  id: z.string(),
+  /** ID of the channel this message was sent to */
+  channelId: ChannelSchema.shape.id,
+  /** ID of the user who sent the message */
+  userId: UserSchema.shape.id.optional(),
+  /** ID of the character associated with this message */
+  characterId: CharacterSchema.shape.id.optional(),
+  /** Type determining how the message is displayed */
+  type: MessageTypeSchema,
+  /** Content/body of the message */
+  content: z.string(),
+  /** Timestamp when the message was created */
+  createdAt: z.date(),
+  /** Timestamp when the message was last updated */
+  updatedAt: z.date().optional(),
+})
 export type MessageType = z.infer<typeof MessageTypeSchema>
+export type Message = z.infer<typeof MessageSchema>
 
+const LiteralSchema = z.union([z.string(), z.number(), z.boolean(), z.null()])
+type Literal = z.infer<typeof LiteralSchema>
+
+type json = Literal | { [key: string]: json } | json[]
+
+const JsonSchema: z.ZodType<json> = z.lazy(() =>
+  z.union([LiteralSchema, z.array(JsonSchema), z.record(JsonSchema)])
+)
+export type Json = z.infer<typeof JsonSchema>
 export * from './state'
