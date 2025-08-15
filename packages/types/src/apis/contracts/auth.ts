@@ -1,6 +1,6 @@
 import { initContract } from '@ts-rest/core'
 import z from 'zod'
-import { ErrorResponseSchema } from '..'
+import { ErrorResponseSchema } from '../common'
 const c = initContract()
 
 export const AuthRegistrationRequestSchema = z.object({

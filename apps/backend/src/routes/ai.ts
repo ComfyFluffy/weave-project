@@ -2,7 +2,6 @@ import express from 'express'
 import { Message as AIMessage, streamText } from 'ai'
 import { openai } from '../services/aiService'
 import { DatabaseService } from '../services/database.interface'
-import { AIChatRequestSchema } from '@weave/types/apis'
 import { Message, WorldState } from '@weave/types'
 
 export function createAIRoutes(dbService: DatabaseService) {
@@ -11,18 +10,13 @@ export function createAIRoutes(dbService: DatabaseService) {
   // AI Chat endpoint using AI SDK streaming
   router.post('/chat', async (req, res) => {
     try {
-      const parsed = AIChatRequestSchema.safeParse(req.body)
-      if (!parsed.success) {
-        return res.superjson({ error: 'Invalid AI chat body' }, 400)
-      }
-
       const {
         messages: userMessages,
         worldId,
         channelId,
         characterId,
         role,
-      } = parsed.data
+      } = req.body
 
       // Get world context using the database service
       const worldData = worldId ? await getWorldState(dbService, worldId) : null
@@ -66,7 +60,7 @@ export function createAIRoutes(dbService: DatabaseService) {
       result.pipeDataStreamToResponse(res)
     } catch (error) {
       console.error('AI chat error:', error)
-      res.superjson({ error: 'Failed to process AI chat request' }, 500)
+      res.status(500).json({ error: 'Failed to process AI chat request' })
     }
   })
 

@@ -1,7 +1,7 @@
 import { initContract } from '@ts-rest/core'
 import z from 'zod'
-import { ErrorResponseSchema } from '..'
-import { CharacterSchema, UserSchema } from '../..'
+import { CharacterSchema } from '../..'
+import { ErrorResponseSchema } from '../common'
 const c = initContract()
 
 export const CharactersResponseSchema = z.object({

@@ -5,11 +5,5 @@
  * and other client-server communication.
  */
 
-export * from './requests'
 export * from './contracts'
-import { z } from 'zod'
-
-export const ErrorResponseSchema = z.object({
-  message: z.string().default('Error!').optional(),
-})
-export type ErrorResponse = z.infer<typeof ErrorResponseSchema>
+export * from './common'

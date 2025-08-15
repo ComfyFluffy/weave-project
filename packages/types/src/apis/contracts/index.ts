@@ -17,6 +17,6 @@ export const contract = c.router({
 
 export * from './auth'
 export * from './character'
-export * from './world'
 export * from './message'
 export * from './world-state'
+export * from './world'

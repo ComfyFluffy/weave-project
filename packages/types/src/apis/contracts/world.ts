@@ -1,7 +1,7 @@
 import { initContract } from '@ts-rest/core'
 import z from 'zod'
 import { ChannelSchema, WorldSchema } from '../..'
-import { ErrorResponseSchema } from '..'
+import { ErrorResponseSchema } from '../common'
 const c = initContract()
 
 export const WorldsRequestSchema = z.object({})

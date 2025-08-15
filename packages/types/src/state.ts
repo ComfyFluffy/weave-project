@@ -1,5 +1,5 @@
 import z from 'zod'
-import { CharacterSchema, WorldSchema } from '.'
+import { CharacterSchema } from './character'
 
 /**
  * Location represents a place in the game world
@@ -37,9 +37,9 @@ export const EventSchema = z.object({
   /** Description of what happened */
   description: z.string(),
   /** IDs of characters involved in the event */
-  participants: z.array(CharacterSchema.shape.id),
+  participants: z.array(z.string()),
   /** Names of locations where the event took place */
-  locations: z.array(LocationSchema.shape.name),
+  locations: z.array(z.string()),
   /** Consequences or outcomes of the event */
   consequences: z.array(z.string()),
   /** Importance level for filtering/event significance */
@@ -99,7 +99,7 @@ export const PlotSchema = z.object({
   /** Current status of the plot */
   status: z.enum(['active', 'completed', 'paused']),
   /** IDs of characters involved in this plot */
-  participants: z.array(CharacterSchema.shape.id),
+  participants: z.array(z.string()),
   /** Key events that have occurred in this plot */
   keyEvents: z.array(z.string()),
   /** Next steps or objectives in the plot */
@@ -148,7 +148,7 @@ export type StatValue = z.infer<typeof StatValueSchema>
  */
 export const CharacterStateSchema = z.object({
   /** Name of the location where this character currently is */
-  currentLocationName: LocationSchema.shape.name,
+  currentLocationName: z.string(),
   /** Keys of items in this character's inventory */
   inventory: z.array(z.string()),
   /** Character's numerical stats (health, mana, etc.) */
@@ -164,7 +164,7 @@ export const CharacterStateSchema = z.object({
   /** Secrets the character knows or personal secrets */
   secrets: z.record(z.array(z.string())),
   /** Titles of lore entries this character has discovered */
-  discoveredLores: z.array(LoreSchema.shape.title),
+  discoveredLores: z.array(z.string()),
 })
 export type CharacterState = z.infer<typeof CharacterStateSchema>
 
@@ -187,7 +187,7 @@ export const WorldStateSchema = z.object({
   /** Unique identifier for the world state */
   id: z.string(),
   /** ID of the world this state belongs to */
-  worldId: WorldSchema.shape.id,
+  worldId: z.string(),
 
   /** All characters in this world */
   characters: z.array(CharacterSchema),

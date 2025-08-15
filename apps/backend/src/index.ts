@@ -14,7 +14,6 @@ import { createMessageRouter } from './routes/messages'
 import { createUserRoutes } from './routes/users'
 import { createItemRoutes } from './routes/items'
 import { createAIRoutes } from './routes/ai'
-import { superjsonMiddleware } from './lib/response'
 import { createExpressEndpoints, initServer } from '@ts-rest/express'
 import { createAuthRouter } from './routes/auth'
 import { contract } from '@weave/types/apis'
@@ -39,7 +38,6 @@ app.use(
   })
 )
 app.use(express.json())
-app.use(superjsonMiddleware())
 
 // Current active users per channel
 const activeUsers: Record<string, Set<string>> = {}

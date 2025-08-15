@@ -16,8 +16,8 @@ import type { Message, Character } from '@weave/types'
 import { Flex } from '@chakra-ui/react'
 
 export function ChatLayout() {
-  const [selectedWorldId, setSelectedWorldId] = useState<string>('')
-  const [selectedChannelId, setSelectedChannelId] = useState<string>('')
+  const [selectedWorldId, setSelectedWorldId] = useState<string>('1')
+  const [selectedChannelId, setSelectedChannelId] = useState<string>('1')
   const [selectedRole, setSelectedRole] = useState<UserRole>('player')
   const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(
     null
@@ -31,7 +31,7 @@ export function ChatLayout() {
   const { data: worldsData } = useWorlds()
 
   const { data: currentWorldData } = useWorld(selectedWorldId)
-  const { data: worldStateData } = useWorldState(selectedWorldId)
+  const { data: worldStateData } = useWorldState('ws-1')
   const { data: messagesData, refetch: refetchMessages } =
     useChannelMessages(selectedChannelId)
   const { data: worldCharactersData } = useWorldCharacters(selectedWorldId)
