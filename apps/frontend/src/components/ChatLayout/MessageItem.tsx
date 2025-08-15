@@ -1,10 +1,11 @@
-import { Box, Text, Avatar, Flex, Badge } from '@chakra-ui/react'
+import { Box, Text, Avatar, Flex, Badge, HStack } from '@chakra-ui/react'
 import {
   getMessageColor,
   getAuthorColor,
   formatTimestamp,
 } from '../../utils/ui'
 import { MemoizedMarkdown } from '../MemoizedMarkdown'
+import { Clipboard } from '../ui/clipboard'
 import type { Message } from '@weave/types'
 import { MessageType } from '@weave/types'
 
@@ -90,6 +91,15 @@ function MessageContent({ message }: { message: Message }) {
     <Box color="gray.200" fontSize="sm" lineHeight="1.4">
       {/* 使用统一的 Markdown 渲染器渲染内容 */}
       <MemoizedMarkdown content={message.content} id={message.id} />
+      {/* 复制按钮 */}
+      <HStack justify="flex-end" mt={2}>
+        <Clipboard
+          text={message.content}
+          variant="icon"
+          size="sm"
+          tooltip="Copy message"
+        />
+      </HStack>
     </Box>
   )
 }

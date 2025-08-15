@@ -7,26 +7,9 @@ import { ProtectedRoute } from './components/ProtectedRoute'
 import './App.css'
 
 function AppContent() {
-  const { isAuthenticated } = useAuth()
-
   return (
     <Routes>
-      <Route path="/auth/*" element={<AuthRoutes />} />
-      <Route
-        path="/app/*"
-        element={
-          <ProtectedRoute>
-            <ChatLayout />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/"
-        element={
-          <Navigate to={isAuthenticated ? '/app' : '/auth/login'} replace />
-        }
-      />
-      <Route path="*" element={<Navigate to="/auth/login" replace />} />
+      <Route path="/app/*" element={<ChatLayout />} />
     </Routes>
   )
 }
