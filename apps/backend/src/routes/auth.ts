@@ -4,7 +4,6 @@ import { initServer } from '@ts-rest/express'
 
 export function createAuthRouter(dbService: DatabaseService) {
   const s = initServer()
-
   return s.router(authContract, {
     login: async ({ body }) => {
       const user = await dbService.getUserByEmail(body.email)

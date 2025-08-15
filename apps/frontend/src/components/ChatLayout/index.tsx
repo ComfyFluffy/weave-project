@@ -11,7 +11,7 @@ import {
   useWorldState,
   useChannelMessages,
   useWorldCharacters,
-} from '../../hooks/useQueries'
+} from '../../hooks/queries'
 import type { Message, Character } from '@weave/types'
 import { Flex } from '@chakra-ui/react'
 

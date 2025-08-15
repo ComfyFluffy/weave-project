@@ -4,7 +4,7 @@ import { WorldStateOverview } from './WorldStateOverview'
 import { CharacterStatusPanel } from './CharacterStatusPanel'
 import { LocationsExplorer } from './LocationsExplorer'
 import { PlotsTracker } from './PlotsTracker'
-import { useWorldState } from '../hooks/useQueries'
+import { useWorldState } from '../hooks/queries'
 
 interface WorldStateManagerProps {
   worldStateId: string

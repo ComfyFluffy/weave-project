@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Box, Button, Input, VStack, Heading, Text } from '@chakra-ui/react'
 import { toaster } from '../ui/toaster'
-import { useLogin, useRegister } from '../../hooks/useAuth'
+import { useLogin, useRegister } from '../../hooks/auth'
 
 interface AuthFormProps {
   mode: 'login' | 'register'

@@ -1,6 +1,6 @@
 import express from 'express'
 import { Message as AIMessage, streamText } from 'ai'
-import { openai } from '../services/aiService'
+import { openai } from '../services/ai'
 import { DatabaseService } from '../services/database.interface'
 import { Message, WorldState } from '@weave/types'
 import { AIChatRequestSchema } from '@weave/types/apis'
