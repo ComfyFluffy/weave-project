@@ -1,18 +1,53 @@
-import { Router } from 'express'
 import { DatabaseService } from '../services/database.interface'
+import { authContract } from '@weave/types/apis'
+import { initServer } from '@ts-rest/express'
 
-export function createAuthRoutes(dbService: DatabaseService) {
-  const router = Router()
+export function createAuthRouter(dbService: DatabaseService) {
+  const s = initServer()
 
-  // POST /api/auth/register - Register a new user
-  router.post('/register', async (req, res) => {
-    throw new Error('This endpoint is not implemented yet')
+  return s.router(authContract, {
+    login: async ({ body }) => {
+      const user = await dbService.getUserByEmail(body.email)
+      if (!user) {
+        return {
+          status: 400,
+          body: {
+            message: `User not found`,
+          },
+        }
+      }
+
+      return {
+        status: 200,
+        body: {
+          token: '',
+        },
+      }
+    },
+    register: async ({ body }) => {
+      const user = {
+        displayName: body.displayName,
+        email: body.email,
+        password: body.password,
+      }
+
+      try {
+        await dbService.createUser(user)
+      } catch (error) {
+        console.error('Error creating user:', error)
+        return {
+          status: 400,
+          body: {
+            message: 'Error creating user',
+          },
+        }
+      }
+      return {
+        status: 200,
+        body: {
+          token: '',
+        },
+      }
+    },
   })
-
-  // POST /api/auth/login - Login user
-  router.post('/login', async (req, res) => {
-    throw new Error('This endpoint is not implemented yet')
-  })
-
-  return router
 }

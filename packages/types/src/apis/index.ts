@@ -5,4 +5,5 @@
  * and other client-server communication.
  */
 
-export * from './requests'
+export * from './contracts'
+export * from './common'

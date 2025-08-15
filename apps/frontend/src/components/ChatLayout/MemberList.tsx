@@ -1,14 +1,5 @@
-import {
-  Box,
-  VStack,
-  Text,
-  Avatar,
-  Flex,
-  Badge,
-  IconButton,
-} from '@chakra-ui/react'
+import { Box, VStack, Text, Avatar, Flex, IconButton } from '@chakra-ui/react'
 import { Settings } from 'lucide-react'
-import { getRoleColor, getRoleLabel } from '../../utils/ui'
 import type { User } from '@weave/types'
 
 interface MemberListProps {
