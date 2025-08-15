@@ -11,7 +11,6 @@ import {
   IconButton,
 } from '@chakra-ui/react'
 import { Plus } from 'lucide-react'
-import { useCreateChannel } from '../hooks/useChannels'
 
 interface CreateChannelModalProps {
   worldId: string
@@ -29,27 +28,6 @@ export const CreateChannelModal = ({ worldId }: CreateChannelModalProps) => {
   const [name, setName] = useState('')
   const [type, setType] = useState(['ic'])
   const [description, setDescription] = useState('')
-
-  const createChannelMutation = useCreateChannel(worldId)
-
-  const handleSubmit = async () => {
-    if (!name.trim()) return
-
-    try {
-      await createChannelMutation.mutateAsync({
-        name: name.trim(),
-        type: type[0],
-        description: description.trim() || undefined,
-      })
-
-      setName('')
-      setType(['ic'])
-      setDescription('')
-      setOpen(false)
-    } catch (error) {
-      console.error('Failed to create channel:', error)
-    }
-  }
 
   return (
     <Popover.Root open={open} onOpenChange={(e) => setOpen(e.open)} size="sm">
@@ -148,8 +126,10 @@ export const CreateChannelModal = ({ worldId }: CreateChannelModalProps) => {
 
                 <VStack gap={2} mt={2}>
                   <Button
-                    onClick={() => void handleSubmit()}
-                    loading={createChannelMutation.isPending}
+                    onClick={() => {
+                      // TODO
+                    }}
+                    loading={true}
                     disabled={!name.trim()}
                     size="sm"
                     width="full"

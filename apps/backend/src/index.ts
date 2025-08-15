@@ -7,16 +7,10 @@ import cors from 'cors'
 
 // Import services and routes
 import { MockDatabaseService } from './services/database.memory'
-import { createWorldRouter, createWorldRoutes } from './routes/worlds'
-import {
-  createWorldStateRouter,
-  createWorldStateRoutes,
-} from './routes/world-states'
-import {
-  createCharacterRouter,
-  createCharacterRoutes,
-} from './routes/characters'
-import { createMessageRouter, createMessageRoutes } from './routes/messages'
+import { createWorldRouter } from './routes/worlds'
+import { createWorldStateRouter } from './routes/world-states'
+import { createCharacterRouter } from './routes/characters'
+import { createMessageRouter } from './routes/messages'
 import { createUserRoutes } from './routes/users'
 import { createItemRoutes } from './routes/items'
 import { createAIRoutes } from './routes/ai'
@@ -142,7 +136,6 @@ const emitWorldStateUpdate = (worldStateId: string, worldState: any) => {
 }
 
 // Mount API routes
-app.use('/api/characters', createCharacterRoutes(dbService))
 app.use('/api/users', createUserRoutes(dbService))
 app.use('/api/items', createItemRoutes(dbService))
 app.use('/api/ai', createAIRoutes(dbService))

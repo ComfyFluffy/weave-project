@@ -6,7 +6,7 @@ import type { WorldState } from '@weave/types'
 import { useState } from 'react'
 
 interface AIWorldPanelProps {
-  worldData?: WorldState
+  worldState?: WorldState
   worldId: string
   channelId: string
   selectedCharacterId?: string
@@ -14,14 +14,14 @@ interface AIWorldPanelProps {
 }
 
 export function AIWorldPanel({
-  worldData,
+  worldState,
   worldId,
   channelId,
   selectedCharacterId,
   selectedRole,
 }: AIWorldPanelProps) {
   const [activeTab, setActiveTab] = useState('worldState')
-  const worldStateId = worldData?.id
+  const worldStateId = worldState?.id
 
   return (
     <Box
@@ -68,7 +68,7 @@ export function AIWorldPanel({
 
         {activeTab === 'context' && (
           <Box height="100%" p={4}>
-            <WorldDataViewer worldData={worldData} />
+            <WorldDataViewer worldData={worldState} />
           </Box>
         )}
 

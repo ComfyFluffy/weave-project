@@ -1,76 +1,20 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState } from 'react'
 import { Box, Text, VStack, HStack, Button } from '@chakra-ui/react'
 import { WorldStateOverview } from './WorldStateOverview'
 import { CharacterStatusPanel } from './CharacterStatusPanel'
 import { LocationsExplorer } from './LocationsExplorer'
 import { PlotsTracker } from './PlotsTracker'
-import { socketService } from '../services/socketService'
-import type { WorldState } from '@weave/types'
-import { apiService } from '../services/apiService'
+import { useWorldState } from '../hooks/useQueries'
 
 interface WorldStateManagerProps {
   worldStateId: string
 }
 
 export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
-  const [worldState, setWorldState] = useState<WorldState | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState('overview')
+  const { data } = useWorldState(worldStateId)
 
-  // TODO: Use hooks
-  const fetchWorldState = useCallback(async () => {
-    try {
-      setLoading(true)
-      const data = await apiService.fetchWorldState(worldStateId)
-      setWorldState(data)
-    } catch (err) {
-      setError('Failed to load world state data')
-      console.error('Error fetching world state:', err)
-    } finally {
-      setLoading(false)
-    }
-  }, [worldStateId])
-
-  useEffect(() => {
-    void fetchWorldState()
-  }, [fetchWorldState])
-
-  // Subscribe to real-time updates
-  useEffect(() => {
-    // Subscribe to world state updates
-    socketService.subscribeToWorldState(worldStateId)
-
-    // Listen for updates
-    const handleWorldStateUpdate = (data: {
-      worldStateId: string
-      worldState: WorldState
-    }) => {
-      if (data.worldStateId === worldStateId) {
-        if (data.worldState === null) {
-          // World state was deleted
-          setWorldState(null)
-        } else {
-          // Update the world state
-          setWorldState(data.worldState)
-        }
-      }
-    }
-
-    socketService.onWorldStateUpdate(handleWorldStateUpdate)
-
-    // Cleanup
-    return () => {
-      socketService.unsubscribeFromWorldState(worldStateId)
-      socketService.off('world-state:updated', handleWorldStateUpdate)
-    }
-  }, [worldStateId])
-
-  const handleRefresh = () => {
-    void fetchWorldState()
-  }
-
-  if (loading) {
+  if (!data) {
     return (
       <Box p={4} textAlign="center">
         <div>加载中...</div>
@@ -81,21 +25,7 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
     )
   }
 
-  if (error) {
-    return (
-      <Box p={4} bg="red.500" color="white" borderRadius="md">
-        {error}
-      </Box>
-    )
-  }
-
-  if (!worldState) {
-    return (
-      <Box p={4} bg="yellow.500" color="white" borderRadius="md">
-        未找到世界状态数据
-      </Box>
-    )
-  }
+  const worldState = data?.body.worldState
 
   return (
     <Box p={4} height="100%" overflowY="auto">
@@ -104,9 +34,6 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
           <Text fontSize="xl" fontWeight="bold" color="white">
             世界状态管理
           </Text>
-          <Button size="sm" colorPalette="blue" onClick={handleRefresh}>
-            刷新
-          </Button>
         </HStack>
 
         <HStack gap={2} borderBottom="1px solid" borderColor="gray.600" pb={2}>

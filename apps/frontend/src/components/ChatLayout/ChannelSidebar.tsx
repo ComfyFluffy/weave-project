@@ -20,7 +20,6 @@ import {
 import type { Channel } from '@weave/types'
 import { CreateChannelModal } from '../CreateChannelModal'
 import { RoleSelector, type UserRole } from '../RoleSelector'
-import { useDeleteChannel } from '../../hooks/useChannels'
 
 interface ChannelSidebarProps {
   worldId?: string
@@ -47,18 +46,6 @@ export function ChannelSidebar({
   onChannelSelect,
   onRoleChange,
 }: ChannelSidebarProps) {
-  const deleteChannelMutation = useDeleteChannel(worldId || '')
-
-  const handleDeleteChannel = async (channelId: string) => {
-    if (!worldId) return
-
-    try {
-      await deleteChannelMutation.mutateAsync(channelId)
-    } catch (error) {
-      console.error('Failed to delete channel:', error)
-    }
-  }
-
   return (
     <Box
       width="240px"
@@ -158,9 +145,9 @@ export function ChannelSidebar({
                               <Menu.Content>
                                 <Menu.Item
                                   value="delete-channel"
-                                  onClick={() =>
-                                    void handleDeleteChannel(channel.id)
-                                  }
+                                  onClick={() => {
+                                    // TODO
+                                  }}
                                   color="red.400"
                                   _hover={{ bg: 'red.600', color: 'white' }}
                                 >

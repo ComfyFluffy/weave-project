@@ -8,11 +8,10 @@ import type { UserRole } from '../RoleSelector'
 import {
   useWorlds,
   useWorld,
-  useWorldStates,
+  useWorldState,
   useChannelMessages,
   useWorldCharacters,
 } from '../../hooks/useQueries'
-import { useChannels } from '../../hooks/useChannels'
 import type { Message, Character } from '@weave/types'
 import { Flex } from '@chakra-ui/react'
 
@@ -32,8 +31,7 @@ export function ChatLayout() {
   const { data: worldsData } = useWorlds()
 
   const { data: currentWorldData } = useWorld(selectedWorldId)
-  const { data: worldStatesData } = useWorldStates(selectedWorldId)
-  const { data: channels } = useChannels(selectedWorldId)
+  const { data: worldStateData } = useWorldState(selectedWorldId)
   const { data: messagesData, refetch: refetchMessages } =
     useChannelMessages(selectedChannelId)
   const { data: worldCharactersData } = useWorldCharacters(selectedWorldId)
@@ -42,9 +40,10 @@ export function ChatLayout() {
   const worlds = worldsData?.body.worlds || []
   const messages = messagesData?.body.messages || []
   const worldCharacters = worldCharactersData?.body.characters || []
-  const worldStates = worldStatesData?.body || null
+  const worldState = worldStateData?.body.worldState
 
-  const currentChannel = channels?.find((c: any) => c.id === selectedChannelId)
+  const channels = worlds?.find((w) => w.id === selectedWorldId)?.channels
+  const currentChannel = channels?.find((c) => c.id === selectedChannelId)
 
   // Initialize socket connection and auto-select world/channel
   useEffect(() => {
@@ -187,7 +186,7 @@ export function ChatLayout() {
 
       {/* AI World Panel - World Data Viewer and AI Chat */}
       <AIWorldPanel
-        worldData={worldStates} // Use the world state data
+        worldState={worldState} // Use the world state data
         worldId={selectedWorldId}
         channelId={selectedChannelId}
         selectedCharacterId={selectedCharacter?.id}

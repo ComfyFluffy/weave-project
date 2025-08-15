@@ -1,6 +1,6 @@
 import { initContract } from '@ts-rest/core'
 import z from 'zod'
-import { WorldSchema } from '../..'
+import { ChannelSchema, WorldSchema } from '../..'
 import { ErrorResponseSchema } from '..'
 const c = initContract()
 
@@ -17,6 +17,11 @@ export const WorldSingleResponseSchema = z.object({
 })
 export type WorldSingleResponse = z.infer<typeof WorldSingleResponseSchema>
 
+export const WorldChannelsResponseSchema = z.object({
+  channels: z.array(ChannelSchema),
+})
+export type WorldChannelsResponse = z.infer<typeof WorldChannelsResponseSchema>
+
 export const worldContract = c.router(
   {
     getWorlds: {
@@ -29,7 +34,7 @@ export const worldContract = c.router(
     },
     getWorldById: {
       method: 'GET',
-      path: '/:id',
+      path: '/:worldId',
       responses: {
         200: WorldSingleResponseSchema,
         400: ErrorResponseSchema,

@@ -13,19 +13,19 @@ export function useWorld(worldId: string) {
     queryKey: ['world', worldId],
     queryData: {
       params: {
-        id: worldId,
+        worldId,
       },
     },
   })
 }
 
 // World states query
-export function useWorldStates(worldId: string) {
-  return tsr.worldState.getWorldStateByWorldId.useQuery({
-    queryKey: ['worldState', worldId],
+export function useWorldState(worldStateId: string) {
+  return tsr.worldState.getWorldStateById.useQuery({
+    queryKey: ['worldState', worldStateId],
     queryData: {
       params: {
-        worldId: worldId,
+        worldStateId,
       },
     },
   })
@@ -37,7 +37,7 @@ export const useChannelMessages = (channelId: string) => {
     queryKey: ['channelMessages', channelId],
     queryData: {
       params: {
-        channelId: channelId,
+        channelId,
       },
     },
   })

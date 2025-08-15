@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Box, Button, Input, VStack, Heading, Text } from '@chakra-ui/react'
 import { toaster } from '../ui/toaster'
-import { useAuth } from '../../providers/AuthProvider'
 import { useLogin, useRegister } from '../../hooks/useAuth'
 import type {
   UserLoginRequest,
@@ -27,7 +26,11 @@ export function AuthForm({ mode, onSuccess, onSwitchMode }: AuthFormProps) {
     password: '',
   })
 
-  const { login } = useAuth()
+  const { login } = {
+    login: (args: any) => {
+      // TODO
+    },
+  }
   const { mutate: loginMutation, isPending: isLoginPending } = useLogin()
   const { mutate: registerMutation, isPending: isRegisterPending } =
     useRegister()

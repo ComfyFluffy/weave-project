@@ -7,18 +7,16 @@ import { characterContract } from './character'
 
 const c = initContract()
 
-export const contract = c.router(
-  {
-    auth: authContract,
-    character: characterContract,
-    message: messageContract,
-    worldState: worldStateContract,
-    world: worldContract,
-  },
-  {
-    // pathPrefix: '/api',
-  }
-)
+export const contract = c.router({
+  auth: authContract,
+  character: characterContract,
+  message: messageContract,
+  worldState: worldStateContract,
+  world: worldContract,
+})
 
 export * from './auth'
 export * from './character'
+export * from './world'
+export * from './message'
+export * from './world-state'

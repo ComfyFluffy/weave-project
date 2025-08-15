@@ -29,7 +29,6 @@ export const UserSchema = z.object({
   /** Optional avatar emoji or image URL */
   avatar: z.string().optional(),
 })
-
 export type User = z.infer<typeof UserSchema>
 
 /**
@@ -66,7 +65,6 @@ export const WorldSchema = z.object({
   /** List of channels in this world */
   channels: z.array(ChannelSchema),
 })
-
 export type World = z.infer<typeof WorldSchema>
 /**
  * Character represents a person or creature in the game world
@@ -79,11 +77,13 @@ export const CharacterSchema = z.object({
 })
 export type Character = z.infer<typeof CharacterSchema>
 
+export const MessageTypeSchema = z.enum(['character', 'action', 'system', 'gm'])
+export type MessageType = z.infer<typeof MessageTypeSchema>
+
 /**
  * Message represents a chat message sent in a channel
  * Messages can be from users, characters, the system, or AI
  */
-export const MessageTypeSchema = z.enum(['character', 'action', 'system', 'gm'])
 export const MessageSchema = z.object({
   /** Unique identifier for the message */
   id: z.string(),
@@ -102,16 +102,6 @@ export const MessageSchema = z.object({
   /** Timestamp when the message was last updated */
   updatedAt: z.date().optional(),
 })
-export type MessageType = z.infer<typeof MessageTypeSchema>
 export type Message = z.infer<typeof MessageSchema>
 
-const LiteralSchema = z.union([z.string(), z.number(), z.boolean(), z.null()])
-type Literal = z.infer<typeof LiteralSchema>
-
-type json = Literal | { [key: string]: json } | json[]
-
-const JsonSchema: z.ZodType<json> = z.lazy(() =>
-  z.union([LiteralSchema, z.array(JsonSchema), z.record(JsonSchema)])
-)
-export type Json = z.infer<typeof JsonSchema>
 export * from './state'
