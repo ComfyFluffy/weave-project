@@ -11,7 +11,6 @@ import {
   useWorldStates,
   useChannelMessages,
   useWorldCharacters,
-  useCreateCharacter,
 } from '../../hooks/useQueries'
 import { useChannels } from '../../hooks/useChannels'
 import type { Message, Character } from '@weave/types'
@@ -30,18 +29,22 @@ export function ChatLayout() {
   const [showCharacterCreation, setShowCharacterCreation] = useState(false)
 
   // Use React Query hooks for data fetching
-  const { data: worlds = [] } = useWorlds()
-  const { data: currentWorld } = useWorld(selectedWorldId)
-  const { data: worldStates = [] } = useWorldStates(selectedWorldId)
-  const { data: channels = [] } = useChannels(selectedWorldId)
-  const { data: messages = [], refetch: refetchMessages } =
+  const { data: worldsData } = useWorlds()
+
+  const { data: currentWorldData } = useWorld(selectedWorldId)
+  const { data: worldStatesData } = useWorldStates(selectedWorldId)
+  const { data: channels } = useChannels(selectedWorldId)
+  const { data: messagesData, refetch: refetchMessages } =
     useChannelMessages(selectedChannelId)
-  const { data: worldCharacters = [] } = useWorldCharacters(selectedWorldId)
+  const { data: worldCharactersData } = useWorldCharacters(selectedWorldId)
 
-  // Mutations
-  const createCharacterMutation = useCreateCharacter()
+  // Extract data from ts-rest responses
+  const worlds = worldsData?.body.worlds || []
+  const messages = messagesData?.body.messages || []
+  const worldCharacters = worldCharactersData?.body.characters || []
+  const worldStates = worldStatesData?.body || null
 
-  const currentChannel = channels.find((c) => c.id === selectedChannelId)
+  const currentChannel = channels?.find((c: any) => c.id === selectedChannelId)
 
   // Initialize socket connection and auto-select world/channel
   useEffect(() => {
@@ -49,8 +52,8 @@ export function ChatLayout() {
     socketService.connect()
 
     // Auto-select first world if available
-    if (worlds.length > 0 && !selectedWorldId) {
-      setSelectedWorldId(worlds[0].id)
+    if (worldsData && worldsData.body.worlds.length > 0 && !selectedWorldId) {
+      setSelectedWorldId(worldsData.body.worlds[0].id)
     }
 
     // Setup socket event listeners
@@ -68,11 +71,11 @@ export function ChatLayout() {
     return () => {
       socketService.disconnect()
     }
-  }, [worlds, selectedWorldId, refetchMessages])
+  }, [worldsData, selectedWorldId, refetchMessages])
 
   // Auto-select first channel when channels data changes
   useEffect(() => {
-    if (channels.length && !selectedChannelId) {
+    if (channels && channels.length && !selectedChannelId) {
       setSelectedChannelId(channels[0].id)
     }
   }, [channels, selectedChannelId])
@@ -105,7 +108,7 @@ export function ChatLayout() {
   const handleSendMessage = (content: string) => {
     if (
       !currentChannel ||
-      !currentWorld ||
+      !currentWorldData ||
       !selectedChannelId ||
       !selectedWorldId
     ) {
@@ -162,7 +165,7 @@ export function ChatLayout() {
       {/* Channel List */}
       <ChannelSidebar
         worldId={selectedWorldId}
-        worldName={currentWorld?.name}
+        worldName={currentWorldData?.body.world.name}
         channels={channels}
         selectedChannelId={selectedChannelId}
         selectedRole={selectedRole}
@@ -184,7 +187,7 @@ export function ChatLayout() {
 
       {/* AI World Panel - World Data Viewer and AI Chat */}
       <AIWorldPanel
-        worldData={worldStates[0]} // Use the first world state
+        worldData={worldStates} // Use the world state data
         worldId={selectedWorldId}
         channelId={selectedChannelId}
         selectedCharacterId={selectedCharacter?.id}

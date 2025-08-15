@@ -1,8 +1,11 @@
 import { Navigate } from 'react-router'
-import { useAuth } from '../providers/AuthProvider'
 
 interface ProtectedRouteProps {
   children: React.ReactNode
+}
+
+const useAuth = () => {
+  throw new Error('TODO: Implement useAuth')
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
