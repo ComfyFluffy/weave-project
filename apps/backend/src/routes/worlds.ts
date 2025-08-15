@@ -6,22 +6,12 @@ export function createWorldRouter(dbService: DatabaseService) {
   const s = initServer()
   return s.router(worldContract, {
     getWorlds: async () => {
-      try {
-        const worlds = await dbService.getWorlds()
-        return {
-          status: 200,
-          body: {
-            worlds: worlds,
-          },
-        }
-      } catch (error) {
-        console.error('Error fetching worlds:', error)
-        return {
-          status: 500,
-          body: {
-            message: 'Failed to fetch worlds',
-          },
-        }
+      const worlds = await dbService.getWorlds()
+      return {
+        status: 200,
+        body: {
+          worlds,
+        },
       }
     },
     getWorldById: async ({ params }) => {
@@ -37,7 +27,7 @@ export function createWorldRouter(dbService: DatabaseService) {
       return {
         status: 200,
         body: {
-          world: world,
+          world,
         },
       }
     },

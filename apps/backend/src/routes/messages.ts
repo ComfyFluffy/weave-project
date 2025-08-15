@@ -7,14 +7,7 @@ export function createMessageRouter(dbService: DatabaseService) {
   return s.router(messageContract, {
     getMessagesByChannelId: async ({ params }) => {
       const messages = await dbService.getMessagesByChannelId(params.channelId)
-      if (!messages) {
-        return {
-          status: 400,
-          body: {
-            message: 'Messages not found!',
-          },
-        }
-      }
+
       return {
         status: 200,
         body: { messages },

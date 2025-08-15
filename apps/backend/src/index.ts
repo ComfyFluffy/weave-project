@@ -44,44 +44,6 @@ const activeUsers: Record<string, Set<string>> = {}
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id)
 
-  socket.on('join-channel', ({ channelId, username }) => {
-    void socket.join(channelId)
-
-    // Add user to active users
-    if (!activeUsers[channelId]) {
-      activeUsers[channelId] = new Set()
-    }
-    activeUsers[channelId].add(username)
-
-    // Broadcast updated user list
-    io.to(channelId).emit(
-      'active-users-updated',
-      Array.from(activeUsers[channelId])
-    )
-
-    console.log(`${username} joined channel ${channelId}`)
-  })
-
-  socket.on('leave-channel', ({ channelId, username }) => {
-    void socket.leave(channelId)
-
-    // Remove user from active users
-    if (activeUsers[channelId]) {
-      activeUsers[channelId].delete(username)
-      if (activeUsers[channelId].size === 0) {
-        delete activeUsers[channelId]
-      }
-    }
-
-    // Broadcast updated user list
-    io.to(channelId).emit(
-      'active-users-updated',
-      activeUsers[channelId] ? Array.from(activeUsers[channelId]) : []
-    )
-
-    console.log(`${username} left channel ${channelId}`)
-  })
-
   socket.on('send-message', async (messageData) => {
     try {
       // Save message to database
@@ -94,14 +56,6 @@ io.on('connection', (socket) => {
       // Still broadcast the message even if saving fails
       io.to(messageData.channelId).emit('new-message', messageData)
     }
-  })
-
-  socket.on('typing-start', ({ channelId, username }) => {
-    socket.to(channelId).emit('user-typing', { username, isTyping: true })
-  })
-
-  socket.on('typing-stop', ({ channelId, username }) => {
-    socket.to(channelId).emit('user-typing', { username, isTyping: false })
   })
 
   socket.on('disconnect', () => {
@@ -131,7 +85,6 @@ const emitWorldStateUpdate = (worldStateId: string, worldState: any) => {
   io.to(worldStateId).emit('world-state:updated', { worldStateId, worldState })
 }
 
-// Mount API routes
 app.use('/api/ai', createAIRoutes(dbService))
 
 const authRouter = createAuthRouter(dbService)

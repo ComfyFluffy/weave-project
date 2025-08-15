@@ -1,5 +1,5 @@
 import { io, Socket } from 'socket.io-client'
-import type { Message, World, WorldState } from '@weave/types'
+import type { Message } from '@weave/types'
 
 class SocketService {
   private socket: Socket | null = null
@@ -30,34 +30,6 @@ class SocketService {
     }
   }
 
-  // World operations
-  joinWorld(worldId: string) {
-    if (this.currentWorldId !== worldId) {
-      this.currentWorldId = worldId
-      this.socket?.emit('world:join', worldId)
-    }
-  }
-
-  onWorldData(callback: (world: World) => void) {
-    this.socket?.on('world:data', callback)
-  }
-
-  // Channel operations
-  joinChannel(channelId: string) {
-    if (this.currentChannelId) {
-      this.socket?.emit('channel:leave', this.currentChannelId)
-    }
-    this.currentChannelId = channelId
-    this.socket?.emit('channel:join', channelId)
-  }
-
-  leaveChannel() {
-    if (this.currentChannelId) {
-      this.socket?.emit('channel:leave', this.currentChannelId)
-      this.currentChannelId = null
-    }
-  }
-
   // Message operations
   sendMessage(
     channelId: string,
@@ -81,42 +53,8 @@ class SocketService {
     this.socket?.on('messages:history', callback)
   }
 
-  // Typing indicators
-  startTyping(channelId: string) {
-    this.socket?.emit('typing:start', channelId)
-  }
-
-  stopTyping(channelId: string) {
-    this.socket?.emit('typing:stop', channelId)
-  }
-
-  onUserTyping(
-    callback: (data: {
-      userId: string
-      username: string
-      typing: boolean
-    }) => void
-  ) {
-    this.socket?.on('typing:user', callback)
-  }
-
-  // World state operations
-  subscribeToWorldState(worldStateId: string) {
-    this.socket?.emit('world-state:subscribe', { worldStateId })
-  }
-
-  unsubscribeFromWorldState(worldStateId: string) {
-    this.socket?.emit('world-state:unsubscribe', { worldStateId })
-  }
-
-  onWorldStateUpdate(
-    callback: (data: { worldStateId: string; worldState: WorldState }) => void
-  ) {
-    this.socket?.on('world-state:updated', callback)
-  }
-
   // Remove event listeners
-  off(event: string, callback?: (...args: any[]) => void) {
+  off(event: string, callback?: (...args: unknown[]) => void) {
     this.socket?.off(event, callback)
   }
 }

@@ -23,13 +23,7 @@ export function ChatLayout() {
     null
   )
 
-  // Modal states
-  const [showCharacterSelection, setShowCharacterSelection] = useState(false)
-  const [showCharacterCreation, setShowCharacterCreation] = useState(false)
-
-  // Use React Query hooks for data fetching
   const { data: worldsData } = useWorlds()
-
   const { data: currentWorldData } = useWorld(selectedWorldId)
   const { data: worldStateData } = useWorldState('ws-1')
   const { data: messagesData, refetch: refetchMessages } =
@@ -79,17 +73,9 @@ export function ChatLayout() {
     }
   }, [channels, selectedChannelId])
 
-  // Handle world selection
-  useEffect(() => {
-    if (selectedWorldId) {
-      socketService.joinWorld(selectedWorldId)
-    }
-  }, [selectedWorldId])
-
   // Handle channel selection
   useEffect(() => {
     if (selectedChannelId) {
-      socketService.joinChannel(selectedChannelId)
       void refetchMessages() // Refresh messages for the new channel
     }
   }, [selectedChannelId, refetchMessages])
@@ -134,11 +120,10 @@ export function ChatLayout() {
 
   const handleSelectCharacter = (character: Character | null) => {
     setSelectedCharacter(character)
-    setShowCharacterSelection(false)
   }
 
   const handleOpenCharacterModal = () => {
-    setShowCharacterCreation(true)
+    // TODO
   }
 
   const handleCreateWorld = () => {

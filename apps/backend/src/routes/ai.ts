@@ -3,6 +3,7 @@ import { Message as AIMessage, streamText } from 'ai'
 import { openai } from '../services/aiService'
 import { DatabaseService } from '../services/database.interface'
 import { Message, WorldState } from '@weave/types'
+import { AIChatRequestSchema } from '@weave/types/apis'
 
 export function createAIRoutes(dbService: DatabaseService) {
   const router = express.Router()
@@ -10,13 +11,19 @@ export function createAIRoutes(dbService: DatabaseService) {
   // AI Chat endpoint using AI SDK streaming
   router.post('/chat', async (req, res) => {
     try {
+      const parsed = AIChatRequestSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({
+          message: parsed.error.flatten().fieldErrors,
+        })
+      }
       const {
         messages: userMessages,
         worldId,
         channelId,
         characterId,
         role,
-      } = req.body
+      } = parsed.data
 
       // Get world context using the database service
       const worldData = worldId ? await getWorldState(dbService, worldId) : null
@@ -41,6 +48,7 @@ export function createAIRoutes(dbService: DatabaseService) {
       })
 
       // Add user messages
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       contextMessages.push(...userMessages)
 
       console.log('AI chat context messages:', contextMessages)

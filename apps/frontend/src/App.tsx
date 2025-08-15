@@ -9,7 +9,7 @@ function AppContent() {
     <Routes>
       <Route path="/auth/*" element={<AuthRoutes />} />
       <Route path="/app/*" element={<ChatLayout />} />
-      <Route path="*" element={<Navigate to="/auth/login" replace />} />
+      <Route path="*" element={<Navigate to="/app" replace />} />
     </Routes>
   )
 }

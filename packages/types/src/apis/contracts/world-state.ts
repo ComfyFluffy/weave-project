@@ -1,7 +1,7 @@
 import { initContract } from '@ts-rest/core'
 import z from 'zod'
 import { WorldStateSchema } from '../../state'
-import { ErrorResponseSchema } from '../common'
+import { commonResponses } from '../common'
 const c = initContract()
 
 export const WorldStateResponseSchema = z.object({
@@ -16,11 +16,11 @@ export const worldStateContract = c.router(
       path: '/by-id/:worldStateId',
       responses: {
         200: WorldStateResponseSchema,
-        400: ErrorResponseSchema,
       },
     },
   },
   {
     pathPrefix: '/world-states',
+    commonResponses,
   }
 )

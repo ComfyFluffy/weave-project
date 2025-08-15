@@ -55,7 +55,7 @@ async function seed() {
           name: character.name,
           description: character.description,
           avatar: character.avatar,
-          ownerId: ownerId,
+          ownerId,
         },
       })
     }

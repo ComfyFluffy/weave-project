@@ -1,7 +1,7 @@
 import { initContract } from '@ts-rest/core'
 import z from 'zod'
 import { ChannelSchema, WorldSchema } from '../..'
-import { ErrorResponseSchema } from '../common'
+import { commonResponses } from '../common'
 const c = initContract()
 
 export const WorldsRequestSchema = z.object({})
@@ -29,7 +29,6 @@ export const worldContract = c.router(
       path: '/',
       responses: {
         200: WorldsResponseSchema,
-        400: ErrorResponseSchema,
       },
     },
     getWorldById: {
@@ -37,11 +36,11 @@ export const worldContract = c.router(
       path: '/:worldId',
       responses: {
         200: WorldSingleResponseSchema,
-        400: ErrorResponseSchema,
       },
     },
   },
   {
     pathPrefix: '/worlds',
+    commonResponses,
   }
 )
