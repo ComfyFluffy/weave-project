@@ -2,10 +2,6 @@ import { useState } from 'react'
 import { Box, Button, Input, VStack, Heading, Text } from '@chakra-ui/react'
 import { toaster } from '../ui/toaster'
 import { useLogin, useRegister } from '../../hooks/useAuth'
-import type {
-  UserLoginRequest,
-  UserRegistrationRequest,
-} from '@weave/types/apis'
 
 interface AuthFormProps {
   mode: 'login' | 'register'
@@ -50,49 +46,16 @@ export function AuthForm({ mode, onSuccess, onSwitchMode }: AuthFormProps) {
     e.preventDefault()
 
     if (isLogin) {
-      const loginData: UserLoginRequest = {
+      const loginData = {
         email: formData.email,
         password: formData.password,
       }
-
-      loginMutation(loginData, {
-        onSuccess: (user) => {
-          login(user)
-          toaster.success({
-            title: '登录成功',
-            description: '欢迎回来！',
-          })
-          onSuccess()
-        },
-        onError: (error) => {
-          toaster.error({
-            title: '登录失败',
-            description: error instanceof Error ? error.message : '未知错误',
-          })
-        },
-      })
     } else {
-      const registerData: UserRegistrationRequest = {
+      const registerData = {
         displayName: formData.displayName || '',
         email: formData.email,
         password: formData.password,
       }
-
-      registerMutation(registerData, {
-        onSuccess: () => {
-          toaster.success({
-            title: '注册成功',
-            description: '您的账户已创建，请登录',
-          })
-          onSuccess()
-        },
-        onError: (error) => {
-          toaster.error({
-            title: '注册失败',
-            description: error instanceof Error ? error.message : '未知错误',
-          })
-        },
-      })
     }
   }
 

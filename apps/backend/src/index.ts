@@ -11,8 +11,6 @@ import { createWorldRouter } from './routes/worlds'
 import { createWorldStateRouter } from './routes/world-states'
 import { createCharacterRouter } from './routes/characters'
 import { createMessageRouter } from './routes/messages'
-import { createUserRoutes } from './routes/users'
-import { createItemRoutes } from './routes/items'
 import { createAIRoutes } from './routes/ai'
 import { createExpressEndpoints, initServer } from '@ts-rest/express'
 import { createAuthRouter } from './routes/auth'
@@ -134,8 +132,6 @@ const emitWorldStateUpdate = (worldStateId: string, worldState: any) => {
 }
 
 // Mount API routes
-app.use('/api/users', createUserRoutes(dbService))
-app.use('/api/items', createItemRoutes(dbService))
 app.use('/api/ai', createAIRoutes(dbService))
 
 const authRouter = createAuthRouter(dbService)
