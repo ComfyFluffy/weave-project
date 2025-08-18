@@ -72,7 +72,7 @@ function MessageHeader({ message }: { message: Message }) {
         fontSize="sm"
         fontWeight="bold"
       >
-        {'User'}
+        {message.characterId || message.userId || 'system'}
       </Text>
       {/* 消息创建时间戳 */}
       <Text color="gray.400" fontSize="xs">

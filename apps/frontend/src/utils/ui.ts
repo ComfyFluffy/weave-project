@@ -1,3 +1,4 @@
+import type { Message } from '@weave/types'
 import { COLORS } from '../constants/ui'
 
 export const getMessageColor = (type: string) => {
@@ -52,19 +53,17 @@ export const formatTimestamp = (timestamp: Date) => {
 }
 
 export const shouldShowAvatar = (
-  currentMessage: { userId?: string; characterName?: string; createdAt: Date },
-  previousMessage: {
-    userId?: string
-    characterName?: string
-    createdAt: Date
-  } | null,
+  currentMessage: Message,
+  previousMessage: Message | null,
   timeThreshold: number = 300000
 ) => {
   if (!previousMessage) return true
 
+  // Group messages by userId, characterId, AND type
   return (
     previousMessage.userId !== currentMessage.userId ||
-    previousMessage.characterName !== currentMessage.characterName ||
+    previousMessage.characterId !== currentMessage.characterId ||
+    previousMessage.type !== currentMessage.type ||
     new Date(currentMessage.createdAt).getTime() -
       new Date(previousMessage.createdAt).getTime() >
       timeThreshold

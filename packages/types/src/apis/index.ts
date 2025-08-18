@@ -9,6 +9,7 @@ import z from 'zod'
 
 export * from './contracts'
 export * from './common'
+export * from './socket'
 
 export const AIMessageSchema = z.any()
 

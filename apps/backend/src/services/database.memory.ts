@@ -14,6 +14,7 @@ import {
 import {
   worlds,
   worldState,
+  worldState2,
   characters,
   users,
   messages,
@@ -23,7 +24,10 @@ import {
 export class MockDatabaseService implements DatabaseService {
   // Mock storage (in-memory)
   private worlds: World[] = worlds
-  private worldStates: Record<string, WorldState> = { 'ws-1': worldState }
+  private worldStates: Record<string, WorldState> = {
+    'ws-1': worldState,
+    'ws-2': worldState2,
+  }
   private characters: Character[] = characters
   private users: User[] = users
   private messages: Record<string, Message[]> = messages
@@ -77,11 +81,12 @@ export class MockDatabaseService implements DatabaseService {
   async getWorldStateByChannelId(
     channelId: string
   ): Promise<WorldState | null> {
-    const result = await this.getChannelById(channelId)
-    if (result && result.channel.worldStateId) {
-      return this.worldStates[result.channel.worldStateId] || null
-    }
-    return null
+    const result = await this.getChannelByIdWithWorld(channelId)
+    if (!result) return null
+
+    // Find the world state by the channel's worldStateId
+    const channel = result.channel
+    return this.worldStates[channel.worldStateId] || null
   }
 
   async createWorldState(
@@ -114,7 +119,22 @@ export class MockDatabaseService implements DatabaseService {
   }
 
   // Channel operations
-  async getChannelById(
+  async getChannelsByWorldId(worldId: string): Promise<Channel[]> {
+    const world = this.worlds.find((w) => w.id === worldId)
+    return world ? world.channels : []
+  }
+
+  async getChannelById(channelId: string): Promise<Channel | null> {
+    for (const world of this.worlds) {
+      const channel = world.channels.find((c) => c.id === channelId)
+      if (channel) {
+        return channel
+      }
+    }
+    return null
+  }
+
+  async getChannelByIdWithWorld(
     channelId: string
   ): Promise<{ channel: Channel; world: World } | null> {
     for (const world of this.worlds) {
@@ -212,10 +232,13 @@ export class MockDatabaseService implements DatabaseService {
       .reverse()
   }
 
-  async createMessage(messageData: Omit<Message, 'id'>): Promise<Message> {
+  async createMessage(
+    messageData: Omit<Message, 'id' | 'createdAt'>
+  ): Promise<Message> {
     const message: Message = {
       id: nanoid(),
       ...messageData,
+      createdAt: new Date(),
     }
 
     if (!this.messages[message.channelId]) {

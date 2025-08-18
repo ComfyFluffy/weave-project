@@ -55,14 +55,14 @@ model Channel {
   /// Optional description of the channel's purpose
   description  String?
   /// ID of the world state associated with this channel
-  worldStateId String?
+  worldStateId String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Relationships
-  world      World       @relation(fields: [worldId], references: [id])
-  worldState WorldState? @relation(fields: [worldStateId], references: [id])
+  world      World      @relation(fields: [worldId], references: [id])
+  worldState WorldState @relation(fields: [worldStateId], references: [id])
 }
 
 /// World represents a complete game universe

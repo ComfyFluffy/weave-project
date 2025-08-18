@@ -1,5 +1,6 @@
 import { initContract } from '@ts-rest/core'
 import { authContract } from './auth'
+import { channelContract } from './channel'
 import { messageContract } from './message'
 import { worldStateContract } from './world-state'
 import { worldContract } from './world'
@@ -11,6 +12,7 @@ const c = initContract()
 export const contract = c.router(
   {
     auth: authContract,
+    channel: channelContract,
     character: characterContract,
     message: messageContract,
     worldState: worldStateContract,
@@ -22,6 +24,7 @@ export const contract = c.router(
 )
 
 export * from './auth'
+export * from './channel'
 export * from './character'
 export * from './message'
 export * from './world-state'

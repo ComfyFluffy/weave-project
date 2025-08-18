@@ -28,8 +28,10 @@ export interface DatabaseService {
   ): Promise<WorldState | null>
   deleteWorldState(id: string): Promise<boolean>
 
-  // Channel operations - channels are embedded in World
-  getChannelById(
+  // Channel operations
+  getChannelsByWorldId(worldId: string): Promise<Channel[]>
+  getChannelById(channelId: string): Promise<Channel | null>
+  getChannelByIdWithWorld(
     channelId: string
   ): Promise<{ channel: Channel; world: World } | null>
 

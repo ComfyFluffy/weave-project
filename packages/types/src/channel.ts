@@ -13,6 +13,6 @@ export const ChannelSchema = z.object({
   name: z.string(),
   type: ChannelTypeSchema,
   description: z.string().optional(),
-  worldStateId: z.string().optional(),
+  worldStateId: z.string(),
 })
 export type Channel = z.infer<typeof ChannelSchema>
