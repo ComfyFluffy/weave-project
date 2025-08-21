@@ -1,25 +1,13 @@
-import {
-  Box,
-  Text,
-  VStack,
-  HStack,
-  Button,
-  Input,
-  Select,
-  Portal,
-  createListCollection,
-} from '@chakra-ui/react'
+import { Box, Text, VStack, HStack, Button } from '@chakra-ui/react'
 import type { Plot } from '@weave/types'
-import {
-  EditableText,
-  EditableNumberInput,
-  EditableList,
-} from './EditableComponents'
-import { GenericSelect, Tag } from './LocationsExplorer'
+import { EditableText, EditableList } from './shared-editable-components'
+import { EditableNumberInput } from './shared-number-slider-components'
+import { GenericSelect, Tag } from './shared-select-components'
+import { SelectAndAddItem } from './shared-crud-components'
 import { useState } from 'react'
 import { Users } from 'lucide-react'
 
-interface PlotsTrackerProps {
+interface PlotsPanelProps {
   plots: Plot[]
   characterNames?: string[]
   onUpdatePlot?: (plotTitle: string, updates: Partial<Plot>) => void
@@ -30,12 +18,12 @@ interface PlotsTrackerProps {
   }) => void
 }
 
-export function PlotsTracker({
+export function PlotsPanel({
   plots,
   characterNames = [],
   onUpdatePlot,
   onUpdatePlotCounts,
-}: PlotsTrackerProps) {
+}: PlotsPanelProps) {
   const [newParticipant, setNewParticipant] = useState<Record<string, string>>(
     {}
   )
@@ -266,6 +254,8 @@ export function PlotsTracker({
 
                 <Box height="1px" bg="gray.600" />
 
+                <Box height="1px" bg="gray.600" />
+
                 <VStack align="stretch" gap={2}>
                   <Text fontSize="sm" color="gray.400" fontWeight="bold">
                     关键事件:
@@ -279,12 +269,16 @@ export function PlotsTracker({
                       placeholder="添加关键事件..."
                       itemPrefix="• "
                     />
-                  ) : (
-                    plot.keyEvents?.map((event, idx) => (
+                  ) : plot.keyEvents && plot.keyEvents.length > 0 ? (
+                    plot.keyEvents.map((event, idx) => (
                       <Text key={idx} fontSize="sm" color="gray.300">
                         • {event}
                       </Text>
                     ))
+                  ) : (
+                    <Text fontSize="sm" color="gray.500">
+                      暂无关键事件
+                    </Text>
                   )}
                 </VStack>
 
@@ -301,12 +295,16 @@ export function PlotsTracker({
                       placeholder="添加下一步..."
                       itemPrefix="• "
                     />
-                  ) : (
-                    plot.nextSteps?.map((step, idx) => (
+                  ) : plot.nextSteps && plot.nextSteps.length > 0 ? (
+                    plot.nextSteps.map((step, idx) => (
                       <Text key={idx} fontSize="sm" color="gray.300">
                         • {step}
                       </Text>
                     ))
+                  ) : (
+                    <Text fontSize="sm" color="gray.500">
+                      暂无下一步计划
+                    </Text>
                   )}
                 </VStack>
 
@@ -332,25 +330,19 @@ export function PlotsTracker({
                         ))}
                       </HStack>
 
-                      <HStack>
-                        <GenericSelect
-                          items={characterNames}
-                          selectedItem={newParticipant[plot.title] || null}
-                          onSelectionChange={(item: string | null) =>
-                            handleParticipantChange(plot.title, item)
-                          }
-                          placeholder="添加新参与者..."
-                          icon={<Users size={16} />}
-                        />
-                        <Button
-                          size="sm"
-                          colorPalette="green"
-                          onClick={() => handleAddParticipant(plot.title)}
-                          disabled={!newParticipant[plot.title]?.trim()}
-                        >
-                          添加
-                        </Button>
-                      </HStack>
+                      <SelectAndAddItem
+                        items={characterNames}
+                        selectedItem={newParticipant[plot.title] || null}
+                        onSelectionChange={(item: string | null) =>
+                          handleParticipantChange(plot.title, item)
+                        }
+                        onAdd={() => handleAddParticipant(plot.title)}
+                        placeholder="添加新参与者..."
+                        icon={<Users size={16} />}
+                        disabled={
+                          !onUpdatePlot || !newParticipant[plot.title]?.trim()
+                        }
+                      />
                     </>
                   ) : (
                     <HStack wrap="wrap" gap={2}>

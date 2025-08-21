@@ -1,5 +1,6 @@
 import { Box, Text, VStack, HStack, Badge } from '@chakra-ui/react'
-import { EditableText, EditableNumberInput } from './EditableComponents'
+import { EditableText } from '../shared-editable-components'
+import { EditableNumberInput } from '../shared-number-slider-components'
 import type { Item, ItemTemplate } from '@weave/types'
 
 interface ItemDetailPanelProps {

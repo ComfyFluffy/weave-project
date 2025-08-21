@@ -13,7 +13,7 @@ import { useState } from 'react'
 import type { Location } from '@weave/types'
 import { MapPin, Users } from 'lucide-react'
 
-interface LocationsExplorerProps {
+interface LocationsPanelProps {
   locations: Location[]
   characterNames?: string[]
   onLocationUpdate?: (
@@ -361,11 +361,11 @@ function GenericSelect({
   )
 }
 export { GenericSelect, Tag }
-export function LocationsExplorer({
+export function LocationsPanel({
   locations,
   characterNames = [],
   onLocationUpdate,
-}: LocationsExplorerProps) {
+}: LocationsPanelProps) {
   const [editingLocation, setEditingLocation] = useState<string | null>(null)
   const [newConnectedLocation, setNewConnectedLocation] = useState<string>('')
   const [newOccupant, setNewOccupant] = useState<string>('')
@@ -660,60 +660,60 @@ export function LocationsExplorer({
                 )}
               </VStack>
 
-              {location.notableFeatures &&
-                location.notableFeatures.length > 0 && (
-                  <>
-                    <Box height="1px" bg="gray.600" />
-                    <VStack align="stretch" gap={1}>
-                      <Text fontSize="sm" color="gray.400" fontWeight="bold">
-                        显著特征:
-                      </Text>
-                      {onLocationUpdate ? (
-                        <EditableList
-                          items={location.notableFeatures}
-                          onItemsChange={(newFeatures) =>
-                            handleFeaturesUpdate(location.name, newFeatures)
-                          }
-                          placeholder="添加显著特征..."
-                          itemPrefix="• "
-                        />
-                      ) : (
-                        location.notableFeatures.map((feature, idx) => (
-                          <Text key={idx} fontSize="sm" color="gray.300">
-                            • {feature}
-                          </Text>
-                        ))
-                      )}
-                    </VStack>
-                  </>
-                )}
-
-              {location.items && location.items.length > 0 && (
-                <>
-                  <Box height="1px" bg="gray.600" />
-                  <VStack align="stretch" gap={1}>
-                    <Text fontSize="sm" color="gray.400" fontWeight="bold">
-                      物品:
+              <Box height="1px" bg="gray.600" />
+              <VStack align="stretch" gap={1}>
+                <Text fontSize="sm" color="gray.400" fontWeight="bold">
+                  显著特征:
+                </Text>
+                {onLocationUpdate ? (
+                  <EditableList
+                    items={location.notableFeatures || []}
+                    onItemsChange={(newFeatures) =>
+                      handleFeaturesUpdate(location.name, newFeatures)
+                    }
+                    placeholder="添加显著特征..."
+                    itemPrefix="• "
+                  />
+                ) : location.notableFeatures &&
+                  location.notableFeatures.length > 0 ? (
+                  location.notableFeatures.map((feature, idx) => (
+                    <Text key={idx} fontSize="sm" color="gray.300">
+                      • {feature}
                     </Text>
-                    {onLocationUpdate ? (
-                      <EditableList
-                        items={location.items}
-                        onItemsChange={(newItems) =>
-                          handleItemsUpdate(location.name, newItems)
-                        }
-                        placeholder="添加物品..."
-                        itemPrefix="• "
-                      />
-                    ) : (
-                      location.items.map((item, idx) => (
-                        <Text key={idx} fontSize="sm" color="gray.300">
-                          • {item}
-                        </Text>
-                      ))
-                    )}
-                  </VStack>
-                </>
-              )}
+                  ))
+                ) : (
+                  <Text fontSize="sm" color="gray.500">
+                    暂无显著特征
+                  </Text>
+                )}
+              </VStack>
+
+              <Box height="1px" bg="gray.600" />
+              <VStack align="stretch" gap={1}>
+                <Text fontSize="sm" color="gray.400" fontWeight="bold">
+                  物品:
+                </Text>
+                {onLocationUpdate ? (
+                  <EditableList
+                    items={location.items || []}
+                    onItemsChange={(newItems) =>
+                      handleItemsUpdate(location.name, newItems)
+                    }
+                    placeholder="添加物品..."
+                    itemPrefix="• "
+                  />
+                ) : location.items && location.items.length > 0 ? (
+                  location.items.map((item, idx) => (
+                    <Text key={idx} fontSize="sm" color="gray.300">
+                      • {item}
+                    </Text>
+                  ))
+                ) : (
+                  <Text fontSize="sm" color="gray.500">
+                    暂无物品
+                  </Text>
+                )}
+              </VStack>
             </VStack>
           </Box>
         </Box>

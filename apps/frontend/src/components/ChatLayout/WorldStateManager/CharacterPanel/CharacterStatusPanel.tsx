@@ -8,12 +8,12 @@ import {
   Input,
   InputGroup,
 } from '@chakra-ui/react'
+import { EditableText } from '../shared-editable-components'
 import {
   EditableStatValue,
-  EditableText,
   EditableNumberInput,
-} from './EditableComponents'
-import { ItemDetailPanel } from './ItemDetailPanel'
+} from '../shared-number-slider-components'
+import { ItemDetailPanel } from '../ItemPanel/ItemDetailPanel'
 import type {
   Character,
   CharacterState,
@@ -355,7 +355,7 @@ const InventoryItem = ({
             <EditableText
               value={itemName}
               onChange={(newValue) => {
-                onUpdateItemName(itemKey, newValue)
+                void onUpdateItemName?.(itemKey, newValue)
               }}
               placeholder="物品名称..."
             />
@@ -366,12 +366,15 @@ const InventoryItem = ({
             onClick={() => {
               if (confirm('确定要删除这个物品吗？')) {
                 if (onRemoveItemFromCharacterInventory) {
-                  onRemoveItemFromCharacterInventory(characterId, itemKey)
+                  void onRemoveItemFromCharacterInventory?.(
+                    characterId,
+                    itemKey
+                  )
                 } else if (onUpdateCharacterNumericFields) {
                   const updatedInventory = (state.inventory || []).filter(
                     (key) => key !== itemKey
                   )
-                  onUpdateCharacterNumericFields(characterId, {
+                  void onUpdateCharacterNumericFields?.(characterId, {
                     inventoryCount: updatedInventory.length,
                   })
                 }
@@ -537,7 +540,7 @@ export function CharacterStatusPanel({
             <EditableText
               value={state.currentLocationName || ''}
               onChange={(newValue) =>
-                onUpdateCharacterNumericFields(character.id, {
+                void onUpdateCharacterNumericFields?.(character.id, {
                   currentLocation: newValue,
                 })
               }
@@ -555,21 +558,9 @@ export function CharacterStatusPanel({
           <Text fontSize="sm" color="gray.400">
             拥有物品:
           </Text>
-          {onUpdateCharacterNumericFields && !isNPC ? (
-            <EditableNumberInput
-              value={state.inventory?.length || 0}
-              onChange={(newValue: number) =>
-                onUpdateCharacterNumericFields(character.id, {
-                  inventoryCount: newValue,
-                })
-              }
-              min={0}
-            />
-          ) : (
-            <Text fontSize="sm" color="white">
-              {state.inventory?.length || 0} 件
-            </Text>
-          )}
+          <Text fontSize="sm" color="white">
+            {state.inventory?.length || 0} 件
+          </Text>
         </HStack>
 
         {/* Discovered Lores Section */}
@@ -580,21 +571,9 @@ export function CharacterStatusPanel({
               <Text fontSize="sm" color="gray.400">
                 已知传说:
               </Text>
-              {onUpdateCharacterNumericFields && !isNPC ? (
-                <EditableNumberInput
-                  value={state.discoveredLores?.length || 0}
-                  onChange={(newValue: number) =>
-                    onUpdateCharacterNumericFields(character.id, {
-                      discoveredLoresCount: newValue,
-                    })
-                  }
-                  min={0}
-                />
-              ) : (
-                <Text fontSize="sm" color="white">
-                  {state.discoveredLores?.length || 0} 项
-                </Text>
-              )}
+              <Text fontSize="sm" color="white">
+                {state.discoveredLores?.length || 0} 项
+              </Text>
             </HStack>
           </>
         )}
@@ -637,7 +616,7 @@ export function CharacterStatusPanel({
                       <EditableNumberInput
                         value={value}
                         onChange={(newValue: number) =>
-                          onUpdateCharacterPropertiesAndKnowledge(
+                          void onUpdateCharacterPropertiesAndKnowledge?.(
                             character.id,
                             {
                               properties: {
@@ -681,7 +660,7 @@ export function CharacterStatusPanel({
                       <EditableText
                         value={value}
                         onChange={(newValue) =>
-                          onUpdateCharacterPropertiesAndKnowledge(
+                          void onUpdateCharacterPropertiesAndKnowledge?.(
                             character.id,
                             {
                               properties: { [key]: newValue },
@@ -715,9 +694,12 @@ export function CharacterStatusPanel({
                         ...state.knowledge,
                         [categoryName]: [],
                       }
-                      onUpdateCharacterPropertiesAndKnowledge(character.id, {
-                        knowledge: updatedKnowledge,
-                      })
+                      void onUpdateCharacterPropertiesAndKnowledge?.(
+                        character.id,
+                        {
+                          knowledge: updatedKnowledge,
+                        }
+                      )
                     }
                   : undefined
               }
@@ -726,9 +708,12 @@ export function CharacterStatusPanel({
                   ? (categoryName) => {
                       const updatedKnowledge = { ...state.knowledge }
                       delete updatedKnowledge[categoryName]
-                      onUpdateCharacterPropertiesAndKnowledge(character.id, {
-                        knowledge: updatedKnowledge,
-                      })
+                      void onUpdateCharacterPropertiesAndKnowledge?.(
+                        character.id,
+                        {
+                          knowledge: updatedKnowledge,
+                        }
+                      )
                     }
                   : undefined
               }
@@ -743,9 +728,12 @@ export function CharacterStatusPanel({
                         ...state.knowledge,
                         [categoryName]: updatedItems,
                       }
-                      onUpdateCharacterPropertiesAndKnowledge(character.id, {
-                        knowledge: updatedKnowledge,
-                      })
+                      void onUpdateCharacterPropertiesAndKnowledge?.(
+                        character.id,
+                        {
+                          knowledge: updatedKnowledge,
+                        }
+                      )
                     }
                   : undefined
               }
@@ -755,9 +743,12 @@ export function CharacterStatusPanel({
                       const items = state.knowledge?.[categoryName] || []
                       const updatedItems = [...items]
                       updatedItems[index] = newValue
-                      onUpdateCharacterPropertiesAndKnowledge(character.id, {
-                        knowledge: { [categoryName]: updatedItems },
-                      })
+                      void onUpdateCharacterPropertiesAndKnowledge?.(
+                        character.id,
+                        {
+                          knowledge: { [categoryName]: updatedItems },
+                        }
+                      )
                     }
                   : undefined
               }
@@ -766,9 +757,12 @@ export function CharacterStatusPanel({
                   ? (categoryName, index) => {
                       const items = state.knowledge?.[categoryName] || []
                       const updatedItems = items.filter((_, i) => i !== index)
-                      onUpdateCharacterPropertiesAndKnowledge(character.id, {
-                        knowledge: { [categoryName]: updatedItems },
-                      })
+                      void onUpdateCharacterPropertiesAndKnowledge?.(
+                        character.id,
+                        {
+                          knowledge: { [categoryName]: updatedItems },
+                        }
+                      )
                     }
                   : undefined
               }
@@ -793,7 +787,7 @@ export function CharacterStatusPanel({
                         ...state.goals,
                         [categoryName]: [],
                       }
-                      onUpdateCharacterGoals(character.id, updatedGoals)
+                      void onUpdateCharacterGoals?.(character.id, updatedGoals)
                     }
                   : undefined
               }
@@ -802,7 +796,7 @@ export function CharacterStatusPanel({
                   ? (categoryName) => {
                       const updatedGoals = { ...state.goals }
                       delete updatedGoals[categoryName]
-                      onUpdateCharacterGoals(character.id, updatedGoals)
+                      void onUpdateCharacterGoals?.(character.id, updatedGoals)
                     }
                   : undefined
               }
@@ -817,7 +811,7 @@ export function CharacterStatusPanel({
                         ...state.goals,
                         [categoryName]: updatedItems,
                       }
-                      onUpdateCharacterGoals(character.id, updatedGoals)
+                      void onUpdateCharacterGoals?.(character.id, updatedGoals)
                     }
                   : undefined
               }
@@ -827,7 +821,7 @@ export function CharacterStatusPanel({
                       const items = state.goals?.[categoryName] || []
                       const updatedItems = [...items]
                       updatedItems[index] = newValue
-                      onUpdateCharacterGoals(character.id, {
+                      void onUpdateCharacterGoals?.(character.id, {
                         [categoryName]: updatedItems,
                       })
                     }
@@ -838,7 +832,7 @@ export function CharacterStatusPanel({
                   ? (categoryName, index) => {
                       const items = state.goals?.[categoryName] || []
                       const updatedItems = items.filter((_, i) => i !== index)
-                      onUpdateCharacterGoals(character.id, {
+                      void onUpdateCharacterGoals?.(character.id, {
                         [categoryName]: updatedItems,
                       })
                     }
@@ -865,7 +859,10 @@ export function CharacterStatusPanel({
                         ...state.secrets,
                         [categoryName]: [],
                       }
-                      onUpdateCharacterSecrets(character.id, updatedSecrets)
+                      void onUpdateCharacterSecrets?.(
+                        character.id,
+                        updatedSecrets
+                      )
                     }
                   : undefined
               }
@@ -874,7 +871,10 @@ export function CharacterStatusPanel({
                   ? (categoryName) => {
                       const updatedSecrets = { ...state.secrets }
                       delete updatedSecrets[categoryName]
-                      onUpdateCharacterSecrets(character.id, updatedSecrets)
+                      void onUpdateCharacterSecrets?.(
+                        character.id,
+                        updatedSecrets
+                      )
                     }
                   : undefined
               }
@@ -889,7 +889,10 @@ export function CharacterStatusPanel({
                         ...state.secrets,
                         [categoryName]: updatedItems,
                       }
-                      onUpdateCharacterSecrets(character.id, updatedSecrets)
+                      void onUpdateCharacterSecrets?.(
+                        character.id,
+                        updatedSecrets
+                      )
                     }
                   : undefined
               }
@@ -899,7 +902,7 @@ export function CharacterStatusPanel({
                       const items = state.secrets?.[categoryName] || []
                       const updatedItems = [...items]
                       updatedItems[index] = newValue
-                      onUpdateCharacterSecrets(character.id, {
+                      void onUpdateCharacterSecrets?.(character.id, {
                         [categoryName]: updatedItems,
                       })
                     }
@@ -910,7 +913,7 @@ export function CharacterStatusPanel({
                   ? (categoryName, index) => {
                       const items = state.secrets?.[categoryName] || []
                       const updatedItems = items.filter((_, i) => i !== index)
-                      onUpdateCharacterSecrets(character.id, {
+                      void onUpdateCharacterSecrets?.(character.id, {
                         [categoryName]: updatedItems,
                       })
                     }
@@ -946,7 +949,9 @@ export function CharacterStatusPanel({
                   <ItemDetailPanel
                     item={selectedItem}
                     itemTemplates={itemTemplates}
-                    onUpdateItemProperty={onUpdateItemProperty}
+                    onUpdateItemProperty={(itemKey, property, newValue) =>
+                      void onUpdateItemProperty?.(itemKey, property, newValue)
+                    }
                   />
                 </VStack>
               ) : state.inventory && state.inventory.length > 0 ? (

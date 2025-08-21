@@ -1,22 +1,5 @@
 import { useState, useEffect } from 'react'
-import {
-  Box,
-  Text,
-  Input,
-  NumberInputRoot,
-  NumberInputControl,
-  NumberInputInput,
-  NumberInputIncrementTrigger,
-  NumberInputDecrementTrigger,
-  SliderRoot,
-  SliderControl,
-  SliderTrack,
-  SliderRange,
-  SliderThumb,
-  VStack,
-  HStack,
-  Button,
-} from '@chakra-ui/react'
+import { Box, Text, Input, VStack, HStack, Button } from '@chakra-ui/react'
 import type { StatValue } from '@weave/types'
 
 // EditableText 组件
@@ -24,36 +7,44 @@ interface EditableTextProps {
   value: string
   onChange: (newValue: string) => void
   placeholder?: string
+  isEditing?: boolean
+  onEditChange?: (editing: boolean) => void
 }
 
-export function EditableText({
+export const EditableText: React.FC<EditableTextProps> = ({
   value,
   onChange,
   placeholder = '双击编辑...',
-}: EditableTextProps) {
-  const [isEditing, setIsEditing] = useState(false)
+  isEditing,
+  onEditChange,
+}) => {
+  const [internalIsEditing, setInternalIsEditing] = useState(false)
   const [tempValue, setTempValue] = useState(value)
+
+  const isCurrentlyEditing =
+    isEditing !== undefined ? isEditing : internalIsEditing
+  const setIsCurrentlyEditing = onEditChange || setInternalIsEditing
 
   const handleDoubleClick = () => {
     setTempValue(value)
-    setIsEditing(true)
+    setIsCurrentlyEditing(true)
   }
 
   const handleSave = () => {
     onChange(tempValue)
-    setIsEditing(false)
+    setIsCurrentlyEditing(false)
   }
 
   const handleCancel = () => {
     setTempValue(value)
-    setIsEditing(false)
+    setIsCurrentlyEditing(false)
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTempValue(e.target.value)
   }
 
-  if (isEditing) {
+  if (isCurrentlyEditing) {
     return (
       <Box>
         <Input
@@ -69,6 +60,10 @@ export function EditableText({
               handleCancel()
             }
           }}
+          bg="gray.700"
+          color="white"
+          borderColor="gray.600"
+          _focus={{ borderColor: 'blue.400' }}
         />
       </Box>
     )
@@ -84,140 +79,6 @@ export function EditableText({
     >
       {value || placeholder}
     </Text>
-  )
-}
-
-// EditableNumberInput 组件
-interface EditableNumberInputProps {
-  value: number
-  onChange: (newValue: number) => void
-  min?: number
-  max?: number
-  step?: number
-}
-
-export function EditableNumberInput({
-  value,
-  onChange,
-  min,
-  max,
-  step = 1,
-}: EditableNumberInputProps) {
-  const [tempValue, setTempValue] = useState(value.toString())
-
-  const handleValueChange = (details: {
-    value: string
-    valueAsNumber: number
-  }) => {
-    setTempValue(details.value)
-    // Only call onChange if we have a valid number
-    if (!isNaN(details.valueAsNumber)) {
-      onChange(details.valueAsNumber)
-    }
-  }
-
-  return (
-    <NumberInputRoot
-      value={tempValue}
-      onValueChange={handleValueChange}
-      min={min}
-      max={max}
-      step={step}
-      width="fit-content"
-    >
-      <NumberInputInput width="80px" />
-      <NumberInputControl>
-        <NumberInputIncrementTrigger />
-        <NumberInputDecrementTrigger />
-      </NumberInputControl>
-    </NumberInputRoot>
-  )
-}
-
-// EditableStatValue 组件
-interface EditableStatValueProps {
-  label: string
-  stat: StatValue
-  onChange: (newValue: number) => void
-  min?: number
-  max?: number
-  step?: number
-}
-
-export function EditableStatValue({
-  label,
-  stat,
-  onChange,
-  min = 0,
-  max = stat.max || 100,
-  step = 1,
-}: EditableStatValueProps) {
-  const [value, setValue] = useState(stat.current)
-
-  // Update value when stat changes externally
-  useEffect(() => {
-    setValue(stat.current)
-  }, [stat])
-
-  const handleInputChange = (details: {
-    value: string
-    valueAsNumber: number
-  }) => {
-    const numValue = details.valueAsNumber
-    if (!isNaN(numValue)) {
-      setValue(numValue)
-      onChange(numValue)
-    }
-  }
-
-  const handleSliderChange = (details: { value: number[] }) => {
-    const newValue = details.value[0]
-    setValue(newValue)
-    onChange(newValue)
-  }
-
-  return (
-    <VStack width="100%" gap={3}>
-      <HStack justify="space-between">
-        <Text fontSize="xs" color="gray.400">
-          {label}
-        </Text>
-        <Text fontSize="xs" color="white">
-          {value}/{stat.max}
-        </Text>
-      </HStack>
-
-      <NumberInputRoot
-        value={value.toString()}
-        onValueChange={handleInputChange}
-        min={min}
-        max={max}
-        step={step}
-        width="100%"
-      >
-        <NumberInputInput />
-        <NumberInputControl>
-          <NumberInputIncrementTrigger />
-          <NumberInputDecrementTrigger />
-        </NumberInputControl>
-      </NumberInputRoot>
-
-      <SliderRoot
-        value={[value]}
-        onValueChange={handleSliderChange}
-        min={min}
-        max={max}
-        step={step}
-        width="100%"
-      >
-        <SliderControl>
-          <SliderTrack>
-            <SliderRange />
-          </SliderTrack>
-          <SliderThumb index={0} />
-        </SliderControl>
-      </SliderRoot>
-    </VStack>
   )
 }
 
@@ -330,3 +191,44 @@ export const EditableList: React.FC<EditableListProps> = ({
     </VStack>
   )
 }
+
+// FieldRow 组件 - 用于渲染一致的字段行，支持可编辑模式和只读模式
+export interface FieldRowProps {
+  label: string
+  value: string | number
+  onEdit?: (newValue: string | number) => void
+  isEditing?: boolean
+  placeholder?: string
+}
+
+export const FieldRow: React.FC<FieldRowProps> = ({
+  label,
+  value,
+  onEdit,
+  isEditing = false,
+  placeholder,
+}) => (
+  <HStack justify="space-between">
+    <Text fontSize="sm" color="gray.400">
+      {label}:
+    </Text>
+
+    {isEditing && onEdit ? (
+      typeof value === 'string' ? (
+        <EditableText
+          value={value}
+          onChange={(newValue) => onEdit(newValue)}
+          placeholder={placeholder}
+        />
+      ) : (
+        <Text fontSize="sm" color="white">
+          {value}
+        </Text>
+      )
+    ) : (
+      <Text fontSize="sm" color="white">
+        {value}
+      </Text>
+    )}
+  </HStack>
+)

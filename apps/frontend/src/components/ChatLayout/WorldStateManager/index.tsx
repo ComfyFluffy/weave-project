@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Box, Text, VStack, HStack, Button, Tabs } from '@chakra-ui/react'
 import { WorldStateOverview } from './WorldStateOverview'
-import { CharacterStatusPanel } from './CharacterStatusPanel'
-import { LocationsExplorer } from './LocationsExplorer'
-import { PlotsTracker } from './PlotsTracker'
-import { ItemDetailPanel } from './ItemDetailPanel'
-import { worldStateService } from '../services/worldStateService'
-import { socketService } from '../services/socketService'
+import { CharacterPanel } from './CharacterPanel'
+import { LocationsPanel } from './LocationsPanel'
+import { PlotsPanel } from './PlotsPanel'
+import { ItemPanel } from './ItemPanel'
+import { worldStateService } from '../../../services/worldStateService'
+import { socketService } from '../../../services/socketService'
 import type {
   WorldState,
   Location,
@@ -21,57 +21,6 @@ interface WorldStateManagerProps {
 }
 
 // Helper function to group items by template name
-interface GroupedItem {
-  templateName: string
-  items: Item[]
-  totalCount: number
-  displayName: string
-  description?: string
-  type?: 'weapon' | 'armor' | 'consumable' | 'tool' | 'key-item' | 'misc'
-  rarity?: 'common' | 'uncommon' | 'rare' | 'very-rare' | 'legendary'
-  properties?: Record<string, string>
-  stats?: Record<string, number>
-}
-
-const groupItemsByTemplate = (
-  items: Record<string, Item>,
-  itemTemplates: any[] = []
-): GroupedItem[] => {
-  const grouped: Record<string, GroupedItem> = {}
-
-  // Process each item
-  Object.values(items).forEach((item) => {
-    const templateName = item.templateName || item.name || item.key
-
-    if (!grouped[templateName]) {
-      // Find template if exists
-      const template = itemTemplates.find(
-        (t: any) => t.name === item.templateName
-      )
-
-      grouped[templateName] = {
-        templateName,
-        items: [item],
-        totalCount: item.count || 1,
-        displayName: item.name || template?.name || item.key,
-        description: item.description || template?.description,
-        type: item.type || template?.type,
-        rarity: item.rarity || template?.rarity,
-        properties: {
-          ...(template?.properties || {}),
-          ...(item.properties || {}),
-        },
-        stats: { ...(template?.stats || {}), ...(item.stats || {}) },
-      }
-    } else {
-      // Add to existing group
-      grouped[templateName].items.push(item)
-      grouped[templateName].totalCount += item.count || 1
-    }
-  })
-
-  return Object.values(grouped)
-}
 
 // Consolidated handler function for world state updates
 const useWorldStateUpdater = (
@@ -91,8 +40,8 @@ const useWorldStateUpdater = (
   )
 
   const handleStatUpdate = useCallback(
-    async (characterId: string, statName: string, newValue: number) => {
-      await updateWorldState(() =>
+    (characterId: string, statName: string, newValue: number) => {
+      void updateWorldState(() =>
         worldStateService.updateCharacterStat(
           worldStateId,
           characterId,
@@ -332,9 +281,8 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState('overview')
-  const [selectedItemKey, setSelectedItemKey] = useState<string | null>(null)
-  const [selectedGroupedItem, setSelectedGroupedItem] =
-    useState<GroupedItem | null>(null)
+  // Removed item-related states as they're now handled in ItemPanel
+  // Removed selectedCharacter state as it's now handled in CharacterPanel
 
   const {
     handleStatUpdate,
@@ -433,20 +381,6 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
     )
   }
 
-  // Handle item selection for detail view
-  const selectedItem =
-    selectedItemKey && worldState.state.items?.[selectedItemKey]
-      ? worldState.state.items[selectedItemKey]
-      : null
-
-  // Group items by template for the items tab
-  const groupedItems = worldState.state.items
-    ? groupItemsByTemplate(
-        worldState.state.items,
-        worldState.state.itemTemplates
-      )
-    : []
-
   return (
     <Box p={4} height="100%" overflowY="auto">
       <VStack align="stretch" gap={4} height="100%">
@@ -482,56 +416,31 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
             </Tabs.Content>
 
             <Tabs.Content value="characters">
-              <VStack align="stretch" gap={3}>
-                {worldState.characters.map((character) => {
-                  // For NPCs that don't have a detailed state, create a minimal state object
-                  const characterState: CharacterState = worldState.state
-                    .characterStates?.[character.id] || {
-                    id: character.id,
-                    currentLocationName: '',
-                    inventory: [],
-                    stats: {},
-                    attributes: {},
-                    properties: {},
-                    knowledge: {},
-                    goals: {},
-                    secrets: {},
-                    discoveredLores: [],
-                  }
-
-                  return (
-                    <CharacterStatusPanel
-                      key={character.id}
-                      character={character}
-                      state={characterState}
-                      items={worldState.state.items}
-                      onUpdateStat={handleStatUpdate}
-                      onUpdateCharacterInfo={handleCharacterInfoUpdate}
-                      onUpdateCharacterNumericFields={
-                        handleCharacterNumericFieldsUpdate
-                      }
-                      onUpdateCharacterPropertiesAndKnowledge={
-                        handleCharacterPropertiesAndKnowledgeUpdate
-                      }
-                      onUpdateCharacterGoals={handleCharacterGoalsUpdate}
-                      onUpdateCharacterSecrets={handleCharacterSecretsUpdate}
-                      onUpdateItemName={handleItemNameUpdate}
-                      onUpdateItemProperty={handleItemPropertyUpdate}
-                      onAddItemToCharacterInventory={
-                        handleAddItemToCharacterInventory
-                      }
-                      onRemoveItemFromCharacterInventory={
-                        handleRemoveItemFromCharacterInventory
-                      }
-                      itemTemplates={worldState.state.itemTemplates}
-                    />
-                  )
-                })}
-              </VStack>
+              <CharacterPanel
+                worldState={worldState}
+                handleStatUpdate={handleStatUpdate}
+                handleCharacterInfoUpdate={handleCharacterInfoUpdate}
+                handleCharacterNumericFieldsUpdate={
+                  handleCharacterNumericFieldsUpdate
+                }
+                handleCharacterPropertiesAndKnowledgeUpdate={
+                  handleCharacterPropertiesAndKnowledgeUpdate
+                }
+                handleCharacterGoalsUpdate={handleCharacterGoalsUpdate}
+                handleCharacterSecretsUpdate={handleCharacterSecretsUpdate}
+                handleItemNameUpdate={handleItemNameUpdate}
+                handleAddItemToCharacterInventory={
+                  handleAddItemToCharacterInventory
+                }
+                handleRemoveItemFromCharacterInventory={
+                  handleRemoveItemFromCharacterInventory
+                }
+                handleItemPropertyUpdate={handleItemPropertyUpdate}
+              />
             </Tabs.Content>
 
             <Tabs.Content value="locations">
-              <LocationsExplorer
+              <LocationsPanel
                 locations={worldState.state?.locations || []}
                 characterNames={worldState.characters.map((char) => char.name)}
                 onLocationUpdate={(locationName, field, value) => {
@@ -562,7 +471,7 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
             </Tabs.Content>
 
             <Tabs.Content value="plots">
-              <PlotsTracker
+              <PlotsPanel
                 plots={worldState.state?.plots || []}
                 characterNames={worldState.characters.map((char) => char.name)}
                 onUpdatePlot={handlePlotUpdate}
@@ -571,115 +480,10 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
             </Tabs.Content>
 
             <Tabs.Content value="items">
-              <VStack align="stretch" gap={3}>
-                {selectedGroupedItem ? (
-                  <VStack align="stretch" gap={3}>
-                    <Button
-                      size="sm"
-                      colorPalette="gray"
-                      onClick={() => setSelectedGroupedItem(null)}
-                      width="fit-content"
-                    >
-                      ← 返回物品列表
-                    </Button>
-                    <ItemDetailPanel
-                      item={
-                        {
-                          key: selectedGroupedItem.templateName,
-                          name: selectedGroupedItem.displayName,
-                          description: selectedGroupedItem.description,
-                          type: selectedGroupedItem.type,
-                          rarity: selectedGroupedItem.rarity,
-                          count: selectedGroupedItem.totalCount,
-                          properties: selectedGroupedItem.properties,
-                          stats: selectedGroupedItem.stats,
-                        } as Item
-                      }
-                      itemTemplates={worldState.state.itemTemplates || []}
-                      onUpdateItemProperty={handleItemPropertyUpdate}
-                    />
-                    <Box>
-                      <Text
-                        fontSize="sm"
-                        fontWeight="bold"
-                        color="white"
-                        mb={2}
-                      >
-                        物品实例详情:
-                      </Text>
-                      {selectedGroupedItem.items.map((item, index) => (
-                        <Box
-                          key={index}
-                          bg="gray.700"
-                          p={2}
-                          borderRadius="md"
-                          mb={2}
-                        >
-                          <HStack justify="space-between">
-                            <Text fontSize="sm" color="white">
-                              {item.name || item.templateName || item.key}
-                            </Text>
-                            <Text fontSize="sm" color="gray.400">
-                              数量: {item.count || 1}
-                            </Text>
-                          </HStack>
-                          {item.key && (
-                            <Text fontSize="xs" color="gray.500">
-                              ID: {item.key}
-                            </Text>
-                          )}
-                        </Box>
-                      ))}
-                    </Box>
-                  </VStack>
-                ) : selectedItem ? (
-                  <VStack align="stretch" gap={3}>
-                    <Button
-                      size="sm"
-                      colorPalette="gray"
-                      onClick={() => setSelectedItemKey(null)}
-                      width="fit-content"
-                    >
-                      ← 返回物品列表
-                    </Button>
-                    <ItemDetailPanel
-                      item={selectedItem}
-                      itemTemplates={worldState.state.itemTemplates || []}
-                      onUpdateItemProperty={handleItemPropertyUpdate}
-                    />
-                  </VStack>
-                ) : (
-                  <>
-                    <Text fontSize="lg" fontWeight="bold" color="white">
-                      物品列表
-                    </Text>
-                    {groupedItems.length > 0 ? (
-                      groupedItems.map((groupedItem, index) => (
-                        <Box
-                          key={index}
-                          bg="gray.700"
-                          p={3}
-                          borderRadius="md"
-                          cursor="pointer"
-                          _hover={{ bg: 'gray.600' }}
-                          onClick={() => setSelectedGroupedItem(groupedItem)}
-                        >
-                          <HStack justify="space-between">
-                            <Text color="white">{groupedItem.displayName}</Text>
-                            <Text color="gray.400" fontSize="sm">
-                              {groupedItem.totalCount} 个
-                            </Text>
-                          </HStack>
-                        </Box>
-                      ))
-                    ) : (
-                      <Text color="gray.500" textAlign="center" py={4}>
-                        暂无物品数据
-                      </Text>
-                    )}
-                  </>
-                )}
-              </VStack>
+              <ItemPanel
+                worldState={worldState}
+                handleItemPropertyUpdate={handleItemPropertyUpdate}
+              />
             </Tabs.Content>
           </Box>
         </Tabs.Root>
