@@ -3,6 +3,7 @@ import { WorldSidebar } from './WorldSidebar'
 import { ChannelSidebar } from './ChannelSidebar'
 import { ChatArea } from './ChatArea'
 import { AIWorldPanel } from '../AIWorldPanel'
+import { CharacterManagementModal } from '../CharacterManagementModal'
 import { socketService } from '../../services/socketService'
 import type { UserRole } from '../RoleSelector'
 import {
@@ -11,9 +12,11 @@ import {
   useWorldState,
   useChannelMessages,
   useWorldCharacters,
+  useCreateCharacter,
 } from '../../hooks/queries'
 import type { Message, Character } from '@weave/types'
 import { Flex } from '@chakra-ui/react'
+import { toaster } from '../ui/toaster'
 
 export function ChatLayout() {
   const [selectedWorldId, setSelectedWorldId] = useState<string>('1')
@@ -22,13 +25,17 @@ export function ChatLayout() {
   const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(
     null
   )
+  const [isCharacterManagementModalOpen, setIsCharacterManagementModalOpen] = useState(false)
+  const [myCharacters, setMyCharacters] = useState<Character[]>([])
+  const [availableCharacters, setAvailableCharacters] = useState<Character[]>([])
 
   const { data: worldsData } = useWorlds()
   const { data: currentWorldData } = useWorld(selectedWorldId)
   const { data: worldStateData } = useWorldState('ws-1')
   const { data: messagesData, refetch: refetchMessages } =
     useChannelMessages(selectedChannelId)
-  const { data: worldCharactersData } = useWorldCharacters(selectedWorldId)
+  const { data: worldCharactersData, refetch: refetchWorldCharacters } = useWorldCharacters(selectedWorldId)
+  const { mutate: createCharacter } = useCreateCharacter()
 
   // Extract data from ts-rest responses
   const worlds = worldsData?.body.worlds || []
@@ -123,12 +130,40 @@ export function ChatLayout() {
   }
 
   const handleOpenCharacterModal = () => {
-    // TODO
+    setIsCharacterManagementModalOpen(true);
+  }
+
+  const handleCreateCharacter = (characterData: { name: string; description: string }) => {
+    createCharacter(
+      { body: characterData },
+      {
+        onSuccess: (data) => {
+          // After creating the character, don't automatically select it
+          // The user can manually select it from the character list if they want to use it
+          
+          // Also add to my characters list if it's not already there
+          if (data.body && !myCharacters.some(c => c.id === data.body.id)) {
+            setMyCharacters(prev => [...prev, data.body])
+          }
+          
+          // Refresh the world characters list
+          void refetchWorldCharacters()
+        },
+        onError: (error) => {
+          console.error('Failed to create character:', error)
+        },
+      }
+    )
   }
 
   const handleCreateWorld = () => {
     // TODO: Implement world creation modal
     console.log('Create world clicked')
+  }
+
+  const handleRemoveFromAvailableCharacters = (characterId: string) => {
+    // Remove the character from available characters list
+    setAvailableCharacters(prev => prev.filter(c => c.id !== characterId));
   }
 
   return (
@@ -161,12 +196,16 @@ export function ChatLayout() {
       <ChatArea
         channel={currentChannel}
         messages={messages}
+        worldId={selectedWorldId}
         worldCharacters={worldCharacters}
+        myCharacters={availableCharacters}
         selectedCharacter={selectedCharacter}
         selectedRole={selectedRole}
         onSendMessage={handleSendMessage}
         onSelectCharacter={handleSelectCharacter}
-        onOpenCharacterModal={handleOpenCharacterModal}
+        onCreateCharacter={handleCreateCharacter}
+        onOpenCharacterManagement={handleOpenCharacterModal}
+        onRemoveFromAvailableCharacters={handleRemoveFromAvailableCharacters}
       />
 
       {/* AI World Panel - World Data Viewer and AI Chat */}
@@ -176,6 +215,36 @@ export function ChatLayout() {
         channelId={selectedChannelId}
         selectedCharacterId={selectedCharacter?.id}
         selectedRole={selectedRole}
+      />
+      
+      {/* Character Management Modal */}
+      <CharacterManagementModal
+        worldId={selectedWorldId}
+        myCharacters={myCharacters}
+        isOpen={isCharacterManagementModalOpen}
+        onClose={() => setIsCharacterManagementModalOpen(false)}
+        onRemoveFromMyCharacters={(characterId) => {
+          // Remove the character from my characters list
+          setMyCharacters(prev => prev.filter(c => c.id !== characterId));
+        }}
+        onSelectCharacter={(character) => {
+          // Add the character to my characters list only, don't automatically select it
+          if (character && !myCharacters.some(c => c.id === character.id)) {
+            setMyCharacters(prev => [...prev, character]);
+          }
+        }}
+        onAddToChatCharacters={(character) => {
+          // Add the character to available characters for chatting
+          if (character && !availableCharacters.some(c => c.id === character.id)) {
+            setAvailableCharacters(prev => [...prev, character]);
+            // Show success toast
+            toaster.success({
+              title: '角色已添加',
+              description: `"${character.name}" 已成功添加到聊天角色列表`,
+              duration: 3000,
+            });
+          }
+        }}
       />
     </Flex>
   )

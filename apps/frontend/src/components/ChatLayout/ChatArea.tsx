@@ -12,31 +12,44 @@ import { Send, Plus, Hash, User } from 'lucide-react'
 import { useState } from 'react'
 // 导入消息列表组件，该组件负责渲染消息内容，包括Markdown格式的消息
 import { MessageList } from './MessageList'
+import { CreateCharacterModal } from '../CreateCharacterModal'
 import type { Message, Channel, Character } from '@weave/types'
 import type { UserRole } from '../RoleSelector'
+
+import { useNavigate } from 'react-router'
 
 interface ChatAreaProps {
   channel?: Channel
   messages?: Message[]
   selectedRole: UserRole
+  worldId?: string
   worldCharacters?: Character[]
+  myCharacters?: Character[]
   selectedCharacter?: Character | null
   onSendMessage?: (content: string) => void
   onSelectCharacter?: (character: Character | null) => void
-  onOpenCharacterModal?: () => void
+  onCreateCharacter?: (character: { name: string; description: string }) => void
+  onOpenCharacterManagement?: () => void
+  onRemoveFromAvailableCharacters?: (characterId: string) => void
 }
 
 export function ChatArea({
   channel,
   messages = [],
   selectedRole,
+  worldId,
   worldCharacters = [],
+  myCharacters = [],
   selectedCharacter,
   onSendMessage,
   onSelectCharacter,
-  onOpenCharacterModal,
+  onCreateCharacter,
+  onOpenCharacterManagement,
+  onRemoveFromAvailableCharacters,
 }: ChatAreaProps) {
+  const navigate = useNavigate()
   const [messageInput, setMessageInput] = useState('')
+  const [isCreateCharacterModalOpen, setIsCreateCharacterModalOpen] = useState(false)
 
   // 默认频道，当没有选择频道时显示
   const currentChannel: Channel = channel || {
@@ -146,7 +159,7 @@ export function ChatArea({
                       </Menu.Item>
                     )}
 
-                    {worldCharacters.map((character) => (
+                    {myCharacters.map((character) => (
                       <Menu.Item
                         key={character.id}
                         value={character.id}
@@ -154,6 +167,13 @@ export function ChatArea({
                         _hover={{ bg: 'gray.700' }}
                         color="white"
                         onClick={() => onSelectCharacter?.(character)}
+                        onContextMenu={(e) => {
+                          e.preventDefault();
+                          // Show context menu for removing character from available list
+                          if (onRemoveFromAvailableCharacters) {
+                            onRemoveFromAvailableCharacters(character.id);
+                          }
+                        }}
                       >
                         <Flex
                           align="center"
@@ -175,11 +195,14 @@ export function ChatArea({
                         bg="gray.800"
                         _hover={{ bg: 'gray.700' }}
                         color="blue.400"
-                        onClick={() => onOpenCharacterModal?.()}
+                        onClick={() => {
+                          // Open character management modal
+                          onOpenCharacterManagement?.();
+                        }}
                       >
                         <Flex align="center">
                           <Plus size={16} />
-                          <Text ml={2}>创建新角色</Text>
+                          <Text ml={2}>添加新角色</Text>
                         </Flex>
                       </Menu.Item>
                     )}
@@ -247,6 +270,14 @@ export function ChatArea({
           </Text>
         </Box>
       )}
+      
+      {/* Create Character Modal */}
+      <CreateCharacterModal
+        worldId={worldId || ''}
+        isOpen={isCreateCharacterModalOpen}
+        onClose={() => setIsCreateCharacterModalOpen(false)}
+        onCreateCharacter={onCreateCharacter || (() => {})}
+      />
     </Flex>
   )
 }

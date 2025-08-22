@@ -28,6 +28,9 @@ export class MockDatabaseService implements DatabaseService {
   private users: User[] = users
   private messages: Record<string, Message[]> = messages
   private itemTemplates: ItemTemplate[] = itemTemplates
+  
+  // Store character-world relationships
+  private characterWorlds: Record<string, string> = {}
 
   // World operations
   async getWorlds(): Promise<World[]> {
@@ -138,13 +141,20 @@ export class MockDatabaseService implements DatabaseService {
   }
 
   async createCharacter(
-    characterData: Omit<Character, 'id'>
+    characterData: Omit<Character, 'id'>,
+    worldId?: string
   ): Promise<Character> {
     const character: Character = {
       id: nanoid(),
       ...characterData,
     }
     this.characters.push(character)
+    
+    // Associate character with world if provided
+    if (worldId) {
+      this.characterWorlds[character.id] = worldId
+    }
+    
     return character
   }
 
@@ -164,6 +174,8 @@ export class MockDatabaseService implements DatabaseService {
     if (index === -1) return false
 
     this.characters.splice(index, 1)
+    // Also remove the character-world association
+    delete this.characterWorlds[id]
     return true
   }
 
@@ -182,7 +194,7 @@ export class MockDatabaseService implements DatabaseService {
 
   async createUser(userData: Omit<User, 'id'>): Promise<User> {
     const user: User = {
-      id: nanoid(),
+      id: this.users.length === 0 ? '1' : nanoid(),
       ...userData,
     }
     this.users.push(user)

@@ -36,7 +36,7 @@ export interface DatabaseService {
   // Character operations
   getCharactersByWorldId(worldId: string): Promise<Character[]>
   getCharacterById(id: string): Promise<Character | null>
-  createCharacter(character: Omit<Character, 'id'>): Promise<Character>
+  createCharacter(character: Omit<Character, 'id'>, worldId?: string): Promise<Character>
   updateCharacter(
     id: string,
     data: Partial<Character>

@@ -54,3 +54,13 @@ export const useWorldCharacters = (worldId: string) => {
     },
   })
 }
+
+// Character creation mutation
+export const useCreateCharacter = () => {
+  return tsr.character.createCharacter.useMutation()
+}
+
+// Character deletion mutation
+export const useDeleteCharacter = () => {
+  return tsr.character.deleteCharacter.useMutation()
+}
