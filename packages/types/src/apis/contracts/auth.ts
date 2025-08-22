@@ -1,6 +1,6 @@
 import { initContract } from '@ts-rest/core'
 import z from 'zod'
-import { ErrorResponseSchema } from '../common'
+import { commonResponses } from '../common'
 const c = initContract()
 
 export const AuthRegistrationRequestSchema = z.object({
@@ -31,7 +31,6 @@ export const authContract = c.router(
       body: AuthLoginRequestSchema,
       responses: {
         200: AuthLoginResponseSchema,
-        400: ErrorResponseSchema,
       },
     },
     register: {
@@ -40,11 +39,11 @@ export const authContract = c.router(
       body: AuthRegistrationRequestSchema,
       responses: {
         200: AuthLoginResponseSchema,
-        400: ErrorResponseSchema,
       },
     },
   },
   {
     pathPrefix: '/auth',
+    commonResponses,
   }
 )
