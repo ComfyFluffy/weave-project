@@ -1,33 +1,23 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { tsr } from '../services/tsr'
+import {
+  setStoredToken,
+  removeStoredToken,
+  getAuthState,
+} from '../utils/auth-storage'
+import { socketService } from '../services/socket'
 
-interface AuthState {
-  token: string | null
-  isAuthenticated: boolean
-}
+// Auth storage helpers are now imported from utils/auth-storage.ts
+// This prevents circular dependencies with socket service
 
-// Auth storage helpers
-const TOKEN_KEY = 'weave_auth_token'
-
-export function getStoredToken(): string | null {
-  return localStorage.getItem(TOKEN_KEY)
-}
-
-export function setStoredToken(token: string): void {
-  localStorage.setItem(TOKEN_KEY, token)
-}
-
-export function removeStoredToken(): void {
-  localStorage.removeItem(TOKEN_KEY)
-}
-
-export function getAuthState(): AuthState {
-  const token = getStoredToken()
-  return {
-    token,
-    isAuthenticated: !!token,
-  }
-}
+// Re-export auth storage functions for backward compatibility
+export {
+  getStoredToken,
+  setStoredToken,
+  removeStoredToken,
+  getAuthState,
+} from '../utils/auth-storage'
+export type { AuthState } from '../utils/auth-storage'
 
 // Login hook
 export function useLogin() {
@@ -36,6 +26,8 @@ export function useLogin() {
   return tsr.auth.login.useMutation({
     onSuccess: (data) => {
       setStoredToken(data.body.token)
+      // Update socket authentication (import inside function to avoid circular dependency)
+      socketService.updateAuth()
       // Invalidate and refetch any queries that depend on auth
       void queryClient.invalidateQueries({ queryKey: ['auth'] })
     },
@@ -49,6 +41,8 @@ export function useRegister() {
   return tsr.auth.register.useMutation({
     onSuccess: (data) => {
       setStoredToken(data.body.token)
+      // Update socket authentication (import inside function to avoid circular dependency)
+      socketService.updateAuth()
       // Invalidate and refetch any queries that depend on auth
       void queryClient.invalidateQueries({ queryKey: ['auth'] })
     },
@@ -62,6 +56,8 @@ export function useLogout() {
   return {
     logout: () => {
       removeStoredToken()
+      // Disconnect socket when logging out (import inside function to avoid circular dependency)
+      socketService.socket.disconnect()
       // Invalidate and refetch any queries that may depend on auth
       void queryClient.clear()
     },

@@ -19,11 +19,7 @@ export function createWorldRouter() {
         },
       }
     },
-    getWorldById: async ({ params: { worldId }, req }) => {
-      console.log(
-        'Current user: ',
-        await prisma.user.findUnique({ where: { id: req.auth!.userId } })
-      )
+    getWorldById: async ({ params: { worldId } }) => {
       const world = await prisma.world.findUnique({
         where: { id: worldId },
         include: { channels: true },

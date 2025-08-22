@@ -16,6 +16,10 @@ import { createAuthRouter } from './routes/auth'
 import { createUserRouter } from './routes/users'
 import { contract, MessageSendInputSchema } from '@weave/types/apis'
 import { createJwtMiddleware } from './middleware/jwt'
+import {
+  socketAuthMiddleware,
+  AuthenticatedSocket,
+} from './middleware/socket-auth'
 import { createChannelRouter } from './routes/channels'
 import { prisma } from './services/database'
 
@@ -27,6 +31,9 @@ const io = new Server(server, {
     methods: ['GET', 'POST'],
   },
 })
+
+// Apply authentication middleware to all socket connections
+io.use(socketAuthMiddleware)
 
 // Initialize JWT middleware
 const jwtMiddleware = createJwtMiddleware()
@@ -42,40 +49,62 @@ app.use(
 app.use(express.json())
 
 // Socket.IO connection handling
-io.on('connection', (socket) => {
-  console.log('User connected:', socket.id)
+io.on('connection', (socket: AuthenticatedSocket) => {
+  console.log(
+    `User connected: ${socket.user?.displayName} (${socket.userId}) - Socket: ${socket.id}`
+  )
 
   // Handle joining a channel room
   socket.on('channel:join', (channelId: string) => {
-    console.log(`User ${socket.id} joining channel: ${channelId}`)
+    console.log(
+      `User ${socket.user?.displayName} joining channel: ${channelId}`
+    )
     void socket.join(channelId)
   })
 
   // Handle leaving a channel room
   socket.on('channel:leave', (channelId: string) => {
-    console.log(`User ${socket.id} leaving channel: ${channelId}`)
+    console.log(
+      `User ${socket.user?.displayName} leaving channel: ${channelId}`
+    )
     void socket.leave(channelId)
   })
 
   socket.on('message:send', async (input) => {
-    const parsedInput = MessageSendInputSchema.parse(input)
-    // Save message to database
-    const message = await prisma.message.create({
-      data: {
+    try {
+      // Parse and validate input
+      const parsedInput = MessageSendInputSchema.parse(input)
+
+      // Ensure the message is from the authenticated user
+      const messageData = {
         type: parsedInput.type,
         channelId: parsedInput.channelId,
         content: parsedInput.content,
-        userId: parsedInput.userId ?? null,
+        userId: socket.userId!, // Always use the authenticated user ID
         characterId: parsedInput.characterId ?? null,
-      },
-    })
+      }
 
-    // Broadcast message to all users in the channel
-    io.to(message.channelId).emit('message:new', message)
+      // Save message to database
+      const message = await prisma.message.create({
+        data: messageData,
+      })
+
+      console.log(
+        `Message sent by ${socket.user?.displayName} in channel ${parsedInput.channelId}`
+      )
+
+      // Broadcast message to all users in the channel
+      io.to(message.channelId).emit('message:new', message)
+    } catch (error) {
+      console.error('Error handling message send:', error)
+      socket.emit('error', { message: 'Failed to send message' })
+    }
   })
 
   socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id)
+    console.log(
+      `User disconnected: ${socket.user?.displayName} (${socket.userId}) - Socket: ${socket.id}`
+    )
   })
 })
 
