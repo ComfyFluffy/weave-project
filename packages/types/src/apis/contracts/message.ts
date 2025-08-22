@@ -1,7 +1,7 @@
 import { initContract } from '@ts-rest/core'
 import z from 'zod'
 import { MessageSchema } from '../..'
-import { ErrorResponseSchema } from '../common'
+import { commonResponses } from '../common'
 const c = initContract()
 
 export const MessagesResponseSchema = z.object({
@@ -16,11 +16,11 @@ export const messageContract = c.router(
       path: '/channel/:channelId',
       responses: {
         200: MessagesResponseSchema,
-        400: ErrorResponseSchema,
       },
     },
   },
   {
     pathPrefix: '/messages',
+    commonResponses,
   }
 )

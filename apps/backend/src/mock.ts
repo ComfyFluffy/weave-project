@@ -9,10 +9,30 @@ import {
 
 // Users
 export const users: User[] = [
-  { id: 'user-1', displayName: '龙骑士玩家', avatar: '🛡️' },
-  { id: 'user-2', displayName: '法师玩家', avatar: '🔮' },
-  { id: 'user-3', displayName: '盗贼玩家', avatar: '🗡️' },
-  { id: 'gm-1', displayName: '游戏主持人', avatar: '🎭' },
+  {
+    id: 'user-1',
+    email: 'knight@example.com',
+    displayName: '龙骑士玩家',
+    avatar: '🛡️',
+  },
+  {
+    id: 'user-2',
+    email: 'mage@example.com',
+    displayName: '法师玩家',
+    avatar: '🔮',
+  },
+  {
+    id: 'user-3',
+    email: 'rogue@example.com',
+    displayName: '盗贼玩家',
+    avatar: '🗡️',
+  },
+  {
+    id: 'gm-1',
+    email: 'gm@example.com',
+    displayName: '游戏主持人',
+    avatar: '🎭',
+  },
 ]
 
 // Item Templates (reusable item definitions)
@@ -419,6 +439,60 @@ export const worldState: WorldState = {
   },
 }
 
+// Second World State for Cyberpunk world
+export const worldState2: WorldState = {
+  id: 'ws-2',
+  worldId: '2',
+  characters: [], // Different characters for cyberpunk world
+  state: {
+    itemTemplates: [], // Different items for cyberpunk
+    characterStates: {}, // Empty character states for now
+    keyEventsLog: [
+      {
+        title: '数据泄露事件',
+        type: 'story',
+        gameTime: '2087年11月15日，22:30',
+        description: '阿拉萨卡公司的机密数据被神秘黑客泄露',
+        participants: [],
+        locations: ['数字风暴酒吧'],
+        consequences: ['企业开始搜捕黑客', '街头紧张气氛升级'],
+        importance: 'high',
+      },
+    ],
+    items: {},
+    locations: [
+      {
+        name: '数字风暴',
+        description: '位于地下的黑客酒吧，充满霓虹灯和网络终端',
+        connectedLocations: ['阿拉萨卡高塔'],
+        notableFeatures: ['黑客聚集地', '安全的交易场所'],
+        currentOccupants: [],
+        hiddenSecrets: [],
+        items: [],
+      },
+      {
+        name: '阿拉萨卡高塔',
+        description: '企业巨头的摩天大楼，象征着公司的权力',
+        connectedLocations: ['数字风暴'],
+        notableFeatures: ['高度安防', '企业总部'],
+        currentOccupants: [],
+        hiddenSecrets: [],
+        items: [],
+      },
+    ],
+    plots: [],
+    lore: [
+      {
+        title: '新东京的现状',
+        content: '2087年的新东京被大企业统治，街头充满了改造人和AI',
+        accessLevel: 'public',
+      },
+    ],
+    currentGameTime: '2087年11月15日，深夜',
+    outline: '在企业统治的未来东京，一群边缘人必须在生存与反抗之间做出选择',
+  },
+}
+
 // In-memory data store (in production, this would be a database)
 export const worlds: World[] = [
   {
@@ -436,6 +510,48 @@ export const worlds: World[] = [
         type: 'ic',
         description: '冒险开始的地方，温暖的酒馆里充满了故事和机遇',
         worldStateId: 'ws-1',
+      },
+      {
+        id: '2',
+        worldId: '1',
+        name: '镇外-精灵废墟',
+        type: 'ic',
+        description: '充满危险和宝藏的古代精灵遗迹',
+        worldStateId: 'ws-1',
+      },
+      {
+        id: '3',
+        worldId: '1',
+        name: 'OOC聊天',
+        type: 'ooc',
+        description: '玩家之间的非角色对话',
+        worldStateId: 'ws-1',
+      },
+    ],
+  },
+  {
+    id: '2',
+    name: '赛博朋克2087：新东京',
+    description:
+      '在2087年的新东京，科技与人性的边界模糊，企业统治着霓虹灯下的街道',
+    tags: ['赛博朋克', '科幻', '未来', '企业'],
+    rules: '使用赛博朋克RED规则系统，注重黑客技术和企业阴谋',
+    channels: [
+      {
+        id: '4',
+        worldId: '2',
+        name: '酒吧-数字风暴',
+        type: 'ic',
+        description: '黑客和边缘人聚集的地下酒吧',
+        worldStateId: 'ws-2',
+      },
+      {
+        id: '5',
+        worldId: '2',
+        name: '企业区-高塔',
+        type: 'ic',
+        description: '阿拉萨卡公司的摩天大楼',
+        worldStateId: 'ws-2',
       },
     ],
   },
@@ -688,6 +804,49 @@ export const messages: { [channelId: string]: Message[] } = {
       content:
         '**【战斗爆发！】**\n\n*CRASH!* 酒馆的窗户被暴力撞碎，三只暗影狼同时跃入室内！它们的利爪闪烁着不祥的黑光，血红的眼睛紧盯着三位冒险者。另外几只暗影狼在外面守候，似乎在防止任何人逃脱。\n\n第一只暗影狼向阿尔萨斯发起攻击，利爪向他的胸甲狠狠抓去！\n\n**【请进行先攻检定！】**',
       createdAt: new Date('2024-08-01T20:00:00Z'),
+    },
+  ],
+  '2': [
+    {
+      id: '26',
+      channelId: '2',
+      userId: 'gm-1',
+      type: 'gm',
+      content:
+        '**【精灵废墟入口】**\n\n古老的石柱在月光下投下长长的阴影，废墟入口被神秘的精灵文字包围。空气中弥漫着古老魔法的气息，让人感到一种深深的敬畏。',
+      createdAt: new Date('2024-08-02T10:00:00Z'),
+    },
+  ],
+  '3': [
+    {
+      id: '27',
+      channelId: '3',
+      userId: 'user-1',
+      type: 'character',
+      content: '大家今晚的战斗很精彩！我们下次什么时候继续？',
+      createdAt: new Date('2024-08-01T21:00:00Z'),
+    },
+  ],
+  '4': [
+    {
+      id: '28',
+      channelId: '4',
+      userId: 'gm-1',
+      type: 'gm',
+      content:
+        '**【数字风暴酒吧，2087年11月15日深夜】**\n\n霓虹灯管发出蓝紫色的光芒，照亮了这个地下酒吧。网络终端的屏幕闪烁着数据流，改造人和原生人类并肩坐在吧台前。今晚的气氛格外紧张，所有人都在低声讨论着阿拉萨卡的数据泄露事件。',
+      createdAt: new Date('2024-08-15T23:00:00Z'),
+    },
+  ],
+  '5': [
+    {
+      id: '29',
+      channelId: '5',
+      userId: 'gm-1',
+      type: 'gm',
+      content:
+        '**【阿拉萨卡高塔，第89层】**\n\n巨大的落地窗展现着新东京的夜景，企业标志在摩天大楼间闪烁。这里是权力的象征，也是许多阴谋的诞生地。',
+      createdAt: new Date('2024-08-15T20:00:00Z'),
     },
   ],
 }

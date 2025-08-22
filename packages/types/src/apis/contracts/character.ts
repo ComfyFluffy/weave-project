@@ -1,8 +1,13 @@
 import { initContract } from '@ts-rest/core'
 import z from 'zod'
 import { CharacterSchema } from '../..'
-import { ErrorResponseSchema } from '../common'
+import { commonResponses } from '../common'
 const c = initContract()
+
+export const CharacterResponseSchema = z.object({
+  character: CharacterSchema,
+})
+export type CharacterResponse = z.infer<typeof CharacterResponseSchema>
 
 export const CharactersResponseSchema = z.object({
   characters: z.array(CharacterSchema),
@@ -11,16 +16,24 @@ export type CharactersResponse = z.infer<typeof CharactersResponseSchema>
 
 export const characterContract = c.router(
   {
-    getCharactersByWorldId: {
+    getCharactersByChannelId: {
       method: 'GET',
-      path: '/by-world/:id',
+      path: '/by-channel/:channelId',
       responses: {
         200: CharactersResponseSchema,
-        400: ErrorResponseSchema,
+      },
+    },
+    getCharacterById: {
+      method: 'GET',
+      path: '/:characterId',
+      responses: {
+        200: CharacterResponseSchema,
       },
     },
   },
+
   {
+    commonResponses,
     pathPrefix: '/characters',
   }
 )

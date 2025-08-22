@@ -1,11 +1,8 @@
 import { initContract } from '@ts-rest/core'
 import z from 'zod'
 import { ChannelSchema, WorldSchema } from '../..'
-import { ErrorResponseSchema } from '../common'
+import { commonResponses } from '../common'
 const c = initContract()
-
-export const WorldsRequestSchema = z.object({})
-export type WorldsRequest = z.infer<typeof WorldsRequestSchema>
 
 export const WorldsResponseSchema = z.object({
   worlds: z.array(WorldSchema),
@@ -17,11 +14,6 @@ export const WorldSingleResponseSchema = z.object({
 })
 export type WorldSingleResponse = z.infer<typeof WorldSingleResponseSchema>
 
-export const WorldChannelsResponseSchema = z.object({
-  channels: z.array(ChannelSchema),
-})
-export type WorldChannelsResponse = z.infer<typeof WorldChannelsResponseSchema>
-
 export const worldContract = c.router(
   {
     getWorlds: {
@@ -29,7 +21,6 @@ export const worldContract = c.router(
       path: '/',
       responses: {
         200: WorldsResponseSchema,
-        400: ErrorResponseSchema,
       },
     },
     getWorldById: {
@@ -37,11 +28,11 @@ export const worldContract = c.router(
       path: '/:worldId',
       responses: {
         200: WorldSingleResponseSchema,
-        400: ErrorResponseSchema,
       },
     },
   },
   {
     pathPrefix: '/worlds',
+    commonResponses,
   }
 )

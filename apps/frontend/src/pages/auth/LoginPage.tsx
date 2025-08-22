@@ -6,7 +6,8 @@ export function LoginPage() {
   const navigate = useNavigate()
 
   const handleLoginSuccess = () => {
-    void navigate('/app')
+    const from = '/app'
+    void navigate(from, { replace: true })
   }
 
   const handleSwitchToRegister = () => {

@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { Send, User, Bot } from 'lucide-react'
 import { type Message } from '@ai-sdk/react'
-import { useWorldChat } from '../services/aiService'
+import { useWorldChat } from '../hooks/ai'
 import { MemoizedMarkdown } from './MemoizedMarkdown'
 
 interface AIChatSectionProps {

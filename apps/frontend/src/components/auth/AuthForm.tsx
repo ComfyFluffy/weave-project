@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Box, Button, Input, VStack, Heading, Text } from '@chakra-ui/react'
 import { toaster } from '../ui/toaster'
-import { useLogin, useRegister } from '../../hooks/useAuth'
+import { useLogin, useRegister } from '../../hooks/auth'
 
 interface AuthFormProps {
   mode: 'login' | 'register'
@@ -22,17 +22,13 @@ export function AuthForm({ mode, onSuccess, onSwitchMode }: AuthFormProps) {
     password: '',
   })
 
-  const { login } = {
-    login: (args: any) => {
-      // TODO
-    },
-  }
-  const { mutate: loginMutation, isPending: isLoginPending } = useLogin()
-  const { mutate: registerMutation, isPending: isRegisterPending } =
-    useRegister()
+  const loginMutation = useLogin()
+  const registerMutation = useRegister()
 
   const isLogin = mode === 'login'
-  const isPending = isLogin ? isLoginPending : isRegisterPending
+  const isPending = isLogin
+    ? loginMutation.isPending
+    : registerMutation.isPending
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -50,12 +46,55 @@ export function AuthForm({ mode, onSuccess, onSwitchMode }: AuthFormProps) {
         email: formData.email,
         password: formData.password,
       }
+
+      loginMutation.mutate(
+        { body: loginData },
+        {
+          onSuccess: () => {
+            toaster.create({
+              title: '登录成功',
+              description: '欢迎回来！',
+              type: 'success',
+            })
+            onSuccess()
+          },
+          onError: () => {
+            toaster.create({
+              title: '登录失败',
+              type: 'error',
+            })
+          },
+        }
+      )
     } else {
       const registerData = {
         displayName: formData.displayName || '',
         email: formData.email,
         password: formData.password,
       }
+
+      registerMutation.mutate(
+        {
+          body: registerData,
+        },
+        {
+          onSuccess: () => {
+            toaster.create({
+              title: '注册成功',
+              description: '账户创建成功，正在为您登录...',
+              type: 'success',
+            })
+            onSuccess()
+          },
+          onError: (error) => {
+            toaster.create({
+              title: '注册失败',
+              description: error,
+              type: 'error',
+            })
+          },
+        }
+      )
     }
   }
 

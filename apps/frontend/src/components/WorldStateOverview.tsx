@@ -66,7 +66,7 @@ export function WorldStateOverview({ worldState }: WorldStateOverviewProps) {
               活跃剧情:
             </Text>
             <Text fontSize="sm" color="white">
-              {worldState.state.plots.filter((p: any) => p.status === 'active')
+              {worldState.state.plots.filter((p) => p.status === 'active')
                 .length || 0}
             </Text>
           </HStack>
@@ -77,8 +77,7 @@ export function WorldStateOverview({ worldState }: WorldStateOverviewProps) {
             </Text>
             <Text fontSize="sm" color="white">
               {worldState.state.keyEventsLog.filter(
-                (e: any) =>
-                  e.importance === 'critical' || e.importance === 'high'
+                (e) => e.importance === 'critical' || e.importance === 'high'
               ).length || 0}
             </Text>
           </HStack>

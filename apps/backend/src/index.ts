@@ -6,7 +6,6 @@ import { Server } from 'socket.io'
 import cors from 'cors'
 
 // Import services and routes
-import { MockDatabaseService } from './services/database.memory'
 import { createWorldRouter } from './routes/worlds'
 import { createWorldStateRouter } from './routes/world-states'
 import { createCharacterRouter } from './routes/characters'
@@ -14,7 +13,15 @@ import { createMessageRouter } from './routes/messages'
 import { createAIRoutes } from './routes/ai'
 import { createExpressEndpoints, initServer } from '@ts-rest/express'
 import { createAuthRouter } from './routes/auth'
-import { contract } from '@weave/types/apis'
+import { createUserRouter } from './routes/users'
+import { contract, MessageSendInputSchema } from '@weave/types/apis'
+import { createJwtMiddleware } from './middleware/jwt'
+import {
+  socketAuthMiddleware,
+  AuthenticatedSocket,
+} from './middleware/socket-auth'
+import { createChannelRouter } from './routes/channels'
+import { prisma } from './services/database'
 
 const app = express()
 const server = createServer(app)
@@ -25,8 +32,12 @@ const io = new Server(server, {
   },
 })
 
-// Initialize database service
-const dbService = new MockDatabaseService()
+// Apply authentication middleware to all socket connections
+io.use(socketAuthMiddleware)
+
+// Initialize JWT middleware
+const jwtMiddleware = createJwtMiddleware()
+// const verifyUserMiddleware = createVerifyUserMiddleware(dbService)
 
 app.use(
   cors({
@@ -37,111 +48,80 @@ app.use(
 )
 app.use(express.json())
 
-// Current active users per channel
-const activeUsers: Record<string, Set<string>> = {}
-
 // Socket.IO connection handling
-io.on('connection', (socket) => {
-  console.log('User connected:', socket.id)
+io.on('connection', (socket: AuthenticatedSocket) => {
+  console.log(
+    `User connected: ${socket.user?.displayName} (${socket.userId}) - Socket: ${socket.id}`
+  )
 
-  socket.on('join-channel', ({ channelId, username }) => {
+  // Handle joining a channel room
+  socket.on('channel:join', (channelId: string) => {
+    console.log(
+      `User ${socket.user?.displayName} joining channel: ${channelId}`
+    )
     void socket.join(channelId)
-
-    // Add user to active users
-    if (!activeUsers[channelId]) {
-      activeUsers[channelId] = new Set()
-    }
-    activeUsers[channelId].add(username)
-
-    // Broadcast updated user list
-    io.to(channelId).emit(
-      'active-users-updated',
-      Array.from(activeUsers[channelId])
-    )
-
-    console.log(`${username} joined channel ${channelId}`)
   })
 
-  socket.on('leave-channel', ({ channelId, username }) => {
+  // Handle leaving a channel room
+  socket.on('channel:leave', (channelId: string) => {
+    console.log(
+      `User ${socket.user?.displayName} leaving channel: ${channelId}`
+    )
     void socket.leave(channelId)
-
-    // Remove user from active users
-    if (activeUsers[channelId]) {
-      activeUsers[channelId].delete(username)
-      if (activeUsers[channelId].size === 0) {
-        delete activeUsers[channelId]
-      }
-    }
-
-    // Broadcast updated user list
-    io.to(channelId).emit(
-      'active-users-updated',
-      activeUsers[channelId] ? Array.from(activeUsers[channelId]) : []
-    )
-
-    console.log(`${username} left channel ${channelId}`)
   })
 
-  socket.on('send-message', async (messageData) => {
+  socket.on('message:send', async (input) => {
     try {
+      // Parse and validate input
+      const parsedInput = MessageSendInputSchema.parse(input)
+
+      // Ensure the message is from the authenticated user
+      const messageData = {
+        type: parsedInput.type,
+        channelId: parsedInput.channelId,
+        content: parsedInput.content,
+        userId: socket.userId!, // Always use the authenticated user ID
+        characterId: parsedInput.characterId ?? null,
+      }
+
       // Save message to database
-      const message = await dbService.createMessage(messageData)
+      const message = await prisma.message.create({
+        data: messageData,
+      })
+
+      console.log(
+        `Message sent by ${socket.user?.displayName} in channel ${parsedInput.channelId}`
+      )
 
       // Broadcast message to all users in the channel
-      io.to(message.channelId).emit('new-message', message)
+      io.to(message.channelId).emit('message:new', message)
     } catch (error) {
-      console.error('Error saving message:', error)
-      // Still broadcast the message even if saving fails
-      io.to(messageData.channelId).emit('new-message', messageData)
+      console.error('Error handling message send:', error)
+      socket.emit('error', { message: 'Failed to send message' })
     }
-  })
-
-  socket.on('typing-start', ({ channelId, username }) => {
-    socket.to(channelId).emit('user-typing', { username, isTyping: true })
-  })
-
-  socket.on('typing-stop', ({ channelId, username }) => {
-    socket.to(channelId).emit('user-typing', { username, isTyping: false })
   })
 
   socket.on('disconnect', () => {
-    // Remove user from all channels
-    for (const channelId in activeUsers) {
-      const userFound = Array.from(activeUsers[channelId]).find((username) => {
-        // This is a simple check - in a real app you'd track socket-to-user mapping
-        return true // Would need proper user-socket mapping to implement this correctly
-      })
-
-      if (activeUsers[channelId].size === 0) {
-        delete activeUsers[channelId]
-      } else {
-        io.to(channelId).emit(
-          'active-users-updated',
-          Array.from(activeUsers[channelId])
-        )
-      }
-    }
-
-    console.log('User disconnected:', socket.id)
+    console.log(
+      `User disconnected: ${socket.user?.displayName} (${socket.userId}) - Socket: ${socket.id}`
+    )
   })
 })
 
-// World state update emitter (Socket.IO broadcast hook)
-const emitWorldStateUpdate = (worldStateId: string, worldState: any) => {
-  io.to(worldStateId).emit('world-state:updated', { worldStateId, worldState })
-}
+app.use('/api/ai', createAIRoutes())
 
-// Mount API routes
-app.use('/api/ai', createAIRoutes(dbService))
-
-const authRouter = createAuthRouter(dbService)
-const characterRouter = createCharacterRouter(dbService)
-const messageRouter = createMessageRouter(dbService)
-const worldStateRouter = createWorldStateRouter(dbService)
-const worldRouter = createWorldRouter(dbService)
+const authRouter = createAuthRouter()
+const userRouter = createUserRouter()
+const characterRouter = createCharacterRouter()
+const channelRouter = createChannelRouter()
+const messageRouter = createMessageRouter()
+const worldStateRouter = createWorldStateRouter()
+const worldRouter = createWorldRouter()
 
 const restRouter = initServer().router(contract, {
   auth: authRouter,
+  user: userRouter,
+  channel: channelRouter,
   character: characterRouter,
   message: messageRouter,
   worldState: worldStateRouter,
@@ -149,6 +129,25 @@ const restRouter = initServer().router(contract, {
 })
 
 const expressApiRouter = Router()
+
+// Create middleware that excludes auth routes
+const authMiddleware = (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+) => {
+  // Skip JWT middleware for auth routes
+  if (req.path.startsWith('/auth')) {
+    return next()
+  }
+
+  // Apply JWT middleware for all other routes
+  return jwtMiddleware(req, res, next)
+}
+
+// Apply JWT middleware to all API routes except auth
+expressApiRouter.use(authMiddleware)
+
 createExpressEndpoints(contract, restRouter, expressApiRouter)
 
 app.use('/api', expressApiRouter)

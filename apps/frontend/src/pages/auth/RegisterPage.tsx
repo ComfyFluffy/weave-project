@@ -6,7 +6,8 @@ export function RegisterPage() {
   const navigate = useNavigate()
 
   const handleRegisterSuccess = () => {
-    void navigate('/auth/login')
+    // After successful registration (which also logs the user in),
+    void navigate('/app', { replace: true })
   }
 
   const handleSwitchToLogin = () => {

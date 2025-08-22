@@ -36,6 +36,7 @@ export default [
       'prefer-const': 'error',
       'no-var': 'error',
       '@typescript-eslint/require-await': 'warn',
+      'object-shorthand': 'warn',
     },
   },
 
