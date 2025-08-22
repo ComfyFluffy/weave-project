@@ -26,5 +26,26 @@ export function createCharacterRouter() {
         body: { characters: mappedCharacters },
       }
     },
+    getCharacterById: async ({ params }) => {
+      const character = await prisma.character.findUnique({
+        where: { id: params.characterId },
+      })
+
+      if (!character) {
+        return {
+          status: 404,
+          body: {
+            message: 'Character not found',
+          },
+        }
+      }
+
+      return {
+        status: 200,
+        body: {
+          character: mapCharacter(character),
+        },
+      }
+    },
   })
 }

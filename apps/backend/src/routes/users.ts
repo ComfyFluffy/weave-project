@@ -28,5 +28,26 @@ export function createUserRouter() {
         },
       }
     },
+    getUserById: async ({ params }) => {
+      const user = await prisma.user.findUnique({
+        where: { id: params.userId },
+      })
+
+      if (!user) {
+        return {
+          status: 404,
+          body: {
+            message: 'User not found',
+          },
+        }
+      }
+
+      return {
+        status: 200,
+        body: {
+          user: mapPublicUser(user),
+        },
+      }
+    },
   })
 }

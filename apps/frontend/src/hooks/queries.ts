@@ -84,3 +84,29 @@ export const useChannelCharacters = (channelId: string | null) => {
     enabled: !!channelId,
   })
 }
+
+// User by ID query
+export function useUser(userId: string | undefined | null) {
+  return tsr.user.getUserById.useQuery({
+    queryKey: ['user', userId],
+    queryData: {
+      params: {
+        userId: userId!,
+      },
+    },
+    enabled: !!userId,
+  })
+}
+
+// Character by ID query
+export function useCharacter(characterId: string | undefined | null) {
+  return tsr.character.getCharacterById.useQuery({
+    queryKey: ['character', characterId],
+    queryData: {
+      params: {
+        characterId: characterId!,
+      },
+    },
+    enabled: !!characterId,
+  })
+}

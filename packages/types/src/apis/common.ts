@@ -7,4 +7,5 @@ export type ErrorResponse = z.infer<typeof ErrorResponseSchema>
 
 export const commonResponses = {
   400: ErrorResponseSchema,
+  404: ErrorResponseSchema,
 }

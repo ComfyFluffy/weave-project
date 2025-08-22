@@ -18,6 +18,13 @@ export const userContract = c.router(
         200: UserResponseSchema,
       },
     },
+    getUserById: {
+      method: 'GET',
+      path: '/:userId',
+      responses: {
+        200: UserResponseSchema,
+      },
+    },
   },
   {
     pathPrefix: '/users',
