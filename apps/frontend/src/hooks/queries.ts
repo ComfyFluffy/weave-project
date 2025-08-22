@@ -72,15 +72,15 @@ export const useChannelMessages = (channelId: string | null) => {
   })
 }
 
-// Character management hooks - now world-based
-export const useWorldCharacters = (worldId: string | null) => {
-  return tsr.character.getCharactersByWorldId.useQuery({
-    queryKey: ['worldCharacters', worldId],
+// Character management hooks - now channel-based
+export const useChannelCharacters = (channelId: string | null) => {
+  return tsr.character.getCharactersByChannelId.useQuery({
+    queryKey: ['channelCharacters', channelId],
     queryData: {
       params: {
-        id: worldId!,
+        channelId: channelId!,
       },
     },
-    enabled: !!worldId,
+    enabled: !!channelId,
   })
 }

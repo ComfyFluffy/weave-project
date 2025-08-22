@@ -22,5 +22,24 @@ export function createWorldStateRouter() {
         body: { worldState: mappedWorldState },
       }
     },
+    getWorldStateByChannelId: async ({ params }) => {
+      const channel = await prisma.channel.findUnique({
+        where: { id: params.channelId },
+        select: {
+          worldState: true,
+        },
+      })
+      if (!channel?.worldState) {
+        return {
+          status: 404,
+          body: { message: 'World state or channel not found' },
+        }
+      }
+      const mappedWorldState = mapWorldState(channel.worldState)
+      return {
+        status: 200,
+        body: { worldState: mappedWorldState },
+      }
+    },
   })
 }

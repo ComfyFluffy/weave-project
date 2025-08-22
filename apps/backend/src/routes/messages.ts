@@ -6,7 +6,7 @@ import { prisma } from '../services/database'
 export function createMessageRouter() {
   const s = initServer()
   return s.router(messageContract, {
-    getMessagesByChannelId: async ({ params, req }) => {
+    getMessagesByChannelId: async ({ params }) => {
       const messages = await prisma.message.findMany({
         where: { channelId: params.channelId },
         orderBy: { createdAt: 'asc' },

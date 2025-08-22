@@ -46,7 +46,7 @@ async function seed() {
     }
 
     for (const character of mockWorldState.characters) {
-      const ownerId =
+      const creatorId =
         characterOwnerMap[character.id as keyof typeof characterOwnerMap] ||
         'gm-1'
       await prisma.character.create({
@@ -55,7 +55,7 @@ async function seed() {
           name: character.name,
           description: character.description,
           avatar: character.avatar,
-          ownerId,
+          creatorId,
         },
       })
     }
@@ -110,7 +110,7 @@ async function seed() {
             id: channel.id,
             name: channel.name,
             type: channel.type,
-            description: channel.description || null,
+            description: channel.description,
             worldId: world.id,
             worldStateId: createdWorldState.id, // Link channel to world state
           },

@@ -10,7 +10,7 @@ import {
   useChannelsByWorld,
   useWorldStateByChannel,
   useChannelMessages,
-  useWorldCharacters,
+  useChannelCharacters,
 } from '../../hooks/queries'
 import type { Message, Character } from '@weave/types'
 import { Flex } from '@chakra-ui/react'
@@ -32,7 +32,8 @@ export function ChatLayout() {
   const { data: worldStateData } = useWorldStateByChannel(selectedChannelId)
   const { data: messagesData, refetch: refetchMessages } =
     useChannelMessages(selectedChannelId)
-  const { data: worldCharactersData } = useWorldCharacters(selectedWorldId)
+  const { data: channelCharactersData } =
+    useChannelCharacters(selectedChannelId)
 
   // Use the channel socket hook
   const { sendMessage } = useChannelSocket({
@@ -48,7 +49,7 @@ export function ChatLayout() {
   const channels = channelsData?.body.channels
   const currentChannel = channels?.find((c) => c.id === selectedChannelId)
   const messages = messagesData?.body.messages
-  const worldCharacters = worldCharactersData?.body.characters
+  const worldCharacters = channelCharactersData?.body.characters
   const worldState = worldStateData?.body.worldState
 
   // Auto-select first world if available and none selected

@@ -5,7 +5,7 @@ export const JWT_SECRET = process.env.JWT_SECRET || 'weave-default-secret-key'
 
 export const generateToken = (payload: JwtPayload): string => {
   return sign(payload, JWT_SECRET, {
-    expiresIn: '1h',
+    expiresIn: '72h',
     algorithm: 'HS256',
   })
 }

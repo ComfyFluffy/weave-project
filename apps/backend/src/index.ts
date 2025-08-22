@@ -14,7 +14,7 @@ import { createAIRoutes } from './routes/ai'
 import { createExpressEndpoints, initServer } from '@ts-rest/express'
 import { createAuthRouter } from './routes/auth'
 import { contract, MessageSendInputSchema } from '@weave/types/apis'
-import { createJwtMiddleware } from './middleware/jwt.middleware'
+import { createJwtMiddleware } from './middleware/jwt'
 import { createChannelRouter } from './routes/channels'
 import { prisma } from './services/database'
 
@@ -26,7 +26,6 @@ const io = new Server(server, {
     methods: ['GET', 'POST'],
   },
 })
-
 
 // Initialize JWT middleware
 const jwtMiddleware = createJwtMiddleware()

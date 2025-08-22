@@ -27,18 +27,20 @@ export function createAIRoutes() {
       } = parsed.data
 
       // Get world context using the database service
-      const worldData = worldId ? await (async () => {
-        const worldStates = await prisma.worldState.findMany({
-          where: { worldId },
-        })
-        return worldStates[0] ? mapWorldState(worldStates[0]) : null
-      })() : null
+      const worldData = worldId
+        ? await (async () => {
+            const worldStates = await prisma.worldState.findMany({
+              where: { worldId },
+            })
+            return worldStates[0] ? mapWorldState(worldStates[0]) : null
+          })()
+        : null
       const recentMessages = channelId
-        ? (await prisma.message.findMany({
-            where: { channelId },
-            orderBy: { createdAt: 'asc' },
-            take: 20,
-          })).map(mapMessage)
+        ? (
+            await prisma.message.findMany({
+              where: { channelId },
+            })
+          ).map(mapMessage)
         : []
 
       // Build context for AI

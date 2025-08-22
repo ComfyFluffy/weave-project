@@ -27,7 +27,7 @@ export const mapWorld = ({
   name,
   description,
   tags,
-  rules,
+  rules: rules ?? undefined,
   channels: channels.map(mapChannel),
 })
 

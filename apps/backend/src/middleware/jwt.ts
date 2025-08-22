@@ -1,10 +1,10 @@
-import { expressjwt as jwt } from 'express-jwt'
+import { expressjwt } from 'express-jwt'
 import { Request, Response, NextFunction } from 'express'
 import { JWT_SECRET } from '../utils/jwt'
 
 // Create JWT middleware using express-jwt
 export const createJwtMiddleware = () => {
-  const jwtMiddleware = jwt({
+  const jwtMiddleware = expressjwt({
     secret: JWT_SECRET,
     algorithms: ['HS256'],
   })
