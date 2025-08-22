@@ -1,6 +1,8 @@
 import { VStack, Box, IconButton, Badge } from '@chakra-ui/react'
-import { PlusSquareIcon } from 'lucide-react'
+import { PlusSquareIcon, LogOutIcon } from 'lucide-react'
 import { Tooltip } from '../ui/tooltip'
+import { useLogout } from '../../hooks/auth'
+import { useNavigate } from 'react-router'
 
 interface WorldSidebarProps {
   worlds?: Array<{
@@ -20,6 +22,9 @@ export function WorldSidebar({
   onWorldSelect,
   onCreateWorld,
 }: WorldSidebarProps) {
+  const { logout } = useLogout()
+  const navigate = useNavigate()
+
   return (
     <Box
       width="72px"
@@ -27,8 +32,11 @@ export function WorldSidebar({
       borderRight="1px solid"
       borderColor="gray.700"
       py={3}
+      display="flex"
+      flexDirection="column"
+      height="100%"
     >
-      <VStack gap={2} px={3}>
+      <VStack gap={2} px={3} flex="1">
         {/* Add World Button */}
         <Tooltip content="创建世界" positioning={{ placement: 'right' }}>
           <IconButton
@@ -102,6 +110,26 @@ export function WorldSidebar({
           </Tooltip>
         ))}
       </VStack>
+
+      {/* Logout Button at the bottom */}
+      <Box px={3} pb={2}>
+        <Tooltip content="退出登录" positioning={{ placement: 'right' }}>
+          <IconButton
+            size="lg"
+            bg="gray.700"
+            color="red.400"
+            _hover={{ bg: 'red.600', color: 'white' }}
+            onClick={() => {
+              logout()
+              void navigate('/')
+            }}
+            borderRadius="12px"
+            transition="all 0.2s"
+          >
+            <LogOutIcon size={20} />
+          </IconButton>
+        </Tooltip>
+      </Box>
     </Box>
   )
 }

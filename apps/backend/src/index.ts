@@ -13,6 +13,7 @@ import { createMessageRouter } from './routes/messages'
 import { createAIRoutes } from './routes/ai'
 import { createExpressEndpoints, initServer } from '@ts-rest/express'
 import { createAuthRouter } from './routes/auth'
+import { createUserRouter } from './routes/users'
 import { contract, MessageSendInputSchema } from '@weave/types/apis'
 import { createJwtMiddleware } from './middleware/jwt'
 import { createChannelRouter } from './routes/channels'
@@ -81,6 +82,7 @@ io.on('connection', (socket) => {
 app.use('/api/ai', createAIRoutes())
 
 const authRouter = createAuthRouter()
+const userRouter = createUserRouter()
 const characterRouter = createCharacterRouter()
 const channelRouter = createChannelRouter()
 const messageRouter = createMessageRouter()
@@ -89,6 +91,7 @@ const worldRouter = createWorldRouter()
 
 const restRouter = initServer().router(contract, {
   auth: authRouter,
+  user: userRouter,
   channel: channelRouter,
   character: characterRouter,
   message: messageRouter,
@@ -97,12 +100,24 @@ const restRouter = initServer().router(contract, {
 })
 
 const expressApiRouter = Router()
-// Apply JWT middleware to all routes except auth
-expressApiRouter.use('/channels', jwtMiddleware)
-expressApiRouter.use('/characters', jwtMiddleware)
-expressApiRouter.use('/messages', jwtMiddleware)
-expressApiRouter.use('/world-states', jwtMiddleware)
-expressApiRouter.use('/worlds', jwtMiddleware)
+
+// Create middleware that excludes auth routes
+const authMiddleware = (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+) => {
+  // Skip JWT middleware for auth routes
+  if (req.path.startsWith('/auth')) {
+    return next()
+  }
+
+  // Apply JWT middleware for all other routes
+  return jwtMiddleware(req, res, next)
+}
+
+// Apply JWT middleware to all API routes except auth
+expressApiRouter.use(authMiddleware)
 
 createExpressEndpoints(contract, restRouter, expressApiRouter)
 

@@ -10,6 +10,7 @@ import type {
   World,
   Channel,
   User,
+  PublicUser,
   Character,
   WorldState,
   Message,
@@ -47,7 +48,23 @@ export const mapChannel = ({
   worldStateId: worldStateId ?? undefined,
 })
 
-export const mapUser = ({ id, displayName, avatar }: PrismaUser): User => ({
+export const mapUser = ({
+  id,
+  email,
+  displayName,
+  avatar,
+}: PrismaUser): User => ({
+  id,
+  email,
+  displayName,
+  avatar: avatar ?? undefined,
+})
+
+export const mapPublicUser = ({
+  id,
+  displayName,
+  avatar,
+}: PrismaUser): PublicUser => ({
   id,
   displayName,
   avatar: avatar ?? undefined,

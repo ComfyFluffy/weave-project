@@ -37,9 +37,6 @@ export function createAuthRouter() {
         body: {
           token,
         },
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       }
     },
     register: async ({ body }) => {
@@ -74,9 +71,6 @@ export function createAuthRouter() {
           status: 200,
           body: {
             token,
-          },
-          headers: {
-            Authorization: `Bearer ${token}`,
           },
         }
       } catch (error) {

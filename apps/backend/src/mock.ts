@@ -9,10 +9,30 @@ import {
 
 // Users
 export const users: User[] = [
-  { id: 'user-1', displayName: '龙骑士玩家', avatar: '🛡️' },
-  { id: 'user-2', displayName: '法师玩家', avatar: '🔮' },
-  { id: 'user-3', displayName: '盗贼玩家', avatar: '🗡️' },
-  { id: 'gm-1', displayName: '游戏主持人', avatar: '🎭' },
+  {
+    id: 'user-1',
+    email: 'knight@example.com',
+    displayName: '龙骑士玩家',
+    avatar: '🛡️',
+  },
+  {
+    id: 'user-2',
+    email: 'mage@example.com',
+    displayName: '法师玩家',
+    avatar: '🔮',
+  },
+  {
+    id: 'user-3',
+    email: 'rogue@example.com',
+    displayName: '盗贼玩家',
+    avatar: '🗡️',
+  },
+  {
+    id: 'gm-1',
+    email: 'gm@example.com',
+    displayName: '游戏主持人',
+    avatar: '🎭',
+  },
 ]
 
 // Item Templates (reusable item definitions)

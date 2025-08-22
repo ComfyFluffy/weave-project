@@ -1,13 +1,16 @@
 import { withAccelerate } from '@prisma/extension-accelerate'
+import bcrypt from 'bcrypt'
 import {
   users as mockUsers,
   worlds as mockWorlds,
   worldState as mockWorldState,
+  worldState2 as mockWorldState2,
   messages as mockMessages,
 } from '../src/mock'
 import { PrismaClient } from '../src/generated/prisma'
 
 const prisma = new PrismaClient().$extends(withAccelerate())
+const saltRounds = 10
 
 async function seed() {
   try {
@@ -23,11 +26,12 @@ async function seed() {
     // Create users
     console.log('Creating users...')
     for (const user of mockUsers) {
+      const hashedPassword = await bcrypt.hash('password123', saltRounds)
       await prisma.user.create({
         data: {
           id: user.id,
-          email: `${user.id}@example.com`, // Generate email from ID
-          password: 'password123', // In a real app, this would be hashed
+          email: user.email,
+          password: hashedPassword,
           displayName: user.displayName,
           avatar: user.avatar,
         },
@@ -62,10 +66,9 @@ async function seed() {
 
     // Create worlds
     console.log('Creating worlds...')
-    for (const world of mockWorlds) {
-      // Get the host user
-      const hostUser = mockUsers.find((u) => u.id === 'gm-1') || mockUsers[0]
+    const hostUser = mockUsers.find((u) => u.id === 'gm-1') || mockUsers[0]
 
+    for (const world of mockWorlds) {
       const createdWorld = await prisma.world.create({
         data: {
           id: world.id,
@@ -77,32 +80,7 @@ async function seed() {
         },
       })
 
-      // Create world state
-      console.log('Creating world state...')
-      const worldStateData = {
-        keyEventsLog: mockWorldState.state.keyEventsLog,
-        locations: mockWorldState.state.locations,
-        plots: mockWorldState.state.plots,
-        lore: mockWorldState.state.lore,
-        characterStates: mockWorldState.state.characterStates,
-        items: mockWorldState.state.items,
-        itemTemplates: mockWorldState.state.itemTemplates,
-        currentGameTime: mockWorldState.state.currentGameTime,
-        outline: mockWorldState.state.outline,
-      }
-
-      const createdWorldState = await prisma.worldState.create({
-        data: {
-          id: mockWorldState.id,
-          worldId: createdWorld.id,
-          state: worldStateData,
-          characters: {
-            connect: mockWorldState.characters.map((char) => ({ id: char.id })),
-          },
-        },
-      })
-
-      // Create channels for the world
+      // Create channels for the world (world state will be linked later)
       console.log('Creating channels...')
       for (const channel of world.channels) {
         await prisma.channel.create({
@@ -112,7 +90,69 @@ async function seed() {
             type: channel.type,
             description: channel.description,
             worldId: world.id,
-            worldStateId: createdWorldState.id, // Link channel to world state
+            // worldStateId will be updated later after world states are created
+          },
+        })
+      }
+    }
+
+    // Create world states (after worlds and characters are created)
+    console.log('Creating world state...')
+    const worldStateData = {
+      keyEventsLog: mockWorldState.state.keyEventsLog,
+      locations: mockWorldState.state.locations,
+      plots: mockWorldState.state.plots,
+      lore: mockWorldState.state.lore,
+      characterStates: mockWorldState.state.characterStates,
+      items: mockWorldState.state.items,
+      itemTemplates: mockWorldState.state.itemTemplates,
+      currentGameTime: mockWorldState.state.currentGameTime,
+      outline: mockWorldState.state.outline,
+    }
+
+    await prisma.worldState.create({
+      data: {
+        id: mockWorldState.id,
+        worldId: mockWorldState.worldId,
+        state: worldStateData,
+        characters: {
+          connect: mockWorldState.characters.map((char) => ({ id: char.id })),
+        },
+      },
+    })
+
+    // Create second world state (Cyberpunk world)
+    const worldStateData2 = {
+      keyEventsLog: mockWorldState2.state.keyEventsLog,
+      locations: mockWorldState2.state.locations,
+      plots: mockWorldState2.state.plots,
+      lore: mockWorldState2.state.lore,
+      characterStates: mockWorldState2.state.characterStates,
+      items: mockWorldState2.state.items,
+      itemTemplates: mockWorldState2.state.itemTemplates,
+      currentGameTime: mockWorldState2.state.currentGameTime,
+      outline: mockWorldState2.state.outline,
+    }
+
+    await prisma.worldState.create({
+      data: {
+        id: mockWorldState2.id,
+        worldId: mockWorldState2.worldId,
+        state: worldStateData2,
+        characters: {
+          connect: mockWorldState2.characters.map((char) => ({ id: char.id })),
+        },
+      },
+    })
+
+    // Update channels with their worldStateId
+    console.log('Updating channels with world state references...')
+    for (const world of mockWorlds) {
+      for (const channel of world.channels) {
+        await prisma.channel.update({
+          where: { id: channel.id },
+          data: {
+            worldStateId: channel.worldStateId,
           },
         })
       }
