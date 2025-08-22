@@ -1,6 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router'
 import { QueryProvider } from './providers/QueryProvider'
-import { AuthProvider } from './providers/AuthProvider'
 import { AuthRoutes } from './pages/auth/AuthRoutes'
 import { ChatLayout } from './components/ChatLayout'
 import { ProtectedRoute } from './components/ProtectedRoute'
@@ -26,9 +25,7 @@ function AppContent() {
 function App() {
   return (
     <QueryProvider>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
+      <AppContent />
     </QueryProvider>
   )
 }
