@@ -18,13 +18,6 @@ export const worldStateContract = c.router(
         200: WorldStateResponseSchema,
       },
     },
-    getWorldStateByChannelId: {
-      method: 'GET',
-      path: '/by-channel/:channelId',
-      responses: {
-        200: WorldStateResponseSchema,
-      },
-    },
   },
   {
     pathPrefix: '/world-states',

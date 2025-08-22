@@ -1,11 +1,12 @@
 import express from 'express'
 import { Message as AIMessage, streamText } from 'ai'
 import { openai } from '../services/ai'
-import { DatabaseService } from '../services/database.interface'
 import { Message, WorldState } from '@weave/types'
 import { AIChatRequestSchema } from '@weave/types/apis'
+import { prisma } from '../services/database'
+import { mapWorldState, mapMessage } from '../utils/mapper'
 
-export function createAIRoutes(dbService: DatabaseService) {
+export function createAIRoutes() {
   const router = express.Router()
 
   // AI Chat endpoint using AI SDK streaming
@@ -26,9 +27,18 @@ export function createAIRoutes(dbService: DatabaseService) {
       } = parsed.data
 
       // Get world context using the database service
-      const worldData = worldId ? await getWorldState(dbService, worldId) : null
+      const worldData = worldId ? await (async () => {
+        const worldStates = await prisma.worldState.findMany({
+          where: { worldId },
+        })
+        return worldStates[0] ? mapWorldState(worldStates[0]) : null
+      })() : null
       const recentMessages = channelId
-        ? await getChannelMessages(dbService, channelId, 20)
+        ? (await prisma.message.findMany({
+            where: { channelId },
+            orderBy: { createdAt: 'asc' },
+            take: 20,
+          })).map(mapMessage)
         : []
 
       // Build context for AI
@@ -76,19 +86,6 @@ export function createAIRoutes(dbService: DatabaseService) {
 }
 
 // Helper functions to use database service
-async function getWorldState(dbService: DatabaseService, worldId: string) {
-  const worldStates = await dbService.getWorldStatesByWorldId(worldId)
-  return worldStates[0] || null
-}
-
-async function getChannelMessages(
-  dbService: DatabaseService,
-  channelId: string,
-  limit: number = 20
-) {
-  return await dbService.getMessagesByChannelId(channelId, limit)
-}
-
 function buildSystemContext(
   worldData: WorldState | null,
   recentMessages: Message[],

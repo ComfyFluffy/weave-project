@@ -53,16 +53,16 @@ model Channel {
   /// Type of channel determining its purpose
   type         ChannelType
   /// Optional description of the channel's purpose
-  description  String?
+  description  String
   /// ID of the world state associated with this channel
-  worldStateId String
+  worldStateId String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Relationships
   world      World      @relation(fields: [worldId], references: [id])
-  worldState WorldState @relation(fields: [worldStateId], references: [id])
+  worldState WorldState? @relation(fields: [worldStateId], references: [id])
 }
 
 /// World represents a complete game universe
@@ -73,11 +73,11 @@ model World {
   /// Name of the world/game
   name        String   @unique
   /// Description of the world setting
-  description String?
+  description String
   /// Tags categorizing the world (e.g., fantasy, sci-fi, horror)
   tags        String[]
   /// Optional ruleset information
-  rules       String?
+  rules       String
   /// ID of the user who hosts/owns this world
   hostId      String
 
@@ -124,19 +124,19 @@ model Character {
   /// Unique identifier for the character
   id          String  @id @default(ulid())
   /// ID of the user who owns this character
-  ownerId     String
+  createrId     String
   /// Name of the character
   name        String
   /// Description of the character's appearance/personality
-  description String?
+  description String
   /// Optional avatar emoji or image URL
   avatar      String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
+  
   // Relationships
-  owner       User         @relation(fields: [ownerId], references: [id])
+  creater       User         @relation(fields: [createrId], references: [id])
   worldStates WorldState[] @relation("WorldStateCharacters")
 }
 

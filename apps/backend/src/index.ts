@@ -6,8 +6,6 @@ import { Server } from 'socket.io'
 import cors from 'cors'
 
 // Import services and routes
-import { MockDatabaseService } from './services/database.memory'
-import { createChannelRouter } from './routes/channels'
 import { createWorldRouter } from './routes/worlds'
 import { createWorldStateRouter } from './routes/world-states'
 import { createCharacterRouter } from './routes/characters'
@@ -16,6 +14,9 @@ import { createAIRoutes } from './routes/ai'
 import { createExpressEndpoints, initServer } from '@ts-rest/express'
 import { createAuthRouter } from './routes/auth'
 import { contract, MessageSendInputSchema } from '@weave/types/apis'
+import { createJwtMiddleware } from './middleware/jwt.middleware'
+import { createChannelRouter } from './routes/channels'
+import { prisma } from './services/database'
 
 const app = express()
 const server = createServer(app)
@@ -26,8 +27,10 @@ const io = new Server(server, {
   },
 })
 
-// Initialize database service
-const dbService = new MockDatabaseService()
+
+// Initialize JWT middleware
+const jwtMiddleware = createJwtMiddleware()
+// const verifyUserMiddleware = createVerifyUserMiddleware(dbService)
 
 app.use(
   cors({
@@ -57,8 +60,14 @@ io.on('connection', (socket) => {
   socket.on('message:send', async (input) => {
     const parsedInput = MessageSendInputSchema.parse(input)
     // Save message to database
-    const message = await dbService.createMessage({
-      ...parsedInput,
+    const message = await prisma.message.create({
+      data: {
+        type: parsedInput.type,
+        channelId: parsedInput.channelId,
+        content: parsedInput.content,
+        userId: parsedInput.userId ?? null,
+        characterId: parsedInput.characterId ?? null,
+      },
     })
 
     // Broadcast message to all users in the channel
@@ -70,14 +79,14 @@ io.on('connection', (socket) => {
   })
 })
 
-app.use('/api/ai', createAIRoutes(dbService))
+app.use('/api/ai', createAIRoutes())
 
-const authRouter = createAuthRouter(dbService)
-const channelRouter = createChannelRouter(dbService)
-const characterRouter = createCharacterRouter(dbService)
-const messageRouter = createMessageRouter(dbService)
-const worldStateRouter = createWorldStateRouter(dbService)
-const worldRouter = createWorldRouter(dbService)
+const authRouter = createAuthRouter()
+const characterRouter = createCharacterRouter()
+const channelRouter = createChannelRouter()
+const messageRouter = createMessageRouter()
+const worldStateRouter = createWorldStateRouter()
+const worldRouter = createWorldRouter()
 
 const restRouter = initServer().router(contract, {
   auth: authRouter,
@@ -89,6 +98,13 @@ const restRouter = initServer().router(contract, {
 })
 
 const expressApiRouter = Router()
+// Apply JWT middleware to all routes except auth
+expressApiRouter.use('/channels', jwtMiddleware)
+expressApiRouter.use('/characters', jwtMiddleware)
+expressApiRouter.use('/messages', jwtMiddleware)
+expressApiRouter.use('/world-states', jwtMiddleware)
+expressApiRouter.use('/worlds', jwtMiddleware)
+
 createExpressEndpoints(contract, restRouter, expressApiRouter)
 
 app.use('/api', expressApiRouter)

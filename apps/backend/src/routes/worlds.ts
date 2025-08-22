@@ -1,33 +1,46 @@
-import { DatabaseService } from '../services/database.interface'
 import { initServer } from '@ts-rest/express'
 import { worldContract } from '@weave/types/apis'
+import { World } from '@weave/types'
+import { prisma } from '../services/database'
+import { mapWorld } from '../utils/mapper'
 
-export function createWorldRouter(dbService: DatabaseService) {
+export function createWorldRouter() {
   const s = initServer()
   return s.router(worldContract, {
     getWorlds: async () => {
-      const worlds = await dbService.getWorlds()
+      const worlds = await prisma.world.findMany({
+        include: { channels: true },
+      })
+      const mappedWorlds: World[] = worlds.map(mapWorld)
       return {
         status: 200,
         body: {
-          worlds,
+          worlds: mappedWorlds,
         },
       }
     },
-    getWorldById: async ({ params }) => {
-      const world = await dbService.getWorldById(params.worldId)
+    getWorldById: async ({ params: { worldId }, req }) => {
+      console.log(
+        'Current user: ',
+        await prisma.user.findUnique({ where: { id: req.auth!.userId } })
+      )
+      const world = await prisma.world.findUnique({
+        where: { id: worldId },
+        include: { channels: true },
+      })
       if (!world) {
         return {
-          status: 400,
+          status: 404,
           body: {
             message: 'World not found!',
           },
         }
       }
+      const mappedWorld: World = mapWorld(world)
       return {
         status: 200,
         body: {
-          world,
+          world: mappedWorld,
         },
       }
     },

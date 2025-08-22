@@ -21,3 +21,7 @@ export const AIChatRequestSchema = z.object({
   role: z.enum(['gm', 'player', 'spectator']).optional(),
 })
 export type AIChatRequest = z.infer<typeof AIChatRequestSchema>
+
+export interface JwtPayload {
+  userId: string
+}

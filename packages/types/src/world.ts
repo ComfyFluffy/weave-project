@@ -14,8 +14,7 @@ export const WorldSchema = z.object({
   description: z.string(),
   /** Tags categorizing the world (e.g., fantasy, sci-fi, horror) */
   tags: z.array(z.string()),
-  /** Optional ruleset information */
-  rules: z.string().optional(),
+  rules: z.string(),
   /** List of channels in this world */
   channels: z.array(ChannelSchema),
 })
