@@ -30,7 +30,7 @@ export function ChatLayout() {
   const [isCharacterManagementModalOpen, setIsCharacterManagementModalOpen] =
     useState(false)
 
-  const { data: worldsData } = useWorlds()
+  const { data: worldsData, refetch: refetchWorlds } = useWorlds()
   const { data: currentWorldData } = useWorld(selectedWorldId)
   const { data: channelsData } = useChannelsByWorld(selectedWorldId)
   const { data: worldStateData } = useWorldStateByChannel(selectedChannelId)
@@ -44,7 +44,6 @@ export function ChatLayout() {
   const { sendMessage } = useChannelSocket({
     channelId: selectedChannelId,
     onNewMessage: (message: Message) => {
-      console.log('ChatLayout: Received new message', message)
       void refetchMessages()
     },
   })
@@ -84,7 +83,7 @@ export function ChatLayout() {
   }
 
   const handleChannelSelect = (channelId: string) => {
-    setSelectedChannelId(channelId)
+    setSelectedChannelId(channelId || null)
   }
 
   const handleSendMessage = (content: string) => {
@@ -101,7 +100,6 @@ export function ChatLayout() {
   }
 
   const handleSelectCharacter = (character: Character | null) => {
-    console.log('Selected character:', character)
     setSelectedCharacter(character)
   }
 
@@ -128,8 +126,8 @@ export function ChatLayout() {
   }
 
   const handleCreateWorld = () => {
-    // TODO: Implement world creation modal
-    console.log('Create world clicked')
+    // Refetch worlds after creation
+    void refetchWorlds()
   }
 
   return (

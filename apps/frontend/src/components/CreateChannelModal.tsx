@@ -11,6 +11,8 @@ import {
   IconButton,
 } from '@chakra-ui/react'
 import { Plus } from 'lucide-react'
+import { useCreateChannel, useChannelsByWorld } from '../hooks/queries'
+import { useQueryClient } from '@tanstack/react-query'
 
 interface CreateChannelModalProps {
   worldId: string
@@ -20,6 +22,7 @@ const channelTypes = createListCollection({
   items: [
     { label: '角色扮演 (IC)', value: 'ic' },
     { label: '脱离角色 (OOC)', value: 'ooc' },
+    { label: '公告 (Announcement)', value: 'announcement' },
   ],
 })
 
@@ -28,6 +31,44 @@ export const CreateChannelModal = ({ worldId }: CreateChannelModalProps) => {
   const [name, setName] = useState('')
   const [type, setType] = useState(['ic'])
   const [description, setDescription] = useState('')
+
+  const queryClient = useQueryClient()
+  const createChannelMutation = useCreateChannel()
+
+  const resetForm = () => {
+    setName('')
+    setType(['ic'])
+    setDescription('')
+  }
+
+  const handleClose = () => {
+    setOpen(false)
+    resetForm()
+  }
+
+  const handleCreateChannel = async () => {
+    if (!name.trim()) return
+
+    try {
+      await createChannelMutation.mutateAsync({
+        body: {
+          worldId,
+          name: name.trim(),
+          type: type[0] as 'ic' | 'ooc' | 'announcement',
+          description: description.trim(),
+        },
+      })
+
+      // Invalidate and refetch channels
+      await queryClient.invalidateQueries({
+        queryKey: ['channels', worldId],
+      })
+
+      handleClose()
+    } catch (error) {
+      console.error('Failed to create channel:', error)
+    }
+  }
 
   return (
     <Popover.Root open={open} onOpenChange={(e) => setOpen(e.open)} size="sm">
@@ -126,10 +167,8 @@ export const CreateChannelModal = ({ worldId }: CreateChannelModalProps) => {
 
                 <VStack gap={2} mt={2}>
                   <Button
-                    onClick={() => {
-                      // TODO
-                    }}
-                    loading={true}
+                    onClick={() => void handleCreateChannel()}
+                    loading={createChannelMutation.isPending}
                     disabled={!name.trim()}
                     size="sm"
                     width="full"
@@ -138,7 +177,7 @@ export const CreateChannelModal = ({ worldId }: CreateChannelModalProps) => {
                     创建频道
                   </Button>
                   <Button
-                    onClick={() => setOpen(false)}
+                    onClick={handleClose}
                     variant="outline"
                     size="sm"
                     width="full"

@@ -270,10 +270,6 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
     )
   }
 
-  // Debug logging for characters
-  console.log('WorldState characters:', worldState.characters)
-  console.log('Characters length:', worldState.characters?.length || 0)
-
   return (
     <Box p={4} height="100%" overflowY="auto">
       <VStack align="stretch" gap={4} height="100%">

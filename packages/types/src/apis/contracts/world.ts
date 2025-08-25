@@ -14,6 +14,14 @@ export const WorldSingleResponseSchema = z.object({
 })
 export type WorldSingleResponse = z.infer<typeof WorldSingleResponseSchema>
 
+export const CreateWorldRequestSchema = z.object({
+  name: z.string().min(1),
+  description: z.string(),
+  tags: z.array(z.string()),
+  rules: z.string(),
+})
+export type CreateWorldRequest = z.infer<typeof CreateWorldRequestSchema>
+
 export const worldContract = c.router(
   {
     getWorlds: {
@@ -28,6 +36,14 @@ export const worldContract = c.router(
       path: '/:worldId',
       responses: {
         200: WorldSingleResponseSchema,
+      },
+    },
+    createWorld: {
+      method: 'POST',
+      path: '/',
+      body: CreateWorldRequestSchema,
+      responses: {
+        201: WorldSingleResponseSchema,
       },
     },
   },

@@ -20,6 +20,8 @@ import {
 import type { Channel } from '@weave/types'
 import { CreateChannelModal } from '../CreateChannelModal'
 import { RoleSelector, type UserRole } from '../RoleSelector'
+import { useDeleteChannel } from '../../hooks/queries'
+import { useQueryClient } from '@tanstack/react-query'
 
 interface ChannelSidebarProps {
   worldId?: string
@@ -46,6 +48,28 @@ export function ChannelSidebar({
   onChannelSelect,
   onRoleChange,
 }: ChannelSidebarProps) {
+  const queryClient = useQueryClient()
+  const deleteChannelMutation = useDeleteChannel()
+
+  const handleDeleteChannel = async (channelId: string) => {
+    try {
+      await deleteChannelMutation.mutateAsync({
+        params: { channelId },
+      })
+
+      // Invalidate and refetch channels
+      await queryClient.invalidateQueries({
+        queryKey: ['channels', worldId],
+      })
+
+      // If the deleted channel was selected, clear the selection
+      if (selectedChannelId === channelId) {
+        onChannelSelect?.('')
+      }
+    } catch (error) {
+      console.error('Failed to delete channel:', error)
+    }
+  }
   return (
     <Box
       width="240px"
@@ -125,40 +149,39 @@ export function ChannelSidebar({
                         />
                         <Text>{channel.name}</Text>
                       </Flex>
-                      {selectedRole === 'gm' && (
-                        <Menu.Root>
-                          <Menu.Trigger asChild>
-                            <IconButton
-                              variant="ghost"
-                              size="sm"
-                              color="gray.400"
-                              _hover={{ color: 'white', bg: 'gray.700' }}
-                              p={1}
-                              minW="auto"
-                              height="auto"
-                            >
-                              <MoreHorizontal />
-                            </IconButton>
-                          </Menu.Trigger>
-                          <Portal>
-                            <Menu.Positioner>
-                              <Menu.Content>
-                                <Menu.Item
-                                  value="delete-channel"
-                                  onClick={() => {
-                                    // TODO
-                                  }}
-                                  color="red.400"
-                                  _hover={{ bg: 'red.600', color: 'white' }}
-                                >
-                                  <Trash2 size={14} />
-                                  <Text>删除频道</Text>
-                                </Menu.Item>
-                              </Menu.Content>
-                            </Menu.Positioner>
-                          </Portal>
-                        </Menu.Root>
-                      )}
+                      {/* Remove GM restriction - anyone can delete channels */}
+                      <Menu.Root>
+                        <Menu.Trigger asChild>
+                          <IconButton
+                            variant="ghost"
+                            size="sm"
+                            color="gray.400"
+                            _hover={{ color: 'white', bg: 'gray.700' }}
+                            p={1}
+                            minW="auto"
+                            height="auto"
+                          >
+                            <MoreHorizontal />
+                          </IconButton>
+                        </Menu.Trigger>
+                        <Portal>
+                          <Menu.Positioner>
+                            <Menu.Content>
+                              <Menu.Item
+                                value="delete-channel"
+                                onClick={() =>
+                                  void handleDeleteChannel(channel.id)
+                                }
+                                color="red.400"
+                                _hover={{ bg: 'red.600', color: 'white' }}
+                              >
+                                <Trash2 size={14} />
+                                <Text>删除频道</Text>
+                              </Menu.Item>
+                            </Menu.Content>
+                          </Menu.Positioner>
+                        </Portal>
+                      </Menu.Root>
                     </Flex>
                   </Button>
                 </Flex>

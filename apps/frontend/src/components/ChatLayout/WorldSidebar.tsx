@@ -1,8 +1,9 @@
 import { VStack, Box, IconButton, Badge } from '@chakra-ui/react'
-import { PlusSquareIcon, LogOutIcon } from 'lucide-react'
+import { LogOutIcon } from 'lucide-react'
 import { Tooltip } from '../ui/tooltip'
 import { useLogout } from '../../hooks/auth'
 import { useNavigate } from 'react-router'
+import { CreateWorldModal } from '../CreateWorldModal'
 
 interface WorldSidebarProps {
   worlds?: Array<{
@@ -39,17 +40,7 @@ export function WorldSidebar({
       <VStack gap={2} px={3} flex="1">
         {/* Add World Button */}
         <Tooltip content="创建世界" positioning={{ placement: 'right' }}>
-          <IconButton
-            size="lg"
-            bg="gray.700"
-            color="green.400"
-            _hover={{ bg: 'green.600', color: 'white' }}
-            onClick={onCreateWorld}
-            borderRadius="12px"
-            transition="all 0.2s"
-          >
-            <PlusSquareIcon size={24} />
-          </IconButton>
+          <CreateWorldModal onWorldCreated={onCreateWorld} />
         </Tooltip>
 
         {/* Separator */}

@@ -20,6 +20,11 @@ export function useWorld(worldId: string | null) {
   })
 }
 
+// Create world mutation
+export function useCreateWorld() {
+  return tsr.world.createWorld.useMutation()
+}
+
 // Channels by world query
 export function useChannelsByWorld(worldId: string | null) {
   return tsr.channel.getChannelsByWorldId.useQuery({
@@ -31,6 +36,16 @@ export function useChannelsByWorld(worldId: string | null) {
     },
     enabled: !!worldId,
   })
+}
+
+// Create channel mutation
+export function useCreateChannel() {
+  return tsr.channel.createChannel.useMutation()
+}
+
+// Delete channel mutation
+export function useDeleteChannel() {
+  return tsr.channel.deleteChannel.useMutation()
 }
 
 // World state by channel query
