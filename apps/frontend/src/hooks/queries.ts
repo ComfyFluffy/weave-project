@@ -59,6 +59,11 @@ export function useWorldState(worldStateId: string | null) {
   })
 }
 
+// World state mutation for updates
+export function useUpdateWorldState() {
+  return tsr.worldState.updateWorldState.useMutation()
+}
+
 // Channel messages query
 export const useChannelMessages = (channelId: string | null) => {
   return tsr.message.getMessagesByChannelId.useQuery({

@@ -10,10 +10,11 @@ import {
   Flex,
   Spinner,
 } from '@chakra-ui/react'
-import { Send, User, Bot } from 'lucide-react'
+import { Send, User, Bot, Copy } from 'lucide-react'
 import { type Message } from '@ai-sdk/react'
 import { useWorldChat } from '../hooks/ai'
 import { MemoizedMarkdown } from './MemoizedMarkdown'
+import { Clipboard } from './ui/clipboard'
 
 interface AIChatSectionProps {
   worldId: string
@@ -221,6 +222,16 @@ function MessageItem({ message, isLoading }: MessageItemProps) {
         position="relative"
       >
         <MemoizedMarkdown content={message.content} id={message.id} />
+
+        {/* Clipboard button */}
+        <HStack justify="flex-end" mt={2}>
+          <Clipboard
+            text={message.content}
+            variant="icon"
+            size="sm"
+            tooltip="Copy message"
+          />
+        </HStack>
 
         {isLoading && !isUser && (
           <Flex align="center" gap={2} mt={2}>

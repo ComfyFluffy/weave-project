@@ -1,6 +1,6 @@
 import { worldStateContract } from '@weave/types/apis'
 import { initServer } from '@ts-rest/express'
-import { mapWorldState } from '../utils/mapper'
+import { mapWorldState, mapCharacter } from '../utils/mapper'
 import { prisma } from '../services/database'
 
 export function createWorldStateRouter() {
@@ -9,6 +9,9 @@ export function createWorldStateRouter() {
     getWorldStateById: async ({ params }) => {
       const worldState = await prisma.worldState.findUnique({
         where: { id: params.worldStateId },
+        include: {
+          characters: true,
+        },
       })
       if (!worldState) {
         return {
@@ -17,6 +20,8 @@ export function createWorldStateRouter() {
         }
       }
       const mappedWorldState = mapWorldState(worldState)
+      // Include characters from the worldState
+      mappedWorldState.characters = worldState.characters.map(mapCharacter)
       return {
         status: 200,
         body: { worldState: mappedWorldState },
@@ -25,8 +30,12 @@ export function createWorldStateRouter() {
     getWorldStateByChannelId: async ({ params }) => {
       const channel = await prisma.channel.findUnique({
         where: { id: params.channelId },
-        select: {
-          worldState: true,
+        include: {
+          worldState: {
+            include: {
+              characters: true,
+            },
+          },
         },
       })
       if (!channel?.worldState) {
@@ -36,6 +45,33 @@ export function createWorldStateRouter() {
         }
       }
       const mappedWorldState = mapWorldState(channel.worldState)
+      // Include characters from the worldState
+      mappedWorldState.characters =
+        channel.worldState.characters.map(mapCharacter)
+      return {
+        status: 200,
+        body: { worldState: mappedWorldState },
+      }
+    },
+    updateWorldState: async ({ params, body }) => {
+      const { worldState } = body
+
+      // Update the world state in the database
+      const updatedWorldState = await prisma.worldState.update({
+        where: { id: params.worldStateId },
+        data: {
+          state: worldState.state,
+          // Note: characters are handled separately since they're a relation
+        },
+        include: {
+          characters: true,
+        },
+      })
+
+      const mappedWorldState = mapWorldState(updatedWorldState)
+      // Include characters from the worldState
+      mappedWorldState.characters =
+        updatedWorldState.characters.map(mapCharacter)
       return {
         status: 200,
         body: { worldState: mappedWorldState },

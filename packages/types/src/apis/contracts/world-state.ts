@@ -9,6 +9,13 @@ export const WorldStateResponseSchema = z.object({
 })
 export type WorldStateResponse = z.infer<typeof WorldStateResponseSchema>
 
+export const UpdateWorldStateRequestSchema = z.object({
+  worldState: WorldStateSchema,
+})
+export type UpdateWorldStateRequest = z.infer<
+  typeof UpdateWorldStateRequestSchema
+>
+
 export const worldStateContract = c.router(
   {
     getWorldStateById: {
@@ -21,6 +28,14 @@ export const worldStateContract = c.router(
     getWorldStateByChannelId: {
       method: 'GET',
       path: '/by-channel/:channelId',
+      responses: {
+        200: WorldStateResponseSchema,
+      },
+    },
+    updateWorldState: {
+      method: 'PUT',
+      path: '/update/:worldStateId',
+      body: UpdateWorldStateRequestSchema,
       responses: {
         200: WorldStateResponseSchema,
       },
