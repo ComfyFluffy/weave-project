@@ -11,10 +11,12 @@ import {
   useWorldStateByChannel,
   useChannelMessages,
   useChannelCharacters,
+  useCreateCharacter,
 } from '../../hooks/queries'
 import type { Message, Character } from '@weave/types'
 import { Flex } from '@chakra-ui/react'
 import { useChannelSocket } from '../../hooks/channel-socket'
+import { CharacterManagementModal } from '../CharacterManagementModal'
 
 export function ChatLayout() {
   const [selectedWorldId, setSelectedWorldId] = useState<string | null>(null)
@@ -25,6 +27,8 @@ export function ChatLayout() {
   const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(
     null
   )
+  const [isCharacterManagementModalOpen, setIsCharacterManagementModalOpen] =
+    useState(false)
 
   const { data: worldsData } = useWorlds()
   const { data: currentWorldData } = useWorld(selectedWorldId)
@@ -32,8 +36,9 @@ export function ChatLayout() {
   const { data: worldStateData } = useWorldStateByChannel(selectedChannelId)
   const { data: messagesData, refetch: refetchMessages } =
     useChannelMessages(selectedChannelId)
-  const { data: channelCharactersData } =
+  const { data: channelCharactersData, refetch: refetchChannelCharacters } =
     useChannelCharacters(selectedChannelId)
+  const { mutate: createCharacter } = useCreateCharacter()
 
   // Use the channel socket hook
   const { sendMessage } = useChannelSocket({
@@ -101,7 +106,25 @@ export function ChatLayout() {
   }
 
   const handleOpenCharacterModal = () => {
-    // TODO
+    setIsCharacterManagementModalOpen(true)
+  }
+
+  const handleCreateCharacter = (characterData: {
+    name: string
+    description: string
+  }) => {
+    createCharacter(
+      { body: characterData },
+      {
+        onSuccess: () => {
+          // Refresh the world characters list
+          void refetchChannelCharacters()
+        },
+        onError: (error) => {
+          console.error('Failed to create character:', error)
+        },
+      }
+    )
   }
 
   const handleCreateWorld = () => {
@@ -139,12 +162,18 @@ export function ChatLayout() {
       <ChatArea
         channel={currentChannel}
         messages={messages}
+        worldId={selectedWorldId || undefined}
         worldCharacters={worldCharacters}
+        myCharacters={[]}
         selectedCharacter={selectedCharacter}
         selectedRole={selectedRole}
         onSendMessage={handleSendMessage}
         onSelectCharacter={handleSelectCharacter}
-        onOpenCharacterModal={handleOpenCharacterModal}
+        onCreateCharacter={handleCreateCharacter}
+        onOpenCharacterManagement={handleOpenCharacterModal}
+        onRemoveFromAvailableCharacters={() => {
+          // This functionality is now handled within the CharacterManagementModal
+        }}
       />
 
       {/* AI World Panel - World Data Viewer and AI Chat */}
@@ -155,6 +184,15 @@ export function ChatLayout() {
           channelId={selectedChannelId}
           selectedCharacterId={selectedCharacter?.id}
           selectedRole={selectedRole}
+        />
+      )}
+
+      {/* Character Management Modal */}
+      {selectedWorldId && selectedChannelId && worldState && (
+        <CharacterManagementModal
+          worldStateId={worldState.id}
+          isOpen={isCharacterManagementModalOpen}
+          onClose={() => setIsCharacterManagementModalOpen(false)}
         />
       )}
     </Flex>

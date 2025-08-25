@@ -77,7 +77,13 @@ export const useChannelMessages = (channelId: string | null) => {
   })
 }
 
-// Character management hooks - now channel-based
+// Character management hooks
+export const useAllCharacters = () => {
+  return tsr.character.getAllCharacters.useQuery({
+    queryKey: ['allCharacters'],
+  })
+}
+
 export const useChannelCharacters = (channelId: string | null) => {
   return tsr.character.getCharactersByChannelId.useQuery({
     queryKey: ['channelCharacters', channelId],
@@ -114,4 +120,38 @@ export function useCharacter(characterId: string | undefined | null) {
     },
     enabled: !!characterId,
   })
+}
+
+export function useCreateCharacter() {
+  return tsr.character.createCharacter.useMutation()
+}
+
+// Get user's own characters
+export function useMyCharacters() {
+  return tsr.character.getMyCharacters.useQuery({
+    queryKey: ['myCharacters'],
+  })
+}
+
+// Delete character by ID
+export function useDeleteCharacter() {
+  return tsr.character.deleteCharacterById.useMutation()
+}
+
+// WorldState-based character management
+export const useWorldStateCharacters = (worldStateId: string | null) => {
+  return tsr.character.getCharactersByWorldStateId.useQuery({
+    queryKey: ['worldStateCharacters', worldStateId],
+    queryData: {
+      params: {
+        worldStateId: worldStateId!,
+      },
+    },
+    enabled: !!worldStateId,
+  })
+}
+
+// Update characters associated with a world state
+export function useUpdateWorldStateCharacters() {
+  return tsr.character.updateWorldStateCharacters.useMutation()
 }
