@@ -1,10 +1,4 @@
-import {
-  Button,
-  VStack,
-  Portal,
-  Dialog,
-  Text,
-} from '@chakra-ui/react'
+import { Button, VStack, Portal, Dialog, Text } from '@chakra-ui/react'
 
 interface ConfirmDialogProps {
   isOpen: boolean
@@ -39,19 +33,15 @@ export const ConfirmDialog = ({
               <VStack gap={2} width="full">
                 <Button
                   onClick={() => {
-                    onConfirm();
-                    onClose();
+                    onConfirm()
+                    onClose()
                   }}
                   colorScheme="red"
                   width="full"
                 >
                   {confirmText}
                 </Button>
-                <Button
-                  onClick={onClose}
-                  variant="outline"
-                  width="full"
-                >
+                <Button onClick={onClose} variant="outline" width="full">
                   {cancelText}
                 </Button>
               </VStack>

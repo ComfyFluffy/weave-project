@@ -25,7 +25,10 @@ export const CharacterDetailModal = ({
   const getCharacterImage = (character: Character) => {
     // Return a placeholder image for now
     // In the future, this would return character.avatar if available
-    return 'https://placehold.co/400x400/4A5568/FFFFFF?text=' + encodeURIComponent(character.name.charAt(0))
+    return (
+      'https://placehold.co/400x400/4A5568/FFFFFF?text=' +
+      encodeURIComponent(character.name.charAt(0))
+    )
   }
 
   if (!character) return null
@@ -65,9 +68,7 @@ export const CharacterDetailModal = ({
                   <Text fontSize="sm" fontWeight="bold" color="gray.400">
                     详细信息
                   </Text>
-                  <Text color="white">
-                    ID: {character.id}
-                  </Text>
+                  <Text color="white">ID: {character.id}</Text>
                 </Stack>
 
                 <VStack gap={2} mt={2}>
