@@ -10,7 +10,7 @@ import {
   Flex,
   Spinner,
 } from '@chakra-ui/react'
-import { Send, User, Bot, Copy } from 'lucide-react'
+import { Send, User, Bot } from 'lucide-react'
 import { type Message } from '@ai-sdk/react'
 import { useWorldChat } from '../hooks/ai'
 import { MemoizedMarkdown } from './MemoizedMarkdown'
@@ -73,7 +73,7 @@ export function AIChatSection({
 
   return (
     <Box
-      height="60%"
+      height="100%"
       bg="gray.900"
       border="1px solid"
       borderColor="gray.700"

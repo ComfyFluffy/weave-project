@@ -12,8 +12,8 @@ export function WorldDataViewer({ worldData }: WorldDataViewerProps) {
       border="1px solid"
       borderColor="gray.700"
       borderRadius="md"
-      height="40%"
       overflowY="auto"
+      height="100%"
       p={4}
     >
       <Text fontWeight="bold" color="white" fontSize="sm" mb={3}>
@@ -26,8 +26,6 @@ export function WorldDataViewer({ worldData }: WorldDataViewerProps) {
         p={3}
         borderRadius="md"
         width="100%"
-        height="calc(100% - 32px)"
-        overflowY="auto"
         whiteSpace="pre-wrap"
         fontFamily="mono"
       >

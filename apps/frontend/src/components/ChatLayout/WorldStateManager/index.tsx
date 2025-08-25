@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { Box, Text, VStack, HStack, Button, Tabs } from '@chakra-ui/react'
+import { Box, Text, VStack, HStack, Tabs } from '@chakra-ui/react'
 import { produce } from 'immer'
 import { useQueryClient } from '@tanstack/react-query'
 import { WorldStateOverview } from './WorldStateOverview'
@@ -23,7 +23,6 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
     data: worldStateResponse,
     isLoading: loading,
     error,
-    refetch: fetchWorldState,
   } = useWorldState(worldStateId)
 
   const worldState = worldStateResponse?.body?.worldState
@@ -244,10 +243,6 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
     [updateWorldState]
   )
 
-  const handleRefresh = () => {
-    void fetchWorldState()
-  }
-
   if (loading) {
     return (
       <Box p={4} textAlign="center">
@@ -286,9 +281,6 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
           <Text fontSize="xl" fontWeight="bold" color="white">
             世界状态管理
           </Text>
-          <Button size="sm" colorPalette="blue" onClick={handleRefresh}>
-            刷新
-          </Button>
         </HStack>
 
         <Tabs.Root
@@ -304,7 +296,7 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
             <Tabs.Trigger value="items">物品</Tabs.Trigger>
           </Tabs.List>
 
-          <Box height="calc(100% - 80px)" overflowY="auto" pt={4}>
+          <Box pt={4}>
             <Tabs.Content value="overview">
               <WorldStateOverview
                 worldState={worldState}
