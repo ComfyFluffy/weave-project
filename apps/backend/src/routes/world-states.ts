@@ -2,6 +2,16 @@ import { worldStateContract } from '@weave/types/apis'
 import { initServer } from '@ts-rest/express'
 import { mapWorldState, mapCharacter } from '../utils/mapper'
 import { prisma } from '../services/database'
+import { Server } from 'socket.io'
+import { AuthenticatedSocket } from '../middleware/socket-auth'
+
+// Global reference to Socket.IO server instance
+let io: Server
+
+// Function to set the Socket.IO server instance
+export function setSocketIO(socketIOInstance: Server) {
+  io = socketIOInstance
+}
 
 export function createWorldStateRouter() {
   const s = initServer()
@@ -72,6 +82,23 @@ export function createWorldStateRouter() {
       // Include characters from the worldState
       mappedWorldState.characters =
         updatedWorldState.characters.map(mapCharacter)
+      
+      // Broadcast the world state update to all connected clients
+      if (io) {
+        // Find all channels associated with this world state
+        const channels = await prisma.channel.findMany({
+          where: { worldStateId: params.worldStateId },
+        })
+        
+        // Emit update event to all channels associated with this world state
+        channels.forEach((channel) => {
+          io.to(channel.id).emit('worldState:updated', {
+            worldStateId: params.worldStateId,
+            worldState: mappedWorldState,
+          })
+        })
+      }
+      
       return {
         status: 200,
         body: { worldState: mappedWorldState },

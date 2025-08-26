@@ -170,3 +170,8 @@ export const useWorldStateCharacters = (worldStateId: string | null) => {
 export function useUpdateWorldStateCharacters() {
   return tsr.character.updateWorldStateCharacters.useMutation()
 }
+
+// Remove character from world state
+export function useRemoveCharacterFromWorldState() {
+  return tsr.character.removeCharacterFromWorldState.useMutation()
+}

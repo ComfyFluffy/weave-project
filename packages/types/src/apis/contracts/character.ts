@@ -29,6 +29,13 @@ export type UpdateWorldStateCharactersRequest = z.infer<
   typeof UpdateWorldStateCharactersRequestSchema
 >
 
+export const RemoveCharacterFromWorldStateRequestSchema = z.object({
+  characterId: z.string(),
+})
+export type RemoveCharacterFromWorldStateRequest = z.infer<
+  typeof RemoveCharacterFromWorldStateRequestSchema
+>
+
 export const characterContract = c.router(
   {
     getAllCharacters: {
@@ -85,6 +92,13 @@ export const characterContract = c.router(
       method: 'PUT',
       path: '/world-state/:worldStateId',
       body: UpdateWorldStateCharactersRequestSchema,
+      responses: {
+        200: CharactersResponseSchema,
+      },
+    },
+    removeCharacterFromWorldState: {
+      method: 'DELETE',
+      path: '/world-state/:worldStateId/character/:characterId',
       responses: {
         200: CharactersResponseSchema,
       },

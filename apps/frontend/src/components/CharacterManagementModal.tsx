@@ -17,12 +17,15 @@ import {
   useDeleteCharacter,
   useMyCharacters,
   useUpdateWorldStateCharacters,
+  useWorldState,
 } from '../hooks/queries'
 import { CreateCharacterModal } from './CreateCharacterModal'
 import { CharacterDetailModal } from './CharacterDetailModal'
 import { ConfirmDialog } from './ConfirmDialog'
 import { CharacterCard } from './CharacterCard'
 import { toaster } from './ui/toaster'
+import { socketService } from '../services/socket'
+import { useQueryClient } from '@tanstack/react-query'
 import type { Character } from '@weave/types'
 
 interface CharacterManagementModalProps {
@@ -46,6 +49,7 @@ export function CharacterManagementModal({
     isLoading: isLoadingMy,
     refetch: refetchMyCharacters,
   } = useMyCharacters()
+  const { data: worldStateData } = useWorldState(worldStateId)
 
   const [isCreateCharacterModalOpen, setIsCreateCharacterModalOpen] =
     useState(false)
@@ -65,10 +69,44 @@ export function CharacterManagementModal({
   const { mutate: createCharacter } = useCreateCharacter()
   const { mutate: deleteCharacter } = useDeleteCharacter()
   const { mutate: updateWorldStateCharacters } = useUpdateWorldStateCharacters()
+  const queryClient = useQueryClient()
 
   const isLoading = isLoadingAll || isLoadingMy
   const allCharacters = allCharactersData?.body.characters || []
   const myCharacters = myCharactersData?.body.characters || []
+
+  // Set up socket listeners for real-time character updates
+  useEffect(() => {
+    if (!isOpen) return
+
+    // Listen for character updates
+    const unsubscribeCharacters = socketService.onCharactersUpdated((data) => {
+      if (data.worldStateId === worldStateId) {
+        // Invalidate queries to trigger a refetch
+        // This ensures we have the latest character data from the server
+        void queryClient.invalidateQueries({
+          queryKey: ['allCharacters']
+        })
+        void queryClient.invalidateQueries({
+          queryKey: ['myCharacters']
+        })
+        void queryClient.invalidateQueries({
+          queryKey: ['worldStateCharacters', worldStateId]
+        })
+        
+        // Invalidate all channel character queries to ensure ChatArea updates
+        void queryClient.invalidateQueries({
+          queryKey: ['channelCharacters'],
+          type: 'active'
+        })
+      }
+    })
+
+    // Clean up listeners on unmount or when modal closes
+    return () => {
+      unsubscribeCharacters()
+    }
+  }, [isOpen, worldStateId, queryClient])
 
   const handleCreateCharacter = () => {
     // Clear any previous errors
@@ -326,6 +364,7 @@ export function CharacterManagementModal({
         character={selectedCharacter}
         isOpen={isCharacterDetailModalOpen}
         onClose={() => setIsCharacterDetailModalOpen(false)}
+        characterState={selectedCharacter ? worldStateData?.body.worldState.state.characterStates?.[selectedCharacter.id] : undefined}
       />
 
       {/* Confirm Dialog */}

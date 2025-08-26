@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { Box, Text, VStack, HStack, Tabs } from '@chakra-ui/react'
 import { produce } from 'immer'
 import { useQueryClient } from '@tanstack/react-query'
@@ -8,6 +8,7 @@ import { LocationsPanel } from './LocationsPanel'
 import { PlotsPanel } from './PlotsPanel'
 import { ItemPanel } from './ItemPanel'
 import { useWorldState, useUpdateWorldState } from '../../../hooks/queries'
+import { socketService } from '../../../services/socket'
 import type { WorldState, Location, Plot, Character, Item } from '@weave/types'
 
 interface WorldStateManagerProps {
@@ -16,6 +17,7 @@ interface WorldStateManagerProps {
 
 export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
   const [activeTab, setActiveTab] = useState('overview')
+  const [refreshTrigger, setRefreshTrigger] = useState(0)
   const queryClient = useQueryClient()
 
   // Single hook for worldState data
@@ -30,49 +32,135 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
   // Mutation for updating worldState
   const updateWorldStateMutation = useUpdateWorldState()
 
+  // Set up socket listeners for real-time updates
+  useEffect(() => {
+    // Listen for world state updates
+    const unsubscribeWorldState = socketService.onWorldStateUpdated((data) => {
+      if (data.worldStateId === worldStateId) {
+        // Invalidate the query to trigger a refetch
+        // This ensures we have the latest data from the server
+        void queryClient.invalidateQueries({
+          queryKey: ['worldState', worldStateId]
+        })
+      }
+    })
+
+    // Listen for character updates
+    const unsubscribeCharacters = socketService.onCharactersUpdated((data) => {
+      if (data.worldStateId === worldStateId) {
+        // Invalidate the query to trigger a refetch
+        // This ensures we have the latest character data from the server
+        void queryClient.invalidateQueries({
+          queryKey: ['worldState', worldStateId]
+        })
+        
+        // Also invalidate character-related queries
+        void queryClient.invalidateQueries({
+          queryKey: ['allCharacters']
+        })
+        void queryClient.invalidateQueries({
+          queryKey: ['myCharacters']
+        })
+        void queryClient.invalidateQueries({
+          queryKey: ['worldStateCharacters', worldStateId]
+        })
+        
+        // Get all channels that might be using this world state
+        // This is a bit of a hack, but we need to invalidate all channel character queries
+        // that might be affected by this update
+        void queryClient.invalidateQueries({
+          queryKey: ['channelCharacters'],
+          type: 'active'
+        })
+      }
+    })
+
+    // Clean up listeners on unmount
+    return () => {
+      unsubscribeWorldState()
+      unsubscribeCharacters()
+    }
+  }, [worldStateId, queryClient])
+
   // Single update handler using immer for immutable updates
+  // 采用乐观更新策略，避免数据更新时的闪烁问题
   const updateWorldState = useCallback(
     async (updater: (draft: WorldState) => void) => {
-      if (!worldState) return
+      // 使用函数式获取最新的 worldState，避免闭包问题
+      const response = queryClient.getQueryData(['worldState', worldStateId])
+      const currentWorldState = (response as any)?.body?.worldState
+      if (!currentWorldState) return
 
-      const updatedWorldState = produce(worldState, updater)
+      const updatedWorldState = produce(currentWorldState, updater)
 
       await queryClient.cancelQueries({
         queryKey: ['worldState', worldStateId],
       })
 
-      queryClient.setQueryData(['worldState', worldStateId], updatedWorldState)
+      // 立即更新本地缓存，确保数据不会变为 null
+      queryClient.setQueryData(['worldState', worldStateId], {
+        body: { worldState: updatedWorldState }
+      } as any)
 
+      // 强制触发重新渲染，确保UI立即更新
+      queryClient.setQueryData(['worldState', worldStateId], (oldData: any) => {
+        if (!oldData) return { body: { worldState: updatedWorldState } }
+        return { body: { worldState: updatedWorldState } }
+      })
+
+      // 后台同步到服务器，不等待结果
       updateWorldStateMutation.mutate(
         {
           params: { worldStateId },
-          body: { worldState: updatedWorldState },
+          body: { worldState: updatedWorldState } as any,
         },
         {
-          onSettled: () => {
-            // Invalidate and refetch the query to ensure consistency
-            void queryClient.invalidateQueries({
-              queryKey: ['worldState', worldStateId],
-            })
+          onSuccess: () => {
+            // 成功后不刷新，保持本地数据
+            // 只在必要时才与服务器同步
           },
           onError: (error) => {
             console.error('Failed to update world state:', error)
+            // 出错时恢复原始数据
+            queryClient.setQueryData(['worldState', worldStateId], {
+              body: { worldState: currentWorldState }
+            })
           },
         }
       )
     },
-    [worldState, worldStateId, updateWorldStateMutation, queryClient]
+    [worldStateId, updateWorldStateMutation, queryClient]
   )
 
   // Simplified handlers using the single update function
   const handleStatUpdate = useCallback(
     (characterId: string, statName: string, newValue: number) => {
       void updateWorldState((draft) => {
-        if (draft.state.characterStates[characterId]) {
-          draft.state.characterStates[characterId].stats[statName] = {
-            current: newValue,
-            max: draft.state.characterStates[characterId].stats[statName]?.max,
+        // 确保 characterStates 和 stats 对象存在
+        if (!draft.state.characterStates) {
+          draft.state.characterStates = {}
+        }
+        if (!draft.state.characterStates[characterId]) {
+          draft.state.characterStates[characterId] = {
+            currentLocationName: '',
+            inventory: [],
+            stats: {},
+            attributes: {},
+            properties: {},
+            knowledge: {},
+            goals: {},
+            secrets: {},
+            discoveredLores: [],
           }
+        }
+        if (!draft.state.characterStates[characterId].stats) {
+          draft.state.characterStates[characterId].stats = {}
+        }
+        
+        // 更新状态值
+        draft.state.characterStates[characterId].stats[statName] = {
+          current: newValue,
+          max: draft.state.characterStates[characterId].stats[statName]?.max || 100,
         }
       })
     },
@@ -145,13 +233,29 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
       }
     ) => {
       void updateWorldState((draft) => {
-        if (draft.state.characterStates[characterId]) {
-          const characterState = draft.state.characterStates[characterId]
-          if (updates.currentLocation !== undefined) {
-            characterState.currentLocationName = updates.currentLocation
-          }
-          // Note: inventoryCount and discoveredLoresCount are computed from arrays
+        // 确保 characterStates 存在
+        if (!draft.state.characterStates) {
+          draft.state.characterStates = {}
         }
+        if (!draft.state.characterStates[characterId]) {
+          draft.state.characterStates[characterId] = {
+            currentLocationName: '',
+            inventory: [],
+            stats: {},
+            attributes: {},
+            properties: {},
+            knowledge: {},
+            goals: {},
+            secrets: {},
+            discoveredLores: [],
+          }
+        }
+        
+        const characterState = draft.state.characterStates[characterId]
+        if (updates.currentLocation !== undefined) {
+          characterState.currentLocationName = updates.currentLocation
+        }
+        // Note: inventoryCount and discoveredLoresCount are computed from arrays
       })
     },
     [updateWorldState]
@@ -167,20 +271,40 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
     }
   ) => {
     void updateWorldState((draft) => {
-      if (draft.state.characterStates[characterId]) {
-        const characterState = draft.state.characterStates[characterId]
-        if (updates.properties) {
-          Object.assign(characterState.properties, updates.properties)
+      // 确保 characterStates 存在
+      if (!draft.state.characterStates) {
+        draft.state.characterStates = {}
+      }
+      if (!draft.state.characterStates[characterId]) {
+        draft.state.characterStates[characterId] = {
+          currentLocationName: '',
+          inventory: [],
+          stats: {},
+          attributes: {},
+          properties: {},
+          knowledge: {},
+          goals: {},
+          secrets: {},
+          discoveredLores: [],
         }
-        if (updates.knowledge) {
-          Object.assign(characterState.knowledge, updates.knowledge)
-        }
-        if (updates.goals) {
-          Object.assign(characterState.goals, updates.goals)
-        }
-        if (updates.secrets) {
-          Object.assign(characterState.secrets, updates.secrets)
-        }
+      }
+      
+      const characterState = draft.state.characterStates[characterId]
+      if (updates.properties) {
+        characterState.properties = characterState.properties || {}
+        Object.assign(characterState.properties, updates.properties)
+      }
+      if (updates.knowledge) {
+        characterState.knowledge = characterState.knowledge || {}
+        Object.assign(characterState.knowledge, updates.knowledge)
+      }
+      if (updates.goals) {
+        characterState.goals = characterState.goals || {}
+        Object.assign(characterState.goals, updates.goals)
+      }
+      if (updates.secrets) {
+        characterState.secrets = characterState.secrets || {}
+        Object.assign(characterState.secrets, updates.secrets)
       }
     })
   }
@@ -188,6 +312,10 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
   const handleItemNameUpdate = useCallback(
     (itemKey: string, newName: string) => {
       void updateWorldState((draft) => {
+        // 确保 items 存在
+        if (!draft.state.items) {
+          draft.state.items = {}
+        }
         if (draft.state.items[itemKey]) {
           draft.state.items[itemKey].name = newName
         }
@@ -199,10 +327,29 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
   const handleAddItemToCharacterInventory = useCallback(
     (characterId: string, item: Item) => {
       void updateWorldState((draft) => {
-        if (draft.state.characterStates[characterId]) {
-          draft.state.characterStates[characterId].inventory.push(item.key)
-          draft.state.items[item.key] = item
+        // 确保 characterStates 和 items 存在
+        if (!draft.state.characterStates) {
+          draft.state.characterStates = {}
         }
+        if (!draft.state.characterStates[characterId]) {
+          draft.state.characterStates[characterId] = {
+            currentLocationName: '',
+            inventory: [],
+            stats: {},
+            attributes: {},
+            properties: {},
+            knowledge: {},
+            goals: {},
+            secrets: {},
+            discoveredLores: [],
+          }
+        }
+        if (!draft.state.items) {
+          draft.state.items = {}
+        }
+        
+        draft.state.characterStates[characterId].inventory.push(item.key)
+        draft.state.items[item.key] = item
       })
     },
     [updateWorldState]
@@ -211,12 +358,28 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
   const handleRemoveItemFromCharacterInventory = useCallback(
     (characterId: string, itemKey: string) => {
       void updateWorldState((draft) => {
-        if (draft.state.characterStates[characterId]) {
-          const inventory = draft.state.characterStates[characterId].inventory
-          const index = inventory.indexOf(itemKey)
-          if (index !== -1) {
-            inventory.splice(index, 1)
+        // 确保 characterStates 存在
+        if (!draft.state.characterStates) {
+          draft.state.characterStates = {}
+        }
+        if (!draft.state.characterStates[characterId]) {
+          draft.state.characterStates[characterId] = {
+            currentLocationName: '',
+            inventory: [],
+            stats: {},
+            attributes: {},
+            properties: {},
+            knowledge: {},
+            goals: {},
+            secrets: {},
+            discoveredLores: [],
           }
+        }
+        
+        const inventory = draft.state.characterStates[characterId].inventory
+        const index = inventory.indexOf(itemKey)
+        if (index !== -1) {
+          inventory.splice(index, 1)
         }
       })
     },
@@ -226,6 +389,10 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
   const handleItemPropertyUpdate = useCallback(
     (itemKey: string, property: string, newValue: string) => {
       void updateWorldState((draft) => {
+        // 确保 items 存在
+        if (!draft.state.items) {
+          draft.state.items = {}
+        }
         if (draft.state.items[itemKey]) {
           if (property === 'name') {
             draft.state.items[itemKey].name = newValue
@@ -254,7 +421,8 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
     )
   }
 
-  if (error) {
+  // 只在出错且没有数据时才显示错误界面
+  if (error && !worldState) {
     return (
       <Box p={4} bg="red.500" color="white" borderRadius="md">
         Failed to load world state data
@@ -262,10 +430,14 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
     )
   }
 
+  // 确保有数据才渲染界面
   if (!worldState) {
     return (
-      <Box p={4} bg="yellow.500" color="white" borderRadius="md">
-        未找到世界状态数据
+      <Box p={4} textAlign="center">
+        <div>加载中...</div>
+        <Text mt={2} color="gray.500">
+          加载世界状态中...
+        </Text>
       </Box>
     )
   }

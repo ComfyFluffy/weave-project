@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { VStack, Button } from '@chakra-ui/react'
 import { CharacterListPanel } from './CharacterListPanel'
 import { CharacterStatusPanel } from './CharacterStatusPanel.tsx'
@@ -70,8 +70,34 @@ export function CharacterPanel({
   handleRemoveItemFromCharacterInventory,
   handleItemPropertyUpdate,
 }: CharacterPanelProps) {
-  const [selectedCharacter, setSelectedCharacter] =
-    useState<SelectedCharacter | null>(null)
+  const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null)
+  
+  // Compute selected character from worldState to ensure it updates when worldState changes
+  const selectedCharacter = useMemo(() => {
+    if (!selectedCharacterId) return null
+    
+    const character = worldState.characters.find(c => c.id === selectedCharacterId)
+    if (!character) return null
+    
+    const characterState = worldState.state.characterStates?.[selectedCharacterId] || {
+      id: selectedCharacterId,
+      currentLocationName: '',
+      inventory: [],
+      stats: {},
+      attributes: {},
+      properties: {},
+      knowledge: {},
+      goals: {},
+      secrets: {},
+      discoveredLores: [],
+    }
+    
+    return {
+      id: selectedCharacterId,
+      character,
+      state: characterState,
+    }
+  }, [selectedCharacterId, worldState])
 
   return (
     <VStack align="stretch" gap={3}>
@@ -80,7 +106,7 @@ export function CharacterPanel({
           <Button
             size="sm"
             colorPalette="gray"
-            onClick={() => setSelectedCharacter(null)}
+            onClick={() => setSelectedCharacterId(null)}
             width="fit-content"
           >
             ← 返回角色列表
@@ -111,30 +137,7 @@ export function CharacterPanel({
           characters={worldState.characters}
           characterStates={worldState.state.characterStates || {}}
           onSelectCharacter={(characterId) => {
-            const character = worldState.characters.find(
-              (c) => c.id === characterId
-            )
-            if (character) {
-              // For NPCs that don't have a detailed state, create a minimal state object
-              const characterState: CharacterState = worldState.state
-                .characterStates?.[characterId] || {
-                id: characterId,
-                currentLocationName: '',
-                inventory: [],
-                stats: {},
-                attributes: {},
-                properties: {},
-                knowledge: {},
-                goals: {},
-                secrets: {},
-                discoveredLores: [],
-              }
-              setSelectedCharacter({
-                id: characterId,
-                character,
-                state: characterState,
-              })
-            }
+            setSelectedCharacterId(characterId)
           }}
         />
       )}
