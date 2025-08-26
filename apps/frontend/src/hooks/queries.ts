@@ -25,6 +25,16 @@ export function useCreateWorld() {
   return tsr.world.createWorld.useMutation()
 }
 
+// Update world mutation
+export function useUpdateWorld() {
+  return tsr.world.updateWorld.useMutation()
+}
+
+// Delete world mutation
+export function useDeleteWorld() {
+  return tsr.world.deleteWorld.useMutation()
+}
+
 // Channels by world query
 export function useChannelsByWorld(worldId: string | null) {
   return tsr.channel.getChannelsByWorldId.useQuery({

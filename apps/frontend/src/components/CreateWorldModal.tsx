@@ -10,10 +10,15 @@ import {
   HStack,
   Box,
   Text,
+  Dialog,
+  Menu,
+  Separator,
 } from '@chakra-ui/react'
 import { Plus, X } from 'lucide-react'
-import { useCreateWorld } from '../hooks/queries'
+import { useCreateWorld, useWorlds } from '../hooks/queries'
 import { useQueryClient } from '@tanstack/react-query'
+import { toaster } from '../components/ui/toaster'
+import { ConfirmDialog } from '../components/ConfirmDialog'
 
 interface CreateWorldModalProps {
   onWorldCreated?: () => void
@@ -29,6 +34,7 @@ export const CreateWorldModal = ({ onWorldCreated }: CreateWorldModalProps) => {
 
   const queryClient = useQueryClient()
   const createWorldMutation = useCreateWorld()
+  const { data: worldsData } = useWorlds()
 
   const handleAddTag = () => {
     if (newTag.trim() && !tags.includes(newTag.trim())) {
@@ -87,18 +93,21 @@ export const CreateWorldModal = ({ onWorldCreated }: CreateWorldModalProps) => {
   }
 
   return (
-    <Popover.Root open={open} onOpenChange={(e) => setOpen(e.open)} size="lg">
-      <Popover.Trigger asChild>
-        <IconButton size="sm" variant="ghost" colorPalette="green">
-          <Plus size={16} />
-        </IconButton>
-      </Popover.Trigger>
+    <>
+      <Popover.Root open={open} onOpenChange={(e) => setOpen(e.open)} size="lg">
+        <Popover.Trigger asChild>
+          <IconButton size="sm" variant="ghost" colorPalette="green">
+            <Plus size={16} />
+          </IconButton>
+        </Popover.Trigger>
 
-      <Portal>
-        <Popover.Positioner>
-          <Popover.Content width="400px">
-            <Popover.Header>创建新世界</Popover.Header>
-            <Popover.Body>
+        <Portal>
+          <Popover.Positioner>
+            <Popover.Content width="400px">
+              <Popover.Header>
+                <Text>创建新世界</Text>
+              </Popover.Header>
+              <Popover.Body>
               <VStack gap={4} align="stretch">
                 <div>
                   <label
@@ -246,5 +255,7 @@ export const CreateWorldModal = ({ onWorldCreated }: CreateWorldModalProps) => {
         </Popover.Positioner>
       </Portal>
     </Popover.Root>
+
+    </>
   )
 }

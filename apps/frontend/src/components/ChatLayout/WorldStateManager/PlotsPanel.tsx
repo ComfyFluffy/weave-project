@@ -86,79 +86,36 @@ export function PlotsPanel({
   return (
     <VStack align="stretch" gap={4}>
       <HStack gap={4}>
-        {onUpdatePlotCounts ? (
-          <>
-            <HStack>
-              <Text fontSize="sm" color="white">
-                活跃:
-              </Text>
-              <EditableNumberInput
-                value={activePlots.length}
-                onChange={(newValue: number) =>
-                  onUpdatePlotCounts({ activeCount: newValue })
-                }
-                min={0}
-              />
-            </HStack>
-            <HStack>
-              <Text fontSize="sm" color="white">
-                已完成:
-              </Text>
-              <EditableNumberInput
-                value={completedPlots.length}
-                onChange={(newValue: number) =>
-                  onUpdatePlotCounts({ completedCount: newValue })
-                }
-                min={0}
-              />
-            </HStack>
-            <HStack>
-              <Text fontSize="sm" color="white">
-                暂停:
-              </Text>
-              <EditableNumberInput
-                value={pausedPlots.length}
-                onChange={(newValue: number) =>
-                  onUpdatePlotCounts({ pausedCount: newValue })
-                }
-                min={0}
-              />
-            </HStack>
-          </>
-        ) : (
-          <>
-            <Box
-              bg="green.500"
-              color="white"
-              px={2}
-              py={1}
-              borderRadius="sm"
-              fontSize="sm"
-            >
-              活跃: {activePlots.length}
-            </Box>
-            <Box
-              bg="blue.500"
-              color="white"
-              px={2}
-              py={1}
-              borderRadius="sm"
-              fontSize="sm"
-            >
-              已完成: {completedPlots.length}
-            </Box>
-            <Box
-              bg="yellow.500"
-              color="white"
-              px={2}
-              py={1}
-              borderRadius="sm"
-              fontSize="sm"
-            >
-              暂停: {pausedPlots.length}
-            </Box>
-          </>
-        )}
+        <Box
+          bg="green.500"
+          color="white"
+          px={2}
+          py={1}
+          borderRadius="sm"
+          fontSize="sm"
+        >
+          活跃: {activePlots.length}
+        </Box>
+        <Box
+          bg="blue.500"
+          color="white"
+          px={2}
+          py={1}
+          borderRadius="sm"
+          fontSize="sm"
+        >
+          已完成: {completedPlots.length}
+        </Box>
+        <Box
+          bg="yellow.500"
+          color="white"
+          px={2}
+          py={1}
+          borderRadius="sm"
+          fontSize="sm"
+        >
+          暂停: {pausedPlots.length}
+        </Box>
       </HStack>
 
       <VStack align="stretch" gap={3}>

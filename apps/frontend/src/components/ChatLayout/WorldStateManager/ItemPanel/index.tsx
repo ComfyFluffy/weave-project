@@ -102,7 +102,7 @@ export function ItemPanel({
           <ItemDetailPanel
             item={
               {
-                key: selectedGroupedItem.templateName,
+                key: selectedGroupedItem.items[0]?.key || selectedGroupedItem.templateName,
                 name: selectedGroupedItem.displayName,
                 description: selectedGroupedItem.description,
                 type: selectedGroupedItem.type,
@@ -113,7 +113,14 @@ export function ItemPanel({
               } as Item
             }
             itemTemplates={worldState.state.itemTemplates || []}
-            onUpdateItemProperty={handleItemPropertyUpdate}
+            onUpdateItemProperty={(itemKey, property, newValue) => {
+              // 更新分组中的所有物品
+              selectedGroupedItem.items.forEach(item => {
+                if (item.key) {
+                  handleItemPropertyUpdate(item.key, property, newValue)
+                }
+              })
+            }}
           />
           <Box>
             <Text fontSize="sm" fontWeight="bold" color="white" mb={2}>

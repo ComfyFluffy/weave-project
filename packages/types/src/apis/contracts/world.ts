@@ -46,6 +46,29 @@ export const worldContract = c.router(
         201: WorldSingleResponseSchema,
       },
     },
+    updateWorld: {
+      method: 'PUT',
+      path: '/:worldId',
+      body: CreateWorldRequestSchema,
+      responses: {
+        200: WorldSingleResponseSchema,
+        404: z.object({
+          message: z.string(),
+        }),
+      },
+    },
+    deleteWorld: {
+      method: 'DELETE',
+      path: '/:worldId',
+      responses: {
+        200: z.object({
+          message: z.string(),
+        }),
+        404: z.object({
+          message: z.string(),
+        }),
+      },
+    },
   },
   {
     pathPrefix: '/worlds',
