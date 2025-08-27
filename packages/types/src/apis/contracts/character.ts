@@ -22,6 +22,15 @@ export type CreateCharacterRequest = z.infer<
 export const CreateCharacterResponseSchema = CharacterResponseSchema
 export type CreateCharacterResponse = z.infer<typeof CharacterResponseSchema>
 
+export const UpdateCharacterRequestSchema = z.object({
+  name: z.string().min(1).max(100).optional(),
+  description: z.string().optional(),
+  avatar: z.string().optional(),
+})
+export type UpdateCharacterRequest = z.infer<
+  typeof UpdateCharacterRequestSchema
+>
+
 export const UpdateWorldStateCharactersRequestSchema = z.object({
   characterIds: z.array(z.string()),
 })
@@ -79,6 +88,14 @@ export const characterContract = c.router(
       path: '/by-id/:id',
       responses: {
         200: c.noBody(),
+      },
+    },
+    updateCharacter: {
+      method: 'PUT',
+      path: '/by-id/:characterId',
+      body: UpdateCharacterRequestSchema,
+      responses: {
+        200: CharacterResponseSchema,
       },
     },
     updateWorldStateCharacters: {

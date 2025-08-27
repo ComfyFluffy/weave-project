@@ -180,3 +180,8 @@ export const useWorldStateCharacters = (worldStateId: string | null) => {
 export function useUpdateWorldStateCharacters() {
   return tsr.character.updateWorldStateCharacters.useMutation()
 }
+
+// Update user profile
+export function useUpdateUser() {
+  return tsr.user.updateUser.useMutation()
+}

@@ -49,5 +49,33 @@ export function createUserRouter() {
         },
       }
     },
+    updateUser: async ({ req, body }) => {
+      const userId = req.auth!.userId
+
+      try {
+        const user = await prisma.user.update({
+          where: { id: userId },
+          data: {
+            ...(body.displayName && { displayName: body.displayName }),
+            ...(body.avatar !== undefined && { avatar: body.avatar }),
+          },
+        })
+
+        return {
+          status: 200,
+          body: {
+            user: mapPublicUser(user),
+          },
+        }
+      } catch (error) {
+        console.error('Error updating user:', error)
+        return {
+          status: 400,
+          body: {
+            message: 'Error updating user',
+          },
+        }
+      }
+    },
   })
 }

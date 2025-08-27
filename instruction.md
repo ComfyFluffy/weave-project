@@ -1,0 +1,4 @@
+- Never run `pnpm dev`. Run `pnpm type-check` as needed.
+- Always check the project structure and docs before making any changes in a new session. Especially, check prisma definition and `packages/types`.
+- Follow kebab-case naming conventions for all new files and directories. For React component files, use PascalCase.
+- Do not repeat folder names in filename. For example, use `service/database.ts` instead of `service/database-service.ts` and `hooks/auth.ts` instead of `hooks/useAuth.ts`.
