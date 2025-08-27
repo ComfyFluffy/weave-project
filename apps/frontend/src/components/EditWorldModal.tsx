@@ -12,7 +12,7 @@ import {
   Text,
   Separator,
 } from '@chakra-ui/react'
-import { Plus, X } from 'lucide-react'
+import { X } from 'lucide-react'
 import { useUpdateWorld, useWorld, useDeleteWorld } from '../hooks/queries'
 import { useQueryClient } from '@tanstack/react-query'
 import { toaster } from './ui/toaster'
@@ -25,7 +25,12 @@ interface EditWorldModalProps {
   onWorldUpdated?: () => void
 }
 
-export const EditWorldModal = ({ open: isModalOpen, onOpenChange, worldId, onWorldUpdated }: EditWorldModalProps) => {
+export const EditWorldModal = ({
+  open: isModalOpen,
+  onOpenChange,
+  worldId,
+  onWorldUpdated,
+}: EditWorldModalProps) => {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [rules, setRules] = useState('')
@@ -37,7 +42,6 @@ export const EditWorldModal = ({ open: isModalOpen, onOpenChange, worldId, onWor
   const updateWorldMutation = useUpdateWorld()
   const deleteWorldMutation = useDeleteWorld()
   const { data: worldData } = useWorld(worldId)
-
 
   const handleAddTag = () => {
     if (newTag.trim() && !tags.includes(newTag.trim())) {

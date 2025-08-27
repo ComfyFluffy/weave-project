@@ -2,9 +2,14 @@ import { worldStateContract } from '@weave/types/apis'
 import { initServer } from '@ts-rest/express'
 import { mapWorldState, mapCharacter } from '../utils/mapper'
 import { prisma } from '../services/database'
+import { Character, WorldState } from '../generated/prisma'
 
 // Helper function to map world state with characters
-const mapWorldStateWithCharacters = (worldState: any) => {
+const mapWorldStateWithCharacters = (
+  worldState: WorldState & {
+    characters: Character[]
+  }
+) => {
   const mappedWorldState = mapWorldState(worldState)
   mappedWorldState.characters = worldState.characters.map(mapCharacter)
   return mappedWorldState

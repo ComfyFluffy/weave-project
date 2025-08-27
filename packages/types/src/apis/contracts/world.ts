@@ -1,6 +1,6 @@
 import { initContract } from '@ts-rest/core'
 import z from 'zod'
-import { ChannelSchema, WorldSchema } from '../..'
+import { WorldSchema } from '../..'
 import { commonResponses } from '../common'
 const c = initContract()
 
