@@ -3,6 +3,7 @@ import { characterContract } from '@weave/types/apis'
 import { prisma } from '../services/database'
 import { mapCharacter } from '../utils/mapper'
 import { defaultCharacterState } from '../utils/misc'
+import { WorldState } from '@weave/types'
 
 export function createCharacterRouter() {
   const s = initServer()
@@ -151,12 +152,7 @@ export function createCharacterRouter() {
         })
 
         // Get the current world state JSON data
-        const currentState = currentWorldState.state as any
-
-        // Initialize characterStates if it doesn't exist
-        if (!currentState.characterStates) {
-          currentState.characterStates = {}
-        }
+        const currentState = currentWorldState.state as WorldState['state']
 
         // Create a default character state for each new character
         newCharacters.forEach((character) => {
