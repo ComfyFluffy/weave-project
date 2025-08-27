@@ -205,7 +205,7 @@ export function ChannelSidebar({
 
       {/* Role Selector */}
       <RoleSelector selectedRole={selectedRole} onRoleChange={onRoleChange} />
-      
+
       {/* Edit World Modal */}
       {worldId && (
         <EditWorldModal

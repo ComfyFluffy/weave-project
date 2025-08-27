@@ -21,7 +21,9 @@ const validateWorldOwnership = async (worldId: string, userId: string) => {
   if (world.hostId !== userId) {
     return {
       status: 403 as const,
-      body: { message: 'You are not authorized to perform this action on this world!' },
+      body: {
+        message: 'You are not authorized to perform this action on this world!',
+      },
     }
   }
 
@@ -128,7 +130,10 @@ export function createWorldRouter() {
     },
     updateWorld: async ({ params: { worldId }, body, req }) => {
       // Validate world ownership
-      const validationError = await validateWorldOwnership(worldId, req.auth!.userId)
+      const validationError = await validateWorldOwnership(
+        worldId,
+        req.auth!.userId
+      )
       if (validationError) return validationError
 
       // Update the world
@@ -153,7 +158,10 @@ export function createWorldRouter() {
     },
     deleteWorld: async ({ params: { worldId }, req }) => {
       // Validate world ownership
-      const validationError = await validateWorldOwnership(worldId, req.auth!.userId)
+      const validationError = await validateWorldOwnership(
+        worldId,
+        req.auth!.userId
+      )
       if (validationError) return validationError
 
       // First, get all channel IDs in this world
@@ -161,9 +169,9 @@ export function createWorldRouter() {
         where: { worldId },
         select: { id: true },
       })
-      
-      const channelIds = channels.map(channel => channel.id)
-      
+
+      const channelIds = channels.map((channel) => channel.id)
+
       // Delete all related data in parallel
       await Promise.all([
         // Delete all messages associated with channels in this world
