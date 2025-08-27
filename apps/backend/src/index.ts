@@ -7,8 +7,14 @@ import cors from 'cors'
 
 // Import services and routes
 import { createWorldRouter } from './routes/worlds'
-import { createWorldStateRouter } from './routes/world-states'
-import { createCharacterRouter } from './routes/characters'
+import {
+  createWorldStateRouter,
+  setSocketIO as setWorldStateSocketIO,
+} from './routes/world-states'
+import {
+  createCharacterRouter,
+  setSocketIO as setCharacterSocketIO,
+} from './routes/characters'
 import { createMessageRouter } from './routes/messages'
 import { createAIRoutes } from './routes/ai'
 import { createExpressEndpoints, initServer } from '@ts-rest/express'
@@ -34,6 +40,10 @@ const io = new Server(server, {
 
 // Apply authentication middleware to all socket connections
 io.use(socketAuthMiddleware)
+
+// Set Socket.IO instance for routers
+setWorldStateSocketIO(io)
+setCharacterSocketIO(io)
 
 // Initialize JWT middleware
 const jwtMiddleware = createJwtMiddleware()

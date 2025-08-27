@@ -30,7 +30,10 @@ interface ChatAreaProps {
   onSelectCharacter?: (character: Character | null) => void
   onCreateCharacter?: (character: { name: string; description: string }) => void
   onOpenCharacterManagement?: () => void
-  onRemoveFromAvailableCharacters?: (characterId: string) => void
+  onRemoveFromAvailableCharacters?: (
+    characterId: string,
+    characterName: string
+  ) => void
 }
 
 export function ChatArea({
@@ -170,7 +173,10 @@ export function ChatArea({
                           e.preventDefault()
                           // Show context menu for removing character from available list
                           if (onRemoveFromAvailableCharacters) {
-                            onRemoveFromAvailableCharacters(character.id)
+                            onRemoveFromAvailableCharacters(
+                              character.id,
+                              character.name
+                            )
                           }
                         }}
                       >

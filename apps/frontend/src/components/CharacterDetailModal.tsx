@@ -8,18 +8,21 @@ import {
   Box,
   Stack,
 } from '@chakra-ui/react'
-import type { Character } from '@weave/types'
+import type { Character, CharacterState } from '@weave/types'
+import { CharacterStateViewer } from './CharacterStateViewer'
 
 interface CharacterDetailModalProps {
   character: Character | null
   isOpen: boolean
   onClose: () => void
+  characterState?: CharacterState
 }
 
 export const CharacterDetailModal = ({
   character,
   isOpen,
   onClose,
+  characterState,
 }: CharacterDetailModalProps) => {
   // Placeholder image URL - in a real app, this would come from the character data
   const getCharacterImage = (character: Character) => {
@@ -70,6 +73,19 @@ export const CharacterDetailModal = ({
                   </Text>
                   <Text color="white">ID: {character.id}</Text>
                 </Stack>
+
+                {/* Character State Viewer */}
+                {characterState && (
+                  <Stack>
+                    <Text fontSize="sm" fontWeight="bold" color="gray.400">
+                      角色状态
+                    </Text>
+                    <CharacterStateViewer
+                      characterState={characterState}
+                      isVisible={true}
+                    />
+                  </Stack>
+                )}
 
                 <VStack gap={2} mt={2}>
                   <Button

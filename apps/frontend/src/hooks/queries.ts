@@ -185,3 +185,8 @@ export function useUpdateWorldStateCharacters() {
 export function useUpdateUser() {
   return tsr.user.updateUser.useMutation()
 }
+
+// Remove character from world state
+export function useRemoveCharacterFromWorldState() {
+  return tsr.character.removeCharacterFromWorldState.useMutation()
+}

@@ -12,11 +12,14 @@ import {
   useChannelMessages,
   useChannelCharacters,
   useCreateCharacter,
+  useRemoveCharacterFromWorldState,
 } from '../../hooks/queries'
 import type { Message, Character } from '@weave/types'
 import { Flex } from '@chakra-ui/react'
 import { useChannelSocket } from '../../hooks/channel-socket'
 import { CharacterManagementModal } from '../CharacterManagementModal'
+import { ConfirmDialog } from '../ConfirmDialog'
+import { toaster } from '../ui/toaster'
 
 export function ChatLayout() {
   const [selectedWorldId, setSelectedWorldId] = useState<string | null>(null)
@@ -29,6 +32,12 @@ export function ChatLayout() {
   )
   const [isCharacterManagementModalOpen, setIsCharacterManagementModalOpen] =
     useState(false)
+  const [isRemoveCharacterConfirmOpen, setIsRemoveCharacterConfirmOpen] =
+    useState(false)
+  const [characterToRemove, setCharacterToRemove] = useState<{
+    id: string
+    name: string
+  } | null>(null)
 
   const { data: worldsData, refetch: refetchWorlds } = useWorlds()
   const { data: currentWorldData } = useWorld(selectedWorldId)
@@ -39,6 +48,8 @@ export function ChatLayout() {
   const { data: channelCharactersData, refetch: refetchChannelCharacters } =
     useChannelCharacters(selectedChannelId)
   const { mutate: createCharacter } = useCreateCharacter()
+  const { mutate: removeCharacterFromWorldState } =
+    useRemoveCharacterFromWorldState()
 
   // Use the channel socket hook
   const { sendMessage } = useChannelSocket({
@@ -107,6 +118,56 @@ export function ChatLayout() {
     setIsCharacterManagementModalOpen(true)
   }
 
+  const handleRemoveFromAvailableCharacters = (
+    characterId: string,
+    characterName: string
+  ) => {
+    setCharacterToRemove({ id: characterId, name: characterName })
+    setIsRemoveCharacterConfirmOpen(true)
+  }
+
+  const confirmRemoveCharacter = () => {
+    if (characterToRemove && worldState) {
+      // If the character being removed is currently selected, deselect it
+      if (selectedCharacter && selectedCharacter.id === characterToRemove.id) {
+        setSelectedCharacter(null)
+      }
+
+      // Call the API to remove the character from the world state
+      removeCharacterFromWorldState(
+        {
+          params: {
+            worldStateId: worldState.id,
+            characterId: characterToRemove.id,
+          },
+        },
+        {
+          onSuccess: () => {
+            // Refresh the channel characters list
+            void refetchChannelCharacters()
+            // Show success message
+            toaster.create({
+              title: '角色已移除',
+              description: `"${characterToRemove.name}" 已从选择角色列表中移除`,
+              type: 'success',
+            })
+          },
+          onError: (error) => {
+            console.error('Failed to remove character from world state:', error)
+            toaster.create({
+              title: '移除失败',
+              description: '无法从选择角色列表中移除该角色',
+              type: 'error',
+            })
+          },
+        }
+      )
+
+      setCharacterToRemove(null)
+      setIsRemoveCharacterConfirmOpen(false)
+    }
+  }
+
   const handleCreateCharacter = (characterData: {
     name: string
     description: string
@@ -169,9 +230,7 @@ export function ChatLayout() {
         onSelectCharacter={handleSelectCharacter}
         onCreateCharacter={handleCreateCharacter}
         onOpenCharacterManagement={handleOpenCharacterModal}
-        onRemoveFromAvailableCharacters={() => {
-          // This functionality is now handled within the CharacterManagementModal
-        }}
+        onRemoveFromAvailableCharacters={handleRemoveFromAvailableCharacters}
       />
 
       {/* AI World Panel - World Data Viewer and AI Chat */}
@@ -193,6 +252,24 @@ export function ChatLayout() {
           onClose={() => setIsCharacterManagementModalOpen(false)}
         />
       )}
+
+      {/* Remove Character Confirm Dialog */}
+      <ConfirmDialog
+        isOpen={isRemoveCharacterConfirmOpen}
+        onClose={() => {
+          setIsRemoveCharacterConfirmOpen(false)
+          setCharacterToRemove(null)
+        }}
+        onConfirm={confirmRemoveCharacter}
+        title="确认移除角色"
+        message={
+          characterToRemove
+            ? `确定要从选择角色列表中移除 "${characterToRemove.name}" 吗？该角色仍保留在角色管理中，可以随时重新添加。`
+            : ''
+        }
+        confirmText="移除"
+        cancelText="取消"
+      />
     </Flex>
   )
 }
