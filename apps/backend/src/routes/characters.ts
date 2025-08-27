@@ -2,6 +2,8 @@ import { initServer } from '@ts-rest/express'
 import { characterContract } from '@weave/types/apis'
 import { prisma } from '../services/database'
 import { mapCharacter } from '../utils/mapper'
+import { defaultCharacterState } from '../utils/misc'
+import { WorldState } from '@weave/types'
 
 export function createCharacterRouter() {
   const s = initServer()
@@ -120,7 +122,7 @@ export function createCharacterRouter() {
     },
     updateWorldStateCharacters: async ({ params, body }) => {
       try {
-        // Get current world state with characters
+        // Get current world state with characters and full state data
         const currentWorldState = await prisma.worldState.findUnique({
           where: { id: params.worldStateId },
           include: { characters: true },
@@ -144,13 +146,31 @@ export function createCharacterRouter() {
         )
         const updatedCharacterIds = [...currentCharacterIds, ...newCharacterIds]
 
+        // Fetch the new characters to get their details
+        const newCharacters = await prisma.character.findMany({
+          where: { id: { in: newCharacterIds } },
+        })
+
+        // Get the current world state JSON data
+        const currentState = currentWorldState.state as WorldState['state']
+
+        // Create a default character state for each new character
+        newCharacters.forEach((character) => {
+          // Only add character state if it doesn't already exist
+          if (!currentState.characterStates[character.id]) {
+            currentState.characterStates[character.id] = defaultCharacterState()
+          }
+        })
+
         // Update the many-to-many relationship between WorldState and Characters
+        // and also update the state JSON with the new character states
         const worldState = await prisma.worldState.update({
           where: { id: params.worldStateId },
           data: {
             characters: {
               set: updatedCharacterIds.map((id) => ({ id })),
             },
+            state: currentState,
           },
           include: {
             characters: true,
