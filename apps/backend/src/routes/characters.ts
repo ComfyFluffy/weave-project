@@ -167,14 +167,14 @@ export function createCharacterRouter() {
         })
 
         const mappedCharacters = worldState.characters.map(mapCharacter)
-        
+
         // Broadcast the character update to all connected clients
         if (io) {
           // Find all channels associated with this world state
           const channels = await prisma.channel.findMany({
             where: { worldStateId: params.worldStateId },
           })
-          
+
           // Emit update event to all channels associated with this world state
           channels.forEach((channel) => {
             io.to(channel.id).emit('characters:updated', {
@@ -183,7 +183,7 @@ export function createCharacterRouter() {
             })
           })
         }
-        
+
         return {
           status: 200,
           body: { characters: mappedCharacters },
@@ -196,69 +196,71 @@ export function createCharacterRouter() {
         }
       }
     },
-   removeCharacterFromWorldState: async ({ params }) => {
-     try {
-       // Get current world state with characters
-       const currentWorldState = await prisma.worldState.findUnique({
-         where: { id: params.worldStateId },
-         include: { characters: true },
-       })
+    removeCharacterFromWorldState: async ({ params }) => {
+      try {
+        // Get current world state with characters
+        const currentWorldState = await prisma.worldState.findUnique({
+          where: { id: params.worldStateId },
+          include: { characters: true },
+        })
 
-       if (!currentWorldState) {
-         return {
-           status: 404,
-           body: { message: 'World state not found' },
-         }
-       }
+        if (!currentWorldState) {
+          return {
+            status: 404,
+            body: { message: 'World state not found' },
+          }
+        }
 
-       // Get current character IDs, excluding the one to remove
-       const currentCharacterIds = currentWorldState.characters.map((c) => c.id)
-       const updatedCharacterIds = currentCharacterIds.filter(
-         (id) => id !== params.characterId
-       )
+        // Get current character IDs, excluding the one to remove
+        const currentCharacterIds = currentWorldState.characters.map(
+          (c) => c.id
+        )
+        const updatedCharacterIds = currentCharacterIds.filter(
+          (id) => id !== params.characterId
+        )
 
-       // Update the many-to-many relationship between WorldState and Characters
-       const worldState = await prisma.worldState.update({
-         where: { id: params.worldStateId },
-         data: {
-           characters: {
-             set: updatedCharacterIds.map((id) => ({ id })),
-           },
-         },
-         include: {
-           characters: true,
-         },
-       })
+        // Update the many-to-many relationship between WorldState and Characters
+        const worldState = await prisma.worldState.update({
+          where: { id: params.worldStateId },
+          data: {
+            characters: {
+              set: updatedCharacterIds.map((id) => ({ id })),
+            },
+          },
+          include: {
+            characters: true,
+          },
+        })
 
-       const mappedCharacters = worldState.characters.map(mapCharacter)
-       
-       // Broadcast the character update to all connected clients
-       if (io) {
-         // Find all channels associated with this world state
-         const channels = await prisma.channel.findMany({
-           where: { worldStateId: params.worldStateId },
-         })
-         
-         // Emit update event to all channels associated with this world state
-         channels.forEach((channel) => {
-           io.to(channel.id).emit('characters:updated', {
-             worldStateId: params.worldStateId,
-             characters: mappedCharacters,
-           })
-         })
-       }
-       
-       return {
-         status: 200,
-         body: { characters: mappedCharacters },
-       }
-     } catch (error) {
-       console.error('Error removing character from world state:', error)
-       return {
-         status: 500,
-         body: { message: 'Failed to remove character from world state' },
-       }
-     }
-   },
+        const mappedCharacters = worldState.characters.map(mapCharacter)
+
+        // Broadcast the character update to all connected clients
+        if (io) {
+          // Find all channels associated with this world state
+          const channels = await prisma.channel.findMany({
+            where: { worldStateId: params.worldStateId },
+          })
+
+          // Emit update event to all channels associated with this world state
+          channels.forEach((channel) => {
+            io.to(channel.id).emit('characters:updated', {
+              worldStateId: params.worldStateId,
+              characters: mappedCharacters,
+            })
+          })
+        }
+
+        return {
+          status: 200,
+          body: { characters: mappedCharacters },
+        }
+      } catch (error) {
+        console.error('Error removing character from world state:', error)
+        return {
+          status: 500,
+          body: { message: 'Failed to remove character from world state' },
+        }
+      }
+    },
   })
 }

@@ -85,19 +85,19 @@ export function CharacterManagementModal({
         // Invalidate queries to trigger a refetch
         // This ensures we have the latest character data from the server
         void queryClient.invalidateQueries({
-          queryKey: ['allCharacters']
+          queryKey: ['allCharacters'],
         })
         void queryClient.invalidateQueries({
-          queryKey: ['myCharacters']
+          queryKey: ['myCharacters'],
         })
         void queryClient.invalidateQueries({
-          queryKey: ['worldStateCharacters', worldStateId]
+          queryKey: ['worldStateCharacters', worldStateId],
         })
-        
+
         // Invalidate all channel character queries to ensure ChatArea updates
         void queryClient.invalidateQueries({
           queryKey: ['channelCharacters'],
-          type: 'active'
+          type: 'active',
         })
       }
     })
@@ -364,7 +364,13 @@ export function CharacterManagementModal({
         character={selectedCharacter}
         isOpen={isCharacterDetailModalOpen}
         onClose={() => setIsCharacterDetailModalOpen(false)}
-        characterState={selectedCharacter ? worldStateData?.body.worldState.state.characterStates?.[selectedCharacter.id] : undefined}
+        characterState={
+          selectedCharacter
+            ? worldStateData?.body.worldState.state.characterStates?.[
+                selectedCharacter.id
+              ]
+            : undefined
+        }
       />
 
       {/* Confirm Dialog */}

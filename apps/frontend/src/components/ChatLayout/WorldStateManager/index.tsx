@@ -40,7 +40,7 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
         // Invalidate the query to trigger a refetch
         // This ensures we have the latest data from the server
         void queryClient.invalidateQueries({
-          queryKey: ['worldState', worldStateId]
+          queryKey: ['worldState', worldStateId],
         })
       }
     })
@@ -51,26 +51,26 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
         // Invalidate the query to trigger a refetch
         // This ensures we have the latest character data from the server
         void queryClient.invalidateQueries({
-          queryKey: ['worldState', worldStateId]
+          queryKey: ['worldState', worldStateId],
         })
-        
+
         // Also invalidate character-related queries
         void queryClient.invalidateQueries({
-          queryKey: ['allCharacters']
+          queryKey: ['allCharacters'],
         })
         void queryClient.invalidateQueries({
-          queryKey: ['myCharacters']
+          queryKey: ['myCharacters'],
         })
         void queryClient.invalidateQueries({
-          queryKey: ['worldStateCharacters', worldStateId]
+          queryKey: ['worldStateCharacters', worldStateId],
         })
-        
+
         // Get all channels that might be using this world state
         // This is a bit of a hack, but we need to invalidate all channel character queries
         // that might be affected by this update
         void queryClient.invalidateQueries({
           queryKey: ['channelCharacters'],
-          type: 'active'
+          type: 'active',
         })
       }
     })
@@ -91,16 +91,11 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
       const currentWorldState = (response as any)?.body?.worldState
       if (!currentWorldState) return
 
-      const updatedWorldState = produce(currentWorldState, updater)
+      const updatedWorldState = produce(worldState, updater)
 
       await queryClient.cancelQueries({
         queryKey: ['worldState', worldStateId],
       })
-
-      // 立即更新本地缓存，确保数据不会变为 null
-      queryClient.setQueryData(['worldState', worldStateId], {
-        body: { worldState: updatedWorldState }
-      } as any)
 
       // 强制触发重新渲染，确保UI立即更新
       queryClient.setQueryData(['worldState', worldStateId], (oldData: any) => {
@@ -123,7 +118,7 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
             console.error('Failed to update world state:', error)
             // 出错时恢复原始数据
             queryClient.setQueryData(['worldState', worldStateId], {
-              body: { worldState: currentWorldState }
+              body: { worldState: currentWorldState },
             })
           },
         }
@@ -156,11 +151,13 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
         if (!draft.state.characterStates[characterId].stats) {
           draft.state.characterStates[characterId].stats = {}
         }
-        
+
         // 更新状态值
         draft.state.characterStates[characterId].stats[statName] = {
           current: newValue,
-          max: draft.state.characterStates[characterId].stats[statName]?.max || 100,
+          max:
+            draft.state.characterStates[characterId].stats[statName]?.max ||
+            100,
         }
       })
     },
@@ -250,7 +247,7 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
             discoveredLores: [],
           }
         }
-        
+
         const characterState = draft.state.characterStates[characterId]
         if (updates.currentLocation !== undefined) {
           characterState.currentLocationName = updates.currentLocation
@@ -288,7 +285,7 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
           discoveredLores: [],
         }
       }
-      
+
       const characterState = draft.state.characterStates[characterId]
       if (updates.properties) {
         characterState.properties = characterState.properties || {}
@@ -347,7 +344,7 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
         if (!draft.state.items) {
           draft.state.items = {}
         }
-        
+
         draft.state.characterStates[characterId].inventory.push(item.key)
         draft.state.items[item.key] = item
       })
@@ -375,7 +372,7 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
             discoveredLores: [],
           }
         }
-        
+
         const inventory = draft.state.characterStates[characterId].inventory
         const index = inventory.indexOf(itemKey)
         if (index !== -1) {

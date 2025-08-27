@@ -8,14 +8,14 @@ import {
   Box,
   Stack,
 } from '@chakra-ui/react'
-import type { Character } from '@weave/types'
+import type { Character, CharacterState } from '@weave/types'
 import { CharacterStateViewer } from './CharacterStateViewer'
 
 interface CharacterDetailModalProps {
   character: Character | null
   isOpen: boolean
   onClose: () => void
-  characterState?: any
+  characterState?: CharacterState
 }
 
 export const CharacterDetailModal = ({

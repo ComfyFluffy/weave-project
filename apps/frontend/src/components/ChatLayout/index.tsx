@@ -48,7 +48,8 @@ export function ChatLayout() {
   const { data: channelCharactersData, refetch: refetchChannelCharacters } =
     useChannelCharacters(selectedChannelId)
   const { mutate: createCharacter } = useCreateCharacter()
-  const { mutate: removeCharacterFromWorldState } = useRemoveCharacterFromWorldState()
+  const { mutate: removeCharacterFromWorldState } =
+    useRemoveCharacterFromWorldState()
 
   // Use the channel socket hook
   const { sendMessage } = useChannelSocket({
@@ -117,7 +118,10 @@ export function ChatLayout() {
     setIsCharacterManagementModalOpen(true)
   }
 
-  const handleRemoveFromAvailableCharacters = (characterId: string, characterName: string) => {
+  const handleRemoveFromAvailableCharacters = (
+    characterId: string,
+    characterName: string
+  ) => {
     setCharacterToRemove({ id: characterId, name: characterName })
     setIsRemoveCharacterConfirmOpen(true)
   }
@@ -128,7 +132,7 @@ export function ChatLayout() {
       if (selectedCharacter && selectedCharacter.id === characterToRemove.id) {
         setSelectedCharacter(null)
       }
-      
+
       // Call the API to remove the character from the world state
       removeCharacterFromWorldState(
         {
@@ -158,7 +162,7 @@ export function ChatLayout() {
           },
         }
       )
-      
+
       setCharacterToRemove(null)
       setIsRemoveCharacterConfirmOpen(false)
     }

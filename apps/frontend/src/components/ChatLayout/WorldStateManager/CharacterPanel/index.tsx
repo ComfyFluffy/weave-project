@@ -2,13 +2,7 @@ import { useState, useMemo } from 'react'
 import { VStack, Button } from '@chakra-ui/react'
 import { CharacterListPanel } from './CharacterListPanel'
 import { CharacterStatusPanel } from './CharacterStatusPanel.tsx'
-import type { Character, CharacterState, Item, WorldState } from '@weave/types'
-
-interface SelectedCharacter {
-  id: string
-  character: Character
-  state: CharacterState
-}
+import type { Character, Item, WorldState } from '@weave/types'
 
 interface CharacterPanelProps {
   worldState: WorldState
@@ -70,16 +64,22 @@ export function CharacterPanel({
   handleRemoveItemFromCharacterInventory,
   handleItemPropertyUpdate,
 }: CharacterPanelProps) {
-  const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null)
-  
+  const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(
+    null
+  )
+
   // Compute selected character from worldState to ensure it updates when worldState changes
   const selectedCharacter = useMemo(() => {
     if (!selectedCharacterId) return null
-    
-    const character = worldState.characters.find(c => c.id === selectedCharacterId)
+
+    const character = worldState.characters.find(
+      (c) => c.id === selectedCharacterId
+    )
     if (!character) return null
-    
-    const characterState = worldState.state.characterStates?.[selectedCharacterId] || {
+
+    const characterState = worldState.state.characterStates?.[
+      selectedCharacterId
+    ] || {
       id: selectedCharacterId,
       currentLocationName: '',
       inventory: [],
@@ -91,7 +91,7 @@ export function CharacterPanel({
       secrets: {},
       discoveredLores: [],
     }
-    
+
     return {
       id: selectedCharacterId,
       character,

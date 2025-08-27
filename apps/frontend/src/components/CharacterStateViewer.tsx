@@ -6,9 +6,9 @@ interface CharacterStateViewerProps {
   isVisible?: boolean
 }
 
-export function CharacterStateViewer({ 
-  characterState, 
-  isVisible = false 
+export function CharacterStateViewer({
+  characterState,
+  isVisible = false,
 }: CharacterStateViewerProps) {
   if (!isVisible || !characterState) {
     return null

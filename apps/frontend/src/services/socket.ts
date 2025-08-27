@@ -6,8 +6,12 @@ import { getStoredToken } from '../utils/auth-storage'
 
 export class SocketService {
   socket: Socket
-  private worldStateUpdateCallbacks: Set<(data: { worldStateId: string; worldState: WorldState }) => void> = new Set()
-  private charactersUpdateCallbacks: Set<(data: { worldStateId: string; characters: Character[] }) => void> = new Set()
+  private worldStateUpdateCallbacks: Set<
+    (data: { worldStateId: string; worldState: WorldState }) => void
+  > = new Set()
+  private charactersUpdateCallbacks: Set<
+    (data: { worldStateId: string; characters: Character[] }) => void
+  > = new Set()
 
   constructor() {
     // Initialize socket with authentication
@@ -68,18 +72,24 @@ export class SocketService {
 
   private setupWorldStateUpdateListeners() {
     // Listen for world state updates
-    this.socket.on('worldState:updated', (data: { worldStateId: string; worldState: WorldState }) => {
-      console.log('World state updated:', data)
-      // Notify all registered callbacks
-      this.worldStateUpdateCallbacks.forEach(callback => callback(data))
-    })
+    this.socket.on(
+      'worldState:updated',
+      (data: { worldStateId: string; worldState: WorldState }) => {
+        console.log('World state updated:', data)
+        // Notify all registered callbacks
+        this.worldStateUpdateCallbacks.forEach((callback) => callback(data))
+      }
+    )
 
     // Listen for character updates
-    this.socket.on('characters:updated', (data: { worldStateId: string; characters: Character[] }) => {
-      console.log('Characters updated:', data)
-      // Notify all registered callbacks
-      this.charactersUpdateCallbacks.forEach(callback => callback(data))
-    })
+    this.socket.on(
+      'characters:updated',
+      (data: { worldStateId: string; characters: Character[] }) => {
+        console.log('Characters updated:', data)
+        // Notify all registered callbacks
+        this.charactersUpdateCallbacks.forEach((callback) => callback(data))
+      }
+    )
   }
 
   sendMessage(message: MessageSendInput) {
@@ -99,9 +109,11 @@ export class SocketService {
   }
 
   // Register callback for world state updates
-  onWorldStateUpdated(callback: (data: { worldStateId: string; worldState: WorldState }) => void) {
+  onWorldStateUpdated(
+    callback: (data: { worldStateId: string; worldState: WorldState }) => void
+  ) {
     this.worldStateUpdateCallbacks.add(callback)
-    
+
     // Return a function to unregister the callback
     return () => {
       this.worldStateUpdateCallbacks.delete(callback)
@@ -109,9 +121,11 @@ export class SocketService {
   }
 
   // Register callback for character updates
-  onCharactersUpdated(callback: (data: { worldStateId: string; characters: Character[] }) => void) {
+  onCharactersUpdated(
+    callback: (data: { worldStateId: string; characters: Character[] }) => void
+  ) {
     this.charactersUpdateCallbacks.add(callback)
-    
+
     // Return a function to unregister the callback
     return () => {
       this.charactersUpdateCallbacks.delete(callback)
