@@ -192,6 +192,86 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
     [updateWorldState]
   )
 
+  const handleAddLocation = useCallback(
+    (newLocation: Location) => {
+      void updateWorldState((draft) => {
+        // Check if location with the same name already exists
+        const existingLocationIndex = draft.state.locations.findIndex(
+          (loc) => loc.name === newLocation.name
+        )
+        if (existingLocationIndex === -1) {
+          draft.state.locations.push(newLocation)
+        }
+      })
+    },
+    [updateWorldState]
+  )
+
+  const handleDeleteLocation = useCallback(
+    (locationName: string) => {
+      void updateWorldState((draft) => {
+        // Remove the location
+        draft.state.locations = draft.state.locations.filter(
+          (loc) => loc.name !== locationName
+        )
+        
+        // Remove any references to this location in connectedLocations
+        draft.state.locations.forEach((location) => {
+          if (location.connectedLocations) {
+            location.connectedLocations = location.connectedLocations.filter(
+              (loc) => loc !== locationName
+            )
+          }
+        })
+        
+        // Update any characters that were in this location
+        Object.values(draft.state.characterStates).forEach((characterState) => {
+          if (characterState.currentLocationName === locationName) {
+            characterState.currentLocationName = ''
+          }
+        })
+      })
+    },
+    [updateWorldState]
+  )
+
+  const handleAddPlot = useCallback(
+    (newPlot: Plot) => {
+      void updateWorldState((draft) => {
+        // Check if plot with the same title already exists
+        const existingPlotIndex = draft.state.plots.findIndex(
+          (plot) => plot.title.toLowerCase() === newPlot.title.toLowerCase()
+        )
+        if (existingPlotIndex === -1) {
+          draft.state.plots.push(newPlot)
+        }
+      })
+    },
+    [updateWorldState]
+  )
+
+  const handleDeletePlot = useCallback(
+    (plotTitle: string) => {
+      void updateWorldState((draft) => {
+        // Remove the plot
+        draft.state.plots = draft.state.plots.filter(
+          (plot) => plot.title !== plotTitle
+        )
+        
+        // Remove any references to this plot in character goals and secrets
+        Object.values(draft.state.characterStates).forEach((characterState) => {
+          if (characterState.goals && characterState.goals[plotTitle]) {
+            delete characterState.goals[plotTitle]
+          }
+          if (characterState.secrets && characterState.secrets[plotTitle]) {
+            delete characterState.secrets[plotTitle]
+          }
+        })
+      })
+    },
+    [updateWorldState]
+  )
+
   const handlePlotUpdate = useCallback(
     (plotTitle: string, updates: Partial<Plot>) => {
       void updateWorldState((draft) => {
@@ -534,6 +614,8 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
                     })
                   }
                 }}
+                onAddLocation={handleAddLocation}
+                onDeleteLocation={handleDeleteLocation}
               />
             </Tabs.Content>
 
@@ -543,6 +625,8 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
                 characterNames={worldState.characters.map((char) => char.name)}
                 onUpdatePlot={handlePlotUpdate}
                 onUpdatePlotCounts={() => {}} // This is computed
+                onAddPlot={handleAddPlot}
+                onDeletePlot={handleDeletePlot}
               />
             </Tabs.Content>
 

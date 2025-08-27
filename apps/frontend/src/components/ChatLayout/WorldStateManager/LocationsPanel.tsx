@@ -26,6 +26,8 @@ interface LocationsPanelProps {
       | 'items',
     value: string[] | string
   ) => void
+  onAddLocation?: (newLocation: Location) => void
+  onDeleteLocation?: (locationName: string) => void
 }
 
 // EditableText component for inline editing
@@ -365,6 +367,8 @@ export function LocationsPanel({
   locations,
   characterNames = [],
   onLocationUpdate,
+  onAddLocation,
+  onDeleteLocation,
 }: LocationsPanelProps) {
   const [editingLocation, setEditingLocation] = useState<string | null>(null)
   const [newConnectedLocation, setNewConnectedLocation] = useState<string>('')
@@ -374,6 +378,9 @@ export function LocationsPanel({
   )
   const [editingFeatures, setEditingFeatures] = useState<string | null>(null)
   const [editingItems, setEditingItems] = useState<string | null>(null)
+  const [newLocationName, setNewLocationName] = useState<string>('')
+  const [newLocationDescription, setNewLocationDescription] = useState<string>('')
+  const [isAddingLocation, setIsAddingLocation] = useState<boolean>(false)
 
   // Extract all unique location names to populate the connection dropdown
   // This includes both existing locations and all referenced connected locations
@@ -460,11 +467,63 @@ export function LocationsPanel({
     setEditingItems(null)
   }
 
-  if (locations.length === 0) {
+  // Handler for adding a new location
+  const handleAddLocation = () => {
+    if (!newLocationName.trim() || !onAddLocation) return
+
+    // Check if location with the same name already exists
+    const existingLocation = locations.find(
+      (loc) => loc.name.toLowerCase() === newLocationName.trim().toLowerCase()
+    )
+    
+    if (existingLocation) {
+      alert('已存在同名地点，请使用其他名称')
+      return
+    }
+
+    const newLocation: Location = {
+      name: newLocationName.trim(),
+      description: newLocationDescription.trim(),
+      connectedLocations: [],
+      notableFeatures: [],
+      currentOccupants: [],
+      hiddenSecrets: [],
+      items: [],
+    }
+
+    onAddLocation(newLocation)
+    setNewLocationName('')
+    setNewLocationDescription('')
+    setIsAddingLocation(false)
+  }
+
+  // Handler for deleting a location
+  const handleDeleteLocation = (locationName: string) => {
+    if (!onDeleteLocation) return
+
+    if (confirm(`确定要删除地点 "${locationName}" 吗？此操作不可撤销。`)) {
+      onDeleteLocation(locationName)
+    }
+  }
+
+  if (locations.length === 0 && !isAddingLocation) {
     return (
-      <Box p={4} textAlign="center">
-        <Text color="gray.500">暂无地点数据</Text>
-      </Box>
+      <VStack align="stretch" gap={3}>
+        <Box p={4} textAlign="center">
+          <Text color="gray.500">暂无地点数据</Text>
+        </Box>
+        {onAddLocation && (
+          <Button
+            size="sm"
+            colorPalette="green"
+            onClick={() => setIsAddingLocation(true)}
+            width="fit-content"
+            mx="auto"
+          >
+            添加新地点
+          </Button>
+        )}
+      </VStack>
     )
   }
 
@@ -479,6 +538,88 @@ export function LocationsPanel({
 
   return (
     <VStack align="stretch" gap={3}>
+      {/* Add New Location Form */}
+      {isAddingLocation && onAddLocation && (
+        <Box
+          border="1px solid"
+          borderColor="gray.600"
+          borderRadius="md"
+          mb={2}
+          bg="gray.700"
+        >
+          <Box
+            bg="gray.600"
+            _hover={{ bg: 'gray.500' }}
+            borderRadius="md"
+            p={3}
+          >
+            <HStack justify="space-between" py={2}>
+              <Text fontWeight="bold" color="white">
+                添加新地点
+              </Text>
+              <HStack gap={2}>
+                <Button
+                  size="sm"
+                  colorPalette="green"
+                  onClick={handleAddLocation}
+                  disabled={!newLocationName.trim()}
+                >
+                  保存
+                </Button>
+                <Button
+                  size="sm"
+                  colorPalette="gray"
+                  onClick={() => {
+                    setIsAddingLocation(false)
+                    setNewLocationName('')
+                    setNewLocationDescription('')
+                  }}
+                >
+                  取消
+                </Button>
+              </HStack>
+            </HStack>
+          </Box>
+
+          <Box bg="gray.800" p={4}>
+            <VStack align="stretch" gap={3}>
+              <VStack align="stretch" gap={1}>
+                <Text fontSize="sm" color="gray.400" fontWeight="bold">
+                  地点名称:
+                </Text>
+                <Input
+                  value={newLocationName}
+                  onChange={(e) => setNewLocationName(e.target.value)}
+                  placeholder="输入地点名称..."
+                  size="sm"
+                  bg="gray.700"
+                  color="white"
+                  borderColor="gray.600"
+                  _focus={{ borderColor: 'blue.400' }}
+                />
+              </VStack>
+
+              <VStack align="stretch" gap={1}>
+                <Text fontSize="sm" color="gray.400" fontWeight="bold">
+                  地点描述:
+                </Text>
+                <Input
+                  value={newLocationDescription}
+                  onChange={(e) => setNewLocationDescription(e.target.value)}
+                  placeholder="输入地点描述..."
+                  size="sm"
+                  bg="gray.700"
+                  color="white"
+                  borderColor="gray.600"
+                  _focus={{ borderColor: 'blue.400' }}
+                />
+              </VStack>
+            </VStack>
+          </Box>
+        </Box>
+      )}
+
+      {/* Existing Locations */}
       {locations.map((location, index) => (
         <Box
           key={index}
@@ -510,6 +651,15 @@ export function LocationsPanel({
                   {location.currentOccupants?.length || 0} 人
                 </Box>
               </HStack>
+              {onDeleteLocation && (
+                <Button
+                  size="xs"
+                  colorPalette="red"
+                  onClick={() => handleDeleteLocation(location.name)}
+                >
+                  删除
+                </Button>
+              )}
             </HStack>
           </Box>
 
@@ -718,6 +868,19 @@ export function LocationsPanel({
           </Box>
         </Box>
       ))}
+
+      {/* Add New Location Button */}
+      {!isAddingLocation && onAddLocation && (
+        <Button
+          size="sm"
+          colorPalette="green"
+          onClick={() => setIsAddingLocation(true)}
+          width="fit-content"
+          mx="auto"
+        >
+          添加新地点
+        </Button>
+      )}
     </VStack>
   )
 }
