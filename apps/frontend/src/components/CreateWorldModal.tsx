@@ -97,7 +97,9 @@ export const CreateWorldModal = ({ onWorldCreated }: CreateWorldModalProps) => {
       <Portal>
         <Popover.Positioner>
           <Popover.Content width="400px">
-            <Popover.Header>创建新世界</Popover.Header>
+            <Popover.Header>
+              <Text>创建新世界</Text>
+            </Popover.Header>
             <Popover.Body>
               <VStack gap={4} align="stretch">
                 <div>

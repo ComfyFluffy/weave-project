@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { VStack, Button, Text, Box, HStack } from '@chakra-ui/react'
 import { ItemDetailPanel } from './ItemDetailPanel'
-import type { Item } from '@weave/types'
+import type { Item, ItemTemplate, WorldState } from '@weave/types'
 
 interface GroupedItem {
   templateName: string
@@ -18,7 +18,7 @@ interface GroupedItem {
 // Helper function to group items by template name
 const groupItemsByTemplate = (
   items: Record<string, Item>,
-  itemTemplates: any[] = []
+  itemTemplates: ItemTemplate[] = []
 ): GroupedItem[] => {
   const grouped: Record<string, GroupedItem> = {}
 
@@ -28,9 +28,7 @@ const groupItemsByTemplate = (
 
     if (!grouped[templateName]) {
       // Find template if exists
-      const template = itemTemplates.find(
-        (t: any) => t.name === item.templateName
-      )
+      const template = itemTemplates.find((t) => t.name === item.templateName)
 
       grouped[templateName] = {
         templateName,
@@ -57,7 +55,7 @@ const groupItemsByTemplate = (
 }
 
 interface ItemPanelProps {
-  worldState: any
+  worldState: WorldState
   handleItemPropertyUpdate: (
     itemKey: string,
     property: string,
@@ -102,7 +100,9 @@ export function ItemPanel({
           <ItemDetailPanel
             item={
               {
-                key: selectedGroupedItem.templateName,
+                key:
+                  selectedGroupedItem.items[0]?.key ||
+                  selectedGroupedItem.templateName,
                 name: selectedGroupedItem.displayName,
                 description: selectedGroupedItem.description,
                 type: selectedGroupedItem.type,
@@ -113,7 +113,14 @@ export function ItemPanel({
               } as Item
             }
             itemTemplates={worldState.state.itemTemplates || []}
-            onUpdateItemProperty={handleItemPropertyUpdate}
+            onUpdateItemProperty={(itemKey, property, newValue) => {
+              // 更新分组中的所有物品
+              selectedGroupedItem.items.forEach((item) => {
+                if (item.key) {
+                  handleItemPropertyUpdate(item.key, property, newValue)
+                }
+              })
+            }}
           />
           <Box>
             <Text fontSize="sm" fontWeight="bold" color="white" mb={2}>

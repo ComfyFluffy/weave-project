@@ -1,6 +1,6 @@
 import { initContract } from '@ts-rest/core'
 import z from 'zod'
-import { ChannelSchema, WorldSchema } from '../..'
+import { WorldSchema } from '../..'
 import { commonResponses } from '../common'
 const c = initContract()
 
@@ -44,6 +44,29 @@ export const worldContract = c.router(
       body: CreateWorldRequestSchema,
       responses: {
         201: WorldSingleResponseSchema,
+      },
+    },
+    updateWorld: {
+      method: 'PUT',
+      path: '/:worldId',
+      body: CreateWorldRequestSchema,
+      responses: {
+        200: WorldSingleResponseSchema,
+        404: z.object({
+          message: z.string(),
+        }),
+      },
+    },
+    deleteWorld: {
+      method: 'DELETE',
+      path: '/:worldId',
+      responses: {
+        200: z.object({
+          message: z.string(),
+        }),
+        404: z.object({
+          message: z.string(),
+        }),
       },
     },
   },

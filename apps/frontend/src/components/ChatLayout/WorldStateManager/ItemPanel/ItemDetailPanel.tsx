@@ -105,27 +105,25 @@ export function ItemDetailPanel({
           </Text>
         )}
 
-        {/* Quantity if applicable */}
-        {item.count && item.count > 1 && (
-          <HStack>
-            <Text fontSize="sm" color="gray.400">
-              数量:
+        {/* Quantity */}
+        <HStack>
+          <Text fontSize="sm" color="gray.400">
+            数量:
+          </Text>
+          {onUpdateItemProperty ? (
+            <EditableNumberInput
+              value={item.count || 1}
+              onChange={(newValue) =>
+                onUpdateItemProperty(item.key, 'count', newValue)
+              }
+              min={1}
+            />
+          ) : (
+            <Text fontSize="sm" color="white">
+              {item.count || 1}
             </Text>
-            {onUpdateItemProperty ? (
-              <EditableNumberInput
-                value={item.count}
-                onChange={(newValue) =>
-                  onUpdateItemProperty(item.key, 'count', newValue)
-                }
-                min={1}
-              />
-            ) : (
-              <Text fontSize="sm" color="white">
-                {item.count}
-              </Text>
-            )}
-          </HStack>
-        )}
+          )}
+        </HStack>
 
         {/* Stats section */}
         {Object.keys(stats).length > 0 && (

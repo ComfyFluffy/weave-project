@@ -224,13 +224,17 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
   )
 
   const handleItemPropertyUpdate = useCallback(
-    (itemKey: string, property: string, newValue: string) => {
+    (itemKey: string, property: string, newValue: any) => {
       void updateWorldState((draft) => {
         if (draft.state.items[itemKey]) {
           if (property === 'name') {
             draft.state.items[itemKey].name = newValue
           } else if (property === 'description') {
             draft.state.items[itemKey].description = newValue
+          } else if (property === 'count') {
+            draft.state.items[itemKey].count = newValue
+          } else if (property === 'stats') {
+            draft.state.items[itemKey].stats = newValue
           } else {
             // Handle other properties
             draft.state.items[itemKey].properties =

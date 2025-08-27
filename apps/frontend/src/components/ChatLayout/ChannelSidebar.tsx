@@ -19,9 +19,11 @@ import {
 } from 'lucide-react'
 import type { Channel } from '@weave/types'
 import { CreateChannelModal } from '../CreateChannelModal'
+import { EditWorldModal } from '../../components/EditWorldModal'
 import { RoleSelector, type UserRole } from '../RoleSelector'
 import { useDeleteChannel } from '../../hooks/queries'
 import { useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 
 interface ChannelSidebarProps {
   worldId?: string
@@ -48,6 +50,7 @@ export function ChannelSidebar({
   onChannelSelect,
   onRoleChange,
 }: ChannelSidebarProps) {
+  const [isEditWorldModalOpen, setIsEditWorldModalOpen] = useState(false)
   const queryClient = useQueryClient()
   const deleteChannelMutation = useDeleteChannel()
 
@@ -93,7 +96,16 @@ export function ChannelSidebar({
           <Text fontWeight="bold" color="white" fontSize="md">
             {worldName}
           </Text>
-          <Settings size={16} color="#9ca3af" />
+          <IconButton
+            size="sm"
+            variant="ghost"
+            color="#9ca3af"
+            _hover={{ color: 'white', bg: 'gray.700' }}
+            onClick={() => setIsEditWorldModalOpen(true)}
+            aria-label="编辑世界"
+          >
+            <Settings size={16} />
+          </IconButton>
         </Flex>
       </Box>
 
@@ -193,6 +205,21 @@ export function ChannelSidebar({
 
       {/* Role Selector */}
       <RoleSelector selectedRole={selectedRole} onRoleChange={onRoleChange} />
+      
+      {/* Edit World Modal */}
+      {worldId && (
+        <EditWorldModal
+          open={isEditWorldModalOpen}
+          onOpenChange={setIsEditWorldModalOpen}
+          worldId={worldId}
+          onWorldUpdated={() => {
+            // Refresh the world data
+            void queryClient.invalidateQueries({
+              queryKey: ['world', worldId],
+            })
+          }}
+        />
+      )}
     </Box>
   )
 }

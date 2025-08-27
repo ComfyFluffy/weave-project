@@ -2,6 +2,18 @@ import { worldStateContract } from '@weave/types/apis'
 import { initServer } from '@ts-rest/express'
 import { mapWorldState, mapCharacter } from '../utils/mapper'
 import { prisma } from '../services/database'
+import { Character, WorldState } from '../generated/prisma'
+
+// Helper function to map world state with characters
+const mapWorldStateWithCharacters = (
+  worldState: WorldState & {
+    characters: Character[]
+  }
+) => {
+  const mappedWorldState = mapWorldState(worldState)
+  mappedWorldState.characters = worldState.characters.map(mapCharacter)
+  return mappedWorldState
+}
 
 export function createWorldStateRouter() {
   const s = initServer()
@@ -19,12 +31,9 @@ export function createWorldStateRouter() {
           body: { message: 'World state not found' },
         }
       }
-      const mappedWorldState = mapWorldState(worldState)
-      // Include characters from the worldState
-      mappedWorldState.characters = worldState.characters.map(mapCharacter)
       return {
         status: 200,
-        body: { worldState: mappedWorldState },
+        body: { worldState: mapWorldStateWithCharacters(worldState) },
       }
     },
     getWorldStateByChannelId: async ({ params }) => {
@@ -44,37 +53,62 @@ export function createWorldStateRouter() {
           body: { message: 'World state or channel not found' },
         }
       }
-      const mappedWorldState = mapWorldState(channel.worldState)
-      // Include characters from the worldState
-      mappedWorldState.characters =
-        channel.worldState.characters.map(mapCharacter)
       return {
         status: 200,
-        body: { worldState: mappedWorldState },
+        body: { worldState: mapWorldStateWithCharacters(channel.worldState) },
       }
     },
     updateWorldState: async ({ params, body }) => {
       const { worldState } = body
 
       // Update the world state in the database
-      const updatedWorldState = await prisma.worldState.update({
+      await prisma.worldState.update({
         where: { id: params.worldStateId },
         data: {
           state: worldState.state,
-          // Note: characters are handled separately since they're a relation
         },
+      })
+
+      // Update characters separately if they're included in the request
+      if (worldState.characters) {
+        for (const character of worldState.characters) {
+          // Check if the character exists
+          const existingCharacter = await prisma.character.findUnique({
+            where: { id: character.id },
+          })
+
+          if (existingCharacter) {
+            // Update the existing character
+            await prisma.character.update({
+              where: { id: character.id },
+              data: {
+                name: character.name,
+                description: character.description,
+                avatar: character.avatar,
+              },
+            })
+          }
+        }
+      }
+
+      // Get the updated world state with characters
+      const finalWorldState = await prisma.worldState.findUnique({
+        where: { id: params.worldStateId },
         include: {
           characters: true,
         },
       })
 
-      const mappedWorldState = mapWorldState(updatedWorldState)
-      // Include characters from the worldState
-      mappedWorldState.characters =
-        updatedWorldState.characters.map(mapCharacter)
+      if (!finalWorldState) {
+        return {
+          status: 404,
+          body: { message: 'World state not found after update' },
+        }
+      }
+
       return {
         status: 200,
-        body: { worldState: mappedWorldState },
+        body: { worldState: mapWorldStateWithCharacters(finalWorldState) },
       }
     },
   })
