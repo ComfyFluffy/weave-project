@@ -47,7 +47,7 @@ export function createAuthRouter() {
         })
         if (existingUser) {
           return {
-            status: 400,
+            status: 409,
             body: {
               message: 'User already exists',
             },
