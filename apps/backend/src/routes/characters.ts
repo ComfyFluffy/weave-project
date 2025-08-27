@@ -112,6 +112,53 @@ export function createCharacterRouter() {
         },
       }
     },
+    updateCharacter: async ({ params, body, req }) => {
+      try {
+        // First check if the character exists and belongs to the user
+        const existingCharacter = await prisma.character.findFirst({
+          where: {
+            id: params.characterId,
+            creatorId: req.auth!.userId,
+          },
+        })
+
+        if (!existingCharacter) {
+          return {
+            status: 404,
+            body: {
+              message: 'Character not found or not authorized',
+            },
+          }
+        }
+
+        // Update the character
+        const character = await prisma.character.update({
+          where: { id: params.characterId },
+          data: {
+            ...(body.name && { name: body.name }),
+            ...(body.description !== undefined && {
+              description: body.description,
+            }),
+            ...(body.avatar !== undefined && { avatar: body.avatar }),
+          },
+        })
+
+        return {
+          status: 200,
+          body: {
+            character: mapCharacter(character),
+          },
+        }
+      } catch (error) {
+        console.error('Error updating character:', error)
+        return {
+          status: 400,
+          body: {
+            message: 'Error updating character',
+          },
+        }
+      }
+    },
     deleteCharacterById: async ({ params, req }) => {
       const result = await prisma.character.deleteMany({
         where: { id: params.id, creatorId: req.auth!.userId },

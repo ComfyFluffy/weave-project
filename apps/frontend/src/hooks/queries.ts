@@ -151,6 +151,11 @@ export function useCreateCharacter() {
   return tsr.character.createCharacter.useMutation()
 }
 
+// Update character
+export function useUpdateCharacter() {
+  return tsr.character.updateCharacter.useMutation()
+}
+
 // Get user's own characters
 export function useMyCharacters() {
   return tsr.character.getMyCharacters.useQuery({

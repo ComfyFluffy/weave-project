@@ -1,5 +1,6 @@
-import { Box, Image, Stack, Text, Button } from '@chakra-ui/react'
+import { Box, Image, Stack, Text, Button, Avatar } from '@chakra-ui/react'
 import type { Character } from '@weave/types'
+import { isEmoji } from '../utils/image'
 
 interface CharacterCardProps {
   character: Character
@@ -8,16 +9,6 @@ interface CharacterCardProps {
   onDelete?: () => void
   onAddToChat?: () => void
   variant?: 'my' | 'all'
-}
-
-// Placeholder image URL - in a real app, this would come from the character data
-const getCharacterImage = (character: Character) => {
-  // Return a placeholder image for now
-  // In the future, this would return character.avatar if available
-  return (
-    'https://placehold.co/200x200/4A5568/FFFFFF?text=' +
-    encodeURIComponent(character.name.charAt(0))
-  )
 }
 
 export const CharacterCard = ({
@@ -40,13 +31,32 @@ export const CharacterCard = ({
     >
       <Stack gap={4} height="100%">
         <Box position="relative" display="flex" justifyContent="center">
-          <Image
-            src={getCharacterImage(character)}
-            alt={character.name}
-            borderRadius="full"
-            boxSize="150px"
-            objectFit="cover"
-          />
+          <Avatar.Root size="2xl">
+            {character.avatar ? (
+              isEmoji(character.avatar) ? (
+                <Avatar.Fallback
+                  name={character.name}
+                  fontSize="4xl"
+                  bg="gray.600"
+                >
+                  {character.avatar}
+                </Avatar.Fallback>
+              ) : (
+                <Image
+                  src={character.avatar}
+                  alt={character.name}
+                  borderRadius="full"
+                  objectFit="cover"
+                  width="full"
+                  height="full"
+                />
+              )
+            ) : (
+              <Avatar.Fallback name={character.name} bg="gray.600">
+                {character.name[0]}
+              </Avatar.Fallback>
+            )}
+          </Avatar.Root>
         </Box>
         <Stack gap={1} alignItems="center" flexGrow={1}>
           <Text fontSize="lg" fontWeight="bold" color="white">

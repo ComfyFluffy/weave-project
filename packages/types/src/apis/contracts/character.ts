@@ -90,6 +90,14 @@ export const characterContract = c.router(
         201: CreateCharacterResponseSchema,
       },
     },
+    updateCharacter: {
+      method: 'PUT',
+      path: '/:characterId',
+      body: UpdateCharacterRequestSchema,
+      responses: {
+        200: CharacterResponseSchema,
+      },
+    },
     deleteCharacterById: {
       method: 'DELETE',
       path: '/by-id/:id',

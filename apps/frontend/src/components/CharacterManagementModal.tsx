@@ -13,7 +13,6 @@ import {
 import { Plus, Search } from 'lucide-react'
 import {
   useAllCharacters,
-  useCreateCharacter,
   useDeleteCharacter,
   useMyCharacters,
   useUpdateWorldStateCharacters,
@@ -66,14 +65,19 @@ export function CharacterManagementModal({
   const [searchTerm, setSearchTerm] = useState<string>('')
   const [error, setError] = useState<string | null>(null)
 
-  const { mutate: createCharacter } = useCreateCharacter()
   const { mutate: deleteCharacter } = useDeleteCharacter()
   const { mutate: updateWorldStateCharacters } = useUpdateWorldStateCharacters()
   const queryClient = useQueryClient()
 
   const isLoading = isLoadingAll || isLoadingMy
-  const allCharacters = allCharactersData?.body.characters || []
-  const myCharacters = myCharactersData?.body.characters || []
+  const allCharacters = useMemo(
+    () => allCharactersData?.body.characters || [],
+    [allCharactersData]
+  )
+  const myCharacters = useMemo(
+    () => myCharactersData?.body.characters || [],
+    [myCharactersData]
+  )
 
   // Set up socket listeners for real-time character updates
   useEffect(() => {
@@ -128,6 +132,10 @@ export function CharacterManagementModal({
           // Refresh the character lists
           void refetchAll()
           void refetchMyCharacters()
+          void queryClient.invalidateQueries({
+            queryKey: ['channelCharacters'],
+            type: 'active',
+          })
           // Show success toast
           toaster.success({
             title: '角色已添加',
@@ -135,7 +143,7 @@ export function CharacterManagementModal({
             duration: 3000,
           })
         },
-        onError: (error: any) => {
+        onError: (error) => {
           console.error('Failed to add character to world state:', error)
           setError('添加角色到世界状态失败')
         },
@@ -318,16 +326,17 @@ export function CharacterManagementModal({
       </Dialog.Root>
 
       {/* Create Character Modal */}
-      <CreateCharacterModal
-        isOpen={isCreateCharacterModalOpen}
-        onClose={() => setIsCreateCharacterModalOpen(false)}
-        onCreateCharacter={(character) => {
-          createCharacter(
-            { body: character },
-            {
-              onSuccess: (data) => {
-                // Close the modal
-                setIsCreateCharacterModalOpen(false)
+      <Dialog.Root
+        open={isCreateCharacterModalOpen}
+        onOpenChange={(e) => !e.open && setIsCreateCharacterModalOpen(false)}
+      >
+        <Portal>
+          <Dialog.Backdrop />
+          <Dialog.Positioner>
+            <CreateCharacterModal
+              open={isCreateCharacterModalOpen}
+              onClose={() => setIsCreateCharacterModalOpen(false)}
+              onCharacterCreated={(character) => {
                 // Clear any previous errors
                 setError(null)
                 // Refresh the character lists
@@ -335,29 +344,16 @@ export function CharacterManagementModal({
                 void refetchMyCharacters()
 
                 // Show success message
-                if (data.body) {
-                  toaster.success({
-                    title: '角色创建成功',
-                    description: `角色 "${data.body.character.name}" 已创建`,
-                    duration: 3000,
-                  })
-                }
-              },
-              onError: (error) => {
-                console.error('Failed to create character:', error)
-                // Close the modal
-                setIsCreateCharacterModalOpen(false)
-                // Set error message for display
-                if (error instanceof Error) {
-                  setError(error.message || '创建角色失败')
-                } else {
-                  setError('创建角色失败')
-                }
-              },
-            }
-          )
-        }}
-      />
+                toaster.success({
+                  title: '角色创建成功',
+                  description: `角色 "${character.name}" 已创建`,
+                  duration: 3000,
+                })
+              }}
+            />
+          </Dialog.Positioner>
+        </Portal>
+      </Dialog.Root>
 
       {/* Character Detail Modal */}
       <CharacterDetailModal

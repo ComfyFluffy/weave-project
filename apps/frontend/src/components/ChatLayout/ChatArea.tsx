@@ -278,9 +278,14 @@ export function ChatArea({
 
       {/* Create Character Modal */}
       <CreateCharacterModal
-        isOpen={isCreateCharacterModalOpen}
+        open={isCreateCharacterModalOpen}
         onClose={() => setIsCreateCharacterModalOpen(false)}
-        onCreateCharacter={onCreateCharacter || (() => {})}
+        onCharacterCreated={(character) => {
+          onCreateCharacter?.({
+            name: character.name,
+            description: character.description,
+          })
+        }}
       />
     </Flex>
   )
