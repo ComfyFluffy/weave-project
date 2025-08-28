@@ -63,7 +63,6 @@ export function CharacterManagementModal({
   )
   const [activeTab, setActiveTab] = useState<string>('my')
   const [searchTerm, setSearchTerm] = useState<string>('')
-  const [error, setError] = useState<string | null>(null)
 
   const { mutate: deleteCharacter } = useDeleteCharacter()
   const { mutate: updateWorldStateCharacters } = useUpdateWorldStateCharacters()
@@ -113,8 +112,6 @@ export function CharacterManagementModal({
   }, [isOpen, worldStateId, queryClient])
 
   const handleCreateCharacter = () => {
-    // Clear any previous errors
-    setError(null)
     // Open create character modal
     setIsCreateCharacterModalOpen(true)
   }
@@ -145,7 +142,11 @@ export function CharacterManagementModal({
         },
         onError: (error) => {
           console.error('Failed to add character to world state:', error)
-          setError('添加角色到世界状态失败')
+          toaster.error({
+            title: '添加角色失败',
+            description: '添加角色到世界状态失败，请重试',
+            duration: 3000,
+          })
         },
       }
     )
@@ -205,19 +206,6 @@ export function CharacterManagementModal({
                   <Text color="white">加载中...</Text>
                 ) : (
                   <>
-                    {/* Error Alert */}
-                    {error && (
-                      <Box
-                        bg="red.500"
-                        color="white"
-                        p={3}
-                        borderRadius="md"
-                        mb={4}
-                      >
-                        {error}
-                      </Box>
-                    )}
-
                     {/* Search Input */}
                     <Flex mb={4} align="center">
                       <Search
@@ -337,8 +325,6 @@ export function CharacterManagementModal({
               open={isCreateCharacterModalOpen}
               onClose={() => setIsCreateCharacterModalOpen(false)}
               onCharacterCreated={(character) => {
-                // Clear any previous errors
-                setError(null)
                 // Refresh the character lists
                 void refetchAll()
                 void refetchMyCharacters()
@@ -396,11 +382,13 @@ export function CharacterManagementModal({
                 },
                 onError: (error) => {
                   console.error('Failed to delete character:', error)
-                  if (error instanceof Error) {
-                    setError(error.message || '删除角色失败')
-                  } else {
-                    setError('删除角色失败')
-                  }
+                  setIsConfirmDialogOpen(false)
+                  setCharacterToDelete(null)
+                  toaster.error({
+                    title: '删除角色失败',
+                    description: error instanceof Error ? error.message : '请重试',
+                    duration: 3000,
+                  })
                 },
               }
             )
