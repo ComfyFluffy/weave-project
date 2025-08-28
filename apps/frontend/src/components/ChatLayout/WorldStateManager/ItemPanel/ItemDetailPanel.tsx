@@ -1,4 +1,5 @@
 import { Box, Text, VStack, HStack, Badge } from '@chakra-ui/react'
+import { useMemo } from 'react'
 import { EditableText } from '../shared-editable-components'
 import { EditableNumberInput } from '../shared-number-slider-components'
 import type { Item, ItemTemplate } from '@weave/types'
@@ -18,21 +19,40 @@ export function ItemDetailPanel({
   itemTemplates = [],
   onUpdateItemProperty,
 }: ItemDetailPanelProps) {
-  // Find the template for this item if it exists
-  const template = item.templateName
-    ? itemTemplates.find((t) => t.name === item.templateName)
-    : null
+  // Find the template for this item if it exists - use useMemo to ensure real-time updates
+  const template = useMemo(() => {
+    return item.templateName
+      ? itemTemplates.find((t) => t.name === item.templateName)
+      : null
+  }, [item.templateName, itemTemplates])
 
-  // Merge template and item properties, with item properties taking precedence
-  const displayName = item.name || template?.name || item.key
-  const description = item.description || template?.description || '暂无描述'
-  const type = item.type || template?.type || 'unknown'
-  const rarity = item.rarity || template?.rarity || 'common'
-  const properties = {
-    ...(template?.properties || {}),
-    ...(item.properties || {}),
-  }
-  const stats = { ...(template?.stats || {}), ...(item.stats || {}) }
+  // Merge template and item properties, with item properties taking precedence - use useMemo
+  const displayName = useMemo(() => {
+    return item.name || template?.name || item.key
+  }, [item.name, template?.name, item.key])
+
+  const description = useMemo(() => {
+    return item.description || template?.description || '暂无描述'
+  }, [item.description, template?.description])
+
+  const type = useMemo(() => {
+    return item.type || template?.type || 'unknown'
+  }, [item.type, template?.type])
+
+  const rarity = useMemo(() => {
+    return item.rarity || template?.rarity || 'common'
+  }, [item.rarity, template?.rarity])
+
+  const properties = useMemo(() => {
+    return {
+      ...(template?.properties || {}),
+      ...(item.properties || {}),
+    }
+  }, [template?.properties, item.properties])
+
+  const stats = useMemo(() => {
+    return { ...(template?.stats || {}), ...(item.stats || {}) }
+  }, [template?.stats, item.stats])
 
   // Rarity color mapping
   const rarityColors: Record<string, string> = {
@@ -140,7 +160,7 @@ export function ItemDetailPanel({
                   </Text>
                   {onUpdateItemProperty ? (
                     <EditableNumberInput
-                      value={value}
+                      value={Number(value)}
                       onChange={(newValue) => {
                         const newStats = { ...stats, [key]: newValue }
                         onUpdateItemProperty(item.key, 'stats', newStats)
@@ -149,7 +169,7 @@ export function ItemDetailPanel({
                     />
                   ) : (
                     <Text fontSize="sm" color="white">
-                      {value}
+                      {Number(value)}
                     </Text>
                   )}
                 </HStack>
@@ -173,7 +193,7 @@ export function ItemDetailPanel({
                   </Text>
                   {onUpdateItemProperty ? (
                     <EditableText
-                      value={value}
+                      value={String(value)}
                       onChange={(newValue) => {
                         const newProperties = { ...properties, [key]: newValue }
                         onUpdateItemProperty(
@@ -186,7 +206,7 @@ export function ItemDetailPanel({
                     />
                   ) : (
                     <Text fontSize="sm" color="white">
-                      {value}
+                      {String(value)}
                     </Text>
                   )}
                 </HStack>

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { VStack, Button, Text, Box, HStack } from '@chakra-ui/react'
 import { ItemDetailPanel } from './ItemDetailPanel'
 import type { Item, ItemTemplate, WorldState } from '@weave/types'
@@ -68,22 +68,36 @@ export function ItemPanel({
   handleItemPropertyUpdate,
 }: ItemPanelProps) {
   const [selectedItemKey, setSelectedItemKey] = useState<string | null>(null)
-  const [selectedGroupedItem, setSelectedGroupedItem] =
-    useState<GroupedItem | null>(null)
+  const [selectedGroupedItemKey, setSelectedGroupedItemKey] = useState<
+    string | null
+  >(null)
 
-  // Handle item selection for detail view
-  const selectedItem =
-    selectedItemKey && worldState.state.items?.[selectedItemKey]
-      ? worldState.state.items[selectedItemKey]
-      : null
+  // Group items by template for the items tab - use useMemo to ensure real-time updates
+  const groupedItems = useMemo(() => {
+    return worldState.state.items
+      ? groupItemsByTemplate(
+          worldState.state.items,
+          worldState.state.itemTemplates
+        )
+      : []
+  }, [worldState.state.items, worldState.state.itemTemplates])
 
-  // Group items by template for the items tab
-  const groupedItems = worldState.state.items
-    ? groupItemsByTemplate(
-        worldState.state.items,
-        worldState.state.itemTemplates
-      )
-    : []
+  // Handle item selection for detail view - use useMemo to ensure real-time updates
+  const selectedItem = useMemo(() => {
+    if (!selectedItemKey) return null
+    return worldState.state.items?.[selectedItemKey] || null
+  }, [selectedItemKey, worldState.state.items])
+
+  // Compute selected grouped item from worldState to ensure it updates when worldState changes
+  const selectedGroupedItem = useMemo(() => {
+    if (!selectedGroupedItemKey) return null
+
+    return (
+      groupedItems.find(
+        (item) => item.templateName === selectedGroupedItemKey
+      ) || null
+    )
+  }, [selectedGroupedItemKey, groupedItems])
 
   return (
     <VStack align="stretch" gap={3}>
@@ -92,7 +106,7 @@ export function ItemPanel({
           <Button
             size="sm"
             colorPalette="gray"
-            onClick={() => setSelectedGroupedItem(null)}
+            onClick={() => setSelectedGroupedItemKey(null)}
             width="fit-content"
           >
             ← 返回物品列表
@@ -175,7 +189,9 @@ export function ItemPanel({
                 borderRadius="md"
                 cursor="pointer"
                 _hover={{ bg: 'gray.600' }}
-                onClick={() => setSelectedGroupedItem(groupedItem)}
+                onClick={() =>
+                  setSelectedGroupedItemKey(groupedItem.templateName)
+                }
               >
                 <HStack justify="space-between">
                   <Text color="white">{groupedItem.displayName}</Text>
