@@ -1,4 +1,14 @@
-import { Box, Text, VStack, HStack, Button, Input, Select, Portal, createListCollection } from '@chakra-ui/react'
+import {
+  Box,
+  Text,
+  VStack,
+  HStack,
+  Button,
+  Input,
+  Select,
+  Portal,
+  createListCollection,
+} from '@chakra-ui/react'
 import type { Plot } from '@weave/types'
 import { EditableText, EditableList } from './shared-editable-components'
 import { Tag } from './shared-select-components'
@@ -67,7 +77,8 @@ const EditableSelect: React.FC<EditableSelectProps> = ({
     items: options,
   })
 
-  const currentValue = options.find(option => option.value === value)?.label || value
+  const currentValue =
+    options.find((option) => option.value === value)?.label || value
 
   if (isCurrentlyEditing && !disabled) {
     return (
@@ -130,18 +141,10 @@ const EditableSelect: React.FC<EditableSelectProps> = ({
           </Portal>
         </Select.Root>
         <HStack mt={2} gap={2}>
-          <Button
-            size="xs"
-            colorPalette="green"
-            onClick={handleSave}
-          >
+          <Button size="xs" colorPalette="green" onClick={handleSave}>
             保存
           </Button>
-          <Button
-            size="xs"
-            colorPalette="gray"
-            onClick={handleCancel}
-          >
+          <Button size="xs" colorPalette="gray" onClick={handleCancel}>
             取消
           </Button>
         </HStack>
@@ -191,7 +194,9 @@ export function PlotsPanel({
   const [newPlotDescription, setNewPlotDescription] = useState<string>('')
   const [isAddingPlot, setIsAddingPlot] = useState<boolean>(false)
   const [editingStatus, setEditingStatus] = useState<string | null>(null)
-  const [editingImportance, setEditingImportance] = useState<string | null>(null)
+  const [editingImportance, setEditingImportance] = useState<string | null>(
+    null
+  )
 
   const handleParticipantChange = (plotTitle: string, item: string | null) => {
     setNewParticipant((prev) => ({
@@ -243,7 +248,7 @@ export function PlotsPanel({
     const existingPlot = plots.find(
       (plot) => plot.title.toLowerCase() === newPlotTitle.trim().toLowerCase()
     )
-    
+
     if (existingPlot) {
       alert('已存在同名剧情，请使用其他名称')
       return
@@ -278,7 +283,9 @@ export function PlotsPanel({
   const handleStatusUpdate = (plotTitle: string, newStatus: string) => {
     if (!onUpdatePlot) return
 
-    onUpdatePlot(plotTitle, { status: newStatus as 'active' | 'completed' | 'paused' })
+    onUpdatePlot(plotTitle, {
+      status: newStatus as 'active' | 'completed' | 'paused',
+    })
     setEditingStatus(null)
   }
 
@@ -286,7 +293,9 @@ export function PlotsPanel({
   const handleImportanceUpdate = (plotTitle: string, newImportance: string) => {
     if (!onUpdatePlot) return
 
-    onUpdatePlot(plotTitle, { importance: newImportance as 'main' | 'side' | 'personal' })
+    onUpdatePlot(plotTitle, {
+      importance: newImportance as 'main' | 'side' | 'personal',
+    })
     setEditingImportance(null)
   }
 

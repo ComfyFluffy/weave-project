@@ -379,7 +379,8 @@ export function LocationsPanel({
   const [editingFeatures, setEditingFeatures] = useState<string | null>(null)
   const [editingItems, setEditingItems] = useState<string | null>(null)
   const [newLocationName, setNewLocationName] = useState<string>('')
-  const [newLocationDescription, setNewLocationDescription] = useState<string>('')
+  const [newLocationDescription, setNewLocationDescription] =
+    useState<string>('')
   const [isAddingLocation, setIsAddingLocation] = useState<boolean>(false)
 
   // Extract all unique location names to populate the connection dropdown
@@ -475,7 +476,7 @@ export function LocationsPanel({
     const existingLocation = locations.find(
       (loc) => loc.name.toLowerCase() === newLocationName.trim().toLowerCase()
     )
-    
+
     if (existingLocation) {
       alert('已存在同名地点，请使用其他名称')
       return

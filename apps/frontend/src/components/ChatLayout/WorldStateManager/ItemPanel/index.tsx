@@ -68,7 +68,9 @@ export function ItemPanel({
   handleItemPropertyUpdate,
 }: ItemPanelProps) {
   const [selectedItemKey, setSelectedItemKey] = useState<string | null>(null)
-  const [selectedGroupedItemKey, setSelectedGroupedItemKey] = useState<string | null>(null)
+  const [selectedGroupedItemKey, setSelectedGroupedItemKey] = useState<
+    string | null
+  >(null)
 
   // Group items by template for the items tab - use useMemo to ensure real-time updates
   const groupedItems = useMemo(() => {
@@ -89,8 +91,12 @@ export function ItemPanel({
   // Compute selected grouped item from worldState to ensure it updates when worldState changes
   const selectedGroupedItem = useMemo(() => {
     if (!selectedGroupedItemKey) return null
-    
-    return groupedItems.find(item => item.templateName === selectedGroupedItemKey) || null
+
+    return (
+      groupedItems.find(
+        (item) => item.templateName === selectedGroupedItemKey
+      ) || null
+    )
   }, [selectedGroupedItemKey, groupedItems])
 
   return (
@@ -183,7 +189,9 @@ export function ItemPanel({
                 borderRadius="md"
                 cursor="pointer"
                 _hover={{ bg: 'gray.600' }}
-                onClick={() => setSelectedGroupedItemKey(groupedItem.templateName)}
+                onClick={() =>
+                  setSelectedGroupedItemKey(groupedItem.templateName)
+                }
               >
                 <HStack justify="space-between">
                   <Text color="white">{groupedItem.displayName}</Text>

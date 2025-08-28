@@ -214,7 +214,7 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
         draft.state.locations = draft.state.locations.filter(
           (loc) => loc.name !== locationName
         )
-        
+
         // Remove any references to this location in connectedLocations
         draft.state.locations.forEach((location) => {
           if (location.connectedLocations) {
@@ -223,7 +223,7 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
             )
           }
         })
-        
+
         // Update any characters that were in this location
         Object.values(draft.state.characterStates).forEach((characterState) => {
           if (characterState.currentLocationName === locationName) {
@@ -257,7 +257,7 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
         draft.state.plots = draft.state.plots.filter(
           (plot) => plot.title !== plotTitle
         )
-        
+
         // Remove any references to this plot in character goals and secrets
         Object.values(draft.state.characterStates).forEach((characterState) => {
           if (characterState.goals && characterState.goals[plotTitle]) {
