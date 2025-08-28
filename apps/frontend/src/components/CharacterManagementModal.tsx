@@ -386,7 +386,8 @@ export function CharacterManagementModal({
                   setCharacterToDelete(null)
                   toaster.error({
                     title: '删除角色失败',
-                    description: error instanceof Error ? error.message : '请重试',
+                    description:
+                      error instanceof Error ? error.message : '请重试',
                     duration: 3000,
                   })
                 },
