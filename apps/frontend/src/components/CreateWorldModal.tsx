@@ -10,10 +10,15 @@ import {
   HStack,
   Box,
   Text,
+  Select,
+  Fieldset,
+  Field,
 } from '@chakra-ui/react'
 import { Plus, X } from 'lucide-react'
 import { useCreateWorld } from '../hooks/queries'
 import { useQueryClient } from '@tanstack/react-query'
+import { createListCollection } from '@chakra-ui/react'
+import { toaster } from './ui/toaster'
 
 interface CreateWorldModalProps {
   onWorldCreated?: () => void
@@ -25,15 +30,45 @@ export const CreateWorldModal = ({ onWorldCreated }: CreateWorldModalProps) => {
   const [description, setDescription] = useState('')
   const [rules, setRules] = useState('')
   const [tags, setTags] = useState<string[]>([])
-  const [newTag, setNewTag] = useState('')
+  const [selectedTag, setSelectedTag] = useState<string>('')
 
   const queryClient = useQueryClient()
   const createWorldMutation = useCreateWorld()
 
+  // 预定义的标签选项
+  const tagOptions = [
+    { label: '奇幻', value: '奇幻' },
+    { label: '科幻', value: '科幻' },
+    { label: '现代', value: '现代' },
+    { label: '历史', value: '历史' },
+    { label: '武侠', value: '武侠' },
+    { label: '仙侠', value: '仙侠' },
+    { label: '玄幻', value: '玄幻' },
+    { label: '都市', value: '都市' },
+    { label: '悬疑', value: '悬疑' },
+    { label: '恐怖', value: '恐怖' },
+    { label: '战争', value: '战争' },
+    { label: '冒险', value: '冒险' },
+  ]
+
+  const tagCollection = createListCollection({
+    items: tagOptions,
+  })
+
   const handleAddTag = () => {
-    if (newTag.trim() && !tags.includes(newTag.trim())) {
-      setTags([...tags, newTag.trim()])
-      setNewTag('')
+    if (selectedTag && !tags.includes(selectedTag)) {
+      if (tags.length < 6) {
+        setTags([...tags, selectedTag])
+        setSelectedTag('')
+      } else {
+        // 显示标签数量达到上限的提示
+        toaster.create({
+          title: '标签数量已达上限',
+          description: '每个世界最多可以添加6个标签',
+          type: 'warning',
+          duration: 3000,
+        })
+      }
     }
   }
 
@@ -41,10 +76,11 @@ export const CreateWorldModal = ({ onWorldCreated }: CreateWorldModalProps) => {
     setTags(tags.filter((tag) => tag !== tagToRemove))
   }
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault()
-      handleAddTag()
+  const handleTagSelectChange = (details: { value: string[] }) => {
+    if (details.value.length > 0) {
+      setSelectedTag(details.value[0])
+    } else {
+      setSelectedTag('')
     }
   }
 
@@ -53,7 +89,7 @@ export const CreateWorldModal = ({ onWorldCreated }: CreateWorldModalProps) => {
     setDescription('')
     setRules('')
     setTags([])
-    setNewTag('')
+    setSelectedTag('')
   }
 
   const handleClose = () => {
@@ -141,66 +177,83 @@ export const CreateWorldModal = ({ onWorldCreated }: CreateWorldModalProps) => {
                   />
                 </div>
 
-                <div>
-                  <label
-                    style={{
-                      fontSize: '14px',
-                      marginBottom: '4px',
-                      display: 'block',
-                    }}
-                  >
-                    标签
-                  </label>
-                  <VStack gap={2} align="stretch">
-                    <HStack>
-                      <Input
-                        value={newTag}
-                        onChange={(e) => setNewTag(e.target.value)}
-                        onKeyPress={handleKeyPress}
-                        placeholder="添加标签 (如: 奇幻, 科幻, 现代)"
+                <Fieldset.Root size="sm">
+                  <Fieldset.Legend>标签（可选）</Fieldset.Legend>
+                  <VStack gap={3} align="stretch">
+                    <Field.Root>
+                      <Select.Root
+                        collection={tagCollection}
+                        onValueChange={handleTagSelectChange}
+                        value={selectedTag ? [selectedTag] : []}
                         size="sm"
-                        flex={1}
-                      />
-                      <Button
-                        onClick={handleAddTag}
-                        size="sm"
-                        variant="outline"
-                        disabled={!newTag.trim()}
                       >
-                        添加
-                      </Button>
-                    </HStack>
+                        <Select.Label>选择标签</Select.Label>
+                        <Select.Control>
+                          <Select.Trigger>
+                            <Select.ValueText placeholder="请选择标签" />
+                          </Select.Trigger>
+                          <Select.IndicatorGroup>
+                            <Select.Indicator />
+                          </Select.IndicatorGroup>
+                        </Select.Control>
+                        <Select.Positioner>
+                          <Select.Content>
+                            {tagOptions.map((option) => (
+                              <Select.Item item={option} key={option.value}>
+                                {option.label}
+                              </Select.Item>
+                            ))}
+                          </Select.Content>
+                        </Select.Positioner>
+                      </Select.Root>
+                    </Field.Root>
+
+                    <Button
+                      onClick={handleAddTag}
+                      size="sm"
+                      variant="outline"
+                      disabled={!selectedTag}
+                      width="full"
+                    >
+                      添加标签
+                    </Button>
+
                     {tags.length > 0 && (
-                      <HStack wrap="wrap">
-                        {tags.map((tag) => (
-                          <Box
-                            key={tag}
-                            display="flex"
-                            alignItems="center"
-                            bg="blue.500"
-                            color="white"
-                            px={2}
-                            py={1}
-                            borderRadius="md"
-                            fontSize="sm"
-                          >
-                            <Text>{tag}</Text>
-                            <IconButton
-                              size="xs"
-                              variant="ghost"
-                              ml={1}
+                      <Box>
+                        <Text fontSize="xs" color="gray.500" mb={1}>
+                          已选标签:
+                        </Text>
+                        <HStack wrap="wrap">
+                          {tags.map((tag) => (
+                            <Box
+                              key={tag}
+                              display="flex"
+                              alignItems="center"
+                              bg="blue.500"
                               color="white"
-                              _hover={{ bg: 'blue.600' }}
-                              onClick={() => handleRemoveTag(tag)}
+                              px={2}
+                              py={1}
+                              borderRadius="md"
+                              fontSize="sm"
                             >
-                              <X size={12} />
-                            </IconButton>
-                          </Box>
-                        ))}
-                      </HStack>
+                              <Text>{tag}</Text>
+                              <IconButton
+                                size="xs"
+                                variant="ghost"
+                                ml={1}
+                                color="white"
+                                _hover={{ bg: 'blue.600' }}
+                                onClick={() => handleRemoveTag(tag)}
+                              >
+                                <X size={12} />
+                              </IconButton>
+                            </Box>
+                          ))}
+                        </HStack>
+                      </Box>
                     )}
                   </VStack>
-                </div>
+                </Fieldset.Root>
 
                 <div>
                   <label

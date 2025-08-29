@@ -25,6 +25,7 @@ export function AuthForm({ mode, onSuccess, onSwitchMode }: AuthFormProps) {
   })
   const [passwordError, setPasswordError] = useState<string>('')
   const [confirmPasswordError, setConfirmPasswordError] = useState<string>('')
+  const [emailError, setEmailError] = useState<string>('')
 
   const loginMutation = useLogin()
   const registerMutation = useRegister()
@@ -41,6 +42,12 @@ export function AuthForm({ mode, onSuccess, onSwitchMode }: AuthFormProps) {
       [name]: value,
     }))
 
+    // 如果是邮箱输入，实时验证
+    if (name === 'email') {
+      const validationError = validateEmail(value)
+      setEmailError(validationError)
+    }
+    
     // 如果是密码输入，实时验证
     if (name === 'password') {
       const validationError = validatePassword(value)
@@ -84,6 +91,21 @@ export function AuthForm({ mode, onSuccess, onSwitchMode }: AuthFormProps) {
     return '' // 验证通过
   }
 
+  // 邮箱验证函数
+  const validateEmail = (email: string): string => {
+    if (!email) {
+      return '' // 空的先不验证
+    }
+    
+    // 简单的邮箱格式验证
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      return '请输入有效的邮箱地址，例如：example@example.com'
+    }
+    
+    return '' // 验证通过
+  }
+
   // 验证确认密码
   const validateConfirmPassword = (password: string, confirmPassword: string): string => {
     if (!confirmPassword) {
@@ -99,6 +121,15 @@ export function AuthForm({ mode, onSuccess, onSwitchMode }: AuthFormProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+
+    // 验证邮箱
+    const emailValidationError = validateEmail(formData.email)
+    if (emailValidationError) {
+      setEmailError(emailValidationError)
+      return
+    } else {
+      setEmailError('')
+    }
 
     // 验证密码
     const validationError = validatePassword(formData.password)
@@ -286,6 +317,16 @@ export function AuthForm({ mode, onSuccess, onSwitchMode }: AuthFormProps) {
                 {...inputStyle}
               />
             </Box>
+            {emailError && (
+              <Text mt={1} color="red.400" fontSize="sm">
+                {emailError}
+              </Text>
+            )}
+            {!emailError && (
+              <Text mt={1} color="gray.400" fontSize="sm">
+                请输入有效的邮箱地址，例如：example@example.com
+              </Text>
+            )}
           </Box>
 
           <Box width="100%">
