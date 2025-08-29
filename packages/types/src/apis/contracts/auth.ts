@@ -6,7 +6,7 @@ const c = initContract()
 export const AuthRegistrationRequestSchema = z.object({
   displayName: z.string().min(1).max(100),
   email: z.string().email(),
-  password: z.string().min(1).max(100),
+  password: z.string().min(6).max(20),
 })
 export type AuthRegistrationRequest = z.infer<
   typeof AuthRegistrationRequestSchema
@@ -14,7 +14,7 @@ export type AuthRegistrationRequest = z.infer<
 
 export const AuthLoginRequestSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(1).max(100),
+  password: z.string().min(6).max(20),
 })
 export type AuthLoginRequest = z.infer<typeof AuthLoginRequestSchema>
 
