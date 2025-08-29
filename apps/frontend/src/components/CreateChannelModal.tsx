@@ -2,29 +2,19 @@ import { useState } from 'react'
 import {
   Button,
   Input,
-  Select,
   Textarea,
   VStack,
   Portal,
   Popover,
-  createListCollection,
   IconButton,
 } from '@chakra-ui/react'
 import { Plus } from 'lucide-react'
-import { useCreateChannel, useChannelsByWorld } from '../hooks/queries'
+import { useCreateChannel } from '../hooks/queries'
 import { useQueryClient } from '@tanstack/react-query'
 
 interface CreateChannelModalProps {
   worldId: string
 }
-
-const channelTypes = createListCollection({
-  items: [
-    { label: '角色扮演 (IC)', value: 'ic' },
-    { label: '脱离角色 (OOC)', value: 'ooc' },
-    { label: '公告 (Announcement)', value: 'announcement' },
-  ],
-})
 
 export const CreateChannelModal = ({ worldId }: CreateChannelModalProps) => {
   const [open, setOpen] = useState(false)
@@ -101,48 +91,6 @@ export const CreateChannelModal = ({ worldId }: CreateChannelModalProps) => {
                     size="sm"
                     autoFocus
                   />
-                </div>
-
-                <div>
-                  <label
-                    style={{
-                      fontSize: '14px',
-                      marginBottom: '4px',
-                      display: 'block',
-                    }}
-                  >
-                    频道类型
-                  </label>
-                  <Select.Root
-                    collection={channelTypes}
-                    value={type}
-                    onValueChange={(e) => setType(e.value)}
-                    size="sm"
-                    positioning={{ sameWidth: true, placement: 'bottom' }}
-                  >
-                    <Select.HiddenSelect />
-                    <Select.Control>
-                      <Select.Trigger>
-                        <Select.ValueText placeholder="选择频道类型" />
-                      </Select.Trigger>
-                      <Select.IndicatorGroup>
-                        <Select.Indicator />
-                      </Select.IndicatorGroup>
-                    </Select.Control>
-                    <Select.Positioner>
-                      <Select.Content width="full">
-                        {channelTypes.items.map((channelType) => (
-                          <Select.Item
-                            item={channelType}
-                            key={channelType.value}
-                          >
-                            {channelType.label}
-                            <Select.ItemIndicator />
-                          </Select.Item>
-                        ))}
-                      </Select.Content>
-                    </Select.Positioner>
-                  </Select.Root>
                 </div>
 
                 <div>

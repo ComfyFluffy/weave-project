@@ -123,9 +123,7 @@ export function ChannelSidebar({
             >
               频道
             </Text>
-            {worldId && selectedRole === 'gm' && (
-              <CreateChannelModal worldId={worldId} />
-            )}
+            {worldId && <CreateChannelModal worldId={worldId} />}
           </Flex>
 
           {/* Channel List */}
