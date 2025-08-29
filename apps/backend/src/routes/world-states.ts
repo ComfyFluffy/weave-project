@@ -13,6 +13,15 @@ export function setSocketIO(socketIOInstance: Server) {
   io = socketIOInstance
 }
 // Helper function to map world state with characters
+const mapWorldStateWithCharacters = (
+  worldState: WorldState & {
+    characters: Character[]
+  }
+) => {
+  const mappedWorldState = mapWorldState(worldState)
+  mappedWorldState.characters = worldState.characters.map(mapCharacter)
+  return mappedWorldState
+}
 
 export function createWorldStateRouter() {
   const s = initServer()
@@ -32,7 +41,7 @@ export function createWorldStateRouter() {
       }
       return {
         status: 200,
-        body: { worldState: mapWorldState(worldState) },
+        body: { worldState: mapWorldStateWithCharacters(worldState) },
       }
     },
     getWorldStateByChannelId: async ({ params }) => {
@@ -54,7 +63,7 @@ export function createWorldStateRouter() {
       }
       return {
         status: 200,
-        body: { worldState: mapWorldState(channel.worldState) },
+        body: { worldState: mapWorldStateWithCharacters(channel.worldState) },
       }
     },
     updateWorldState: async ({ params, body }) => {
@@ -123,7 +132,7 @@ export function createWorldStateRouter() {
 
       return {
         status: 200,
-        body: { worldState: mapWorldState(finalWorldState) },
+        body: { worldState: mapWorldStateWithCharacters(finalWorldState) },
       }
     },
   })

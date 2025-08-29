@@ -70,33 +70,27 @@ export const mapPublicUser = ({
   avatar: avatar ?? undefined,
 })
 
-export const mapCharacter = (
-  { id, name, description, avatar }: PrismaCharacter,
-  { excludeCharacterAvatars }: { excludeCharacterAvatars?: boolean } = {}
-): Character => ({
+export const mapCharacter = ({
   id,
   name,
   description,
-  ...(!excludeCharacterAvatars ? { avatar: avatar ?? undefined } : {}),
+  avatar,
+}: PrismaCharacter): Character => ({
+  id,
+  name,
+  description,
+  avatar: avatar ?? undefined,
 })
 
-export const mapWorldState = (
-  {
-    id,
-    worldId,
-    state,
-    characters,
-  }: PrismaWorldState & {
-    characters?: PrismaCharacter[]
-  },
-  { excludeCharacterAvatars }: { excludeCharacterAvatars?: boolean } = {}
-): WorldState => ({
+export const mapWorldState = ({
+  id,
+  worldId,
+  state,
+}: PrismaWorldState): WorldState => ({
   id,
   worldId,
   state: state as WorldState['state'],
-  characters: characters
-    ? characters.map((c) => mapCharacter(c, { excludeCharacterAvatars }))
-    : [],
+  characters: [], // This would need to be populated from the state or database
 })
 
 export const mapMessage = ({
