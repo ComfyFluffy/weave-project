@@ -120,6 +120,11 @@ model WorldState {
 /// Characters can be player-controlled (PC) or non-player (NPC)
 /// NOTE: This model only stores basic character info. Full character state
 /// (location, inventory, stats) is stored in WorldState.characterStates
+///
+/// Versioning System:
+/// When a character is added to a WorldState, its data becomes fixed as a version.
+/// To update a character that's already in WorldStates, a new character record
+/// is created and the old one is marked as hidden via isHidden field.
 model Character {
   /// Unique identifier for the character
   id          String  @id @default(ulid())
@@ -131,6 +136,12 @@ model Character {
   description String
   /// Optional avatar emoji or image URL
   avatar      String?
+  /// Whether this character version is hidden from user's character list
+  /// Used for versioning - old versions are hidden while keeping WorldState references intact
+  isHidden    Boolean @default(false)
+  /// ID of the original character this is a version of (for versioning)
+  /// Points to the first version of this character concept
+  originalId  String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -138,6 +149,9 @@ model Character {
   // Relationships
   creator     User         @relation(fields: [creatorId], references: [id])
   worldStates WorldState[] @relation("WorldStateCharacters")
+  // Self-referential relationship for versioning
+  original    Character?   @relation("CharacterVersions", fields: [originalId], references: [id])
+  versions    Character[]  @relation("CharacterVersions")
 }
 
 /// Message represents a chat message sent in a channel
