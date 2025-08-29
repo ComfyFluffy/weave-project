@@ -31,10 +31,18 @@ export function createAIRoutes() {
         ? await (async () => {
             const worldStates = await prisma.worldState.findMany({
               where: { worldId },
+              include: {
+                characters: true,
+              },
             })
-            return worldStates[0] ? mapWorldState(worldStates[0]) : null
+            return worldStates[0]
+              ? mapWorldState(worldStates[0], {
+                  excludeCharacterAvatars: true,
+                })
+              : null
           })()
         : null
+      console.log('characters', worldData?.characters)
       const recentMessages = channelId
         ? (
             await prisma.message.findMany({
