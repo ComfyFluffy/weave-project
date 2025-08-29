@@ -14,7 +14,7 @@ const validateWorldOwnership = async (worldId: string, userId: string) => {
   if (!world) {
     return {
       status: 404 as const,
-      body: { message: 'World not found!' },
+      body: { message: '世界不存在' },
     }
   }
 
@@ -22,7 +22,7 @@ const validateWorldOwnership = async (worldId: string, userId: string) => {
     return {
       status: 403 as const,
       body: {
-        message: 'You are not authorized to perform this action on this world!',
+        message: '您没有权限在这个世界上执行此操作',
       },
     }
   }
@@ -64,7 +64,7 @@ export function createWorldRouter() {
         return {
           status: 404,
           body: {
-            message: 'World not found!',
+            message: '世界不存在',
           },
         }
       }
@@ -196,7 +196,7 @@ export function createWorldRouter() {
       return {
         status: 200,
         body: {
-          message: 'World deleted successfully',
+          message: '世界删除成功',
         },
       }
     },

@@ -109,9 +109,10 @@ export const CharacterDetailModal = ({
         onError: (error) => {
           console.error('Failed to delete character:', error)
           setShowDeleteConfirm(false)
+          // 直接显示后端返回的错误信息
           toaster.error({
             title: '角色删除失败',
-            description: '请重试',
+            description: (error as any)?.body?.message,
             duration: 3000,
           })
         },
