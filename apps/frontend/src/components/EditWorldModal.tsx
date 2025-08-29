@@ -145,9 +145,27 @@ export const EditWorldModal = ({
         },
         onError: (error) => {
           console.error('Failed to delete world:', error)
+          // Extract error message from ts-rest error response
+          let errorMessage = '未知错误'
+          if (error && typeof error === 'object' && 'body' in error) {
+            const errorBody = error.body as { message?: string }
+            if (errorBody.message) {
+              errorMessage = errorBody.message
+            }
+          } else if (error instanceof Error) {
+            errorMessage = error.message
+          }
+          
+          // Map specific error messages to more user-friendly ones
+          if (errorMessage.includes('World not found')) {
+            errorMessage = '世界不存在或已被删除'
+          } else if (errorMessage.includes('not authorized')) {
+            errorMessage = '您没有权限删除这个世界'
+          }
+          
           toaster.error({
             title: '删除世界失败',
-            description: error instanceof Error ? error.message : '未知错误',
+            description: errorMessage,
             duration: 3000,
           })
           setIsConfirmDialogOpen(false)

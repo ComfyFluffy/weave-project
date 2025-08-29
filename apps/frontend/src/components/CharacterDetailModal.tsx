@@ -79,9 +79,30 @@ export const CharacterDetailModal = ({
         },
         onError: (error) => {
           console.error('Failed to update character:', error)
+          
+          // Extract error message from ts-rest error response
+          let errorMessage = '请重试'
+          if (error && typeof error === 'object' && 'body' in error) {
+            const errorBody = error.body as { message?: string }
+            if (errorBody.message) {
+              errorMessage = errorBody.message
+            }
+          } else if (error instanceof Error) {
+            errorMessage = error.message
+          }
+          
+          // Map specific error messages to more user-friendly ones
+          if (errorMessage.includes('Character not found')) {
+            errorMessage = '角色不存在或已被删除'
+          } else if (errorMessage.includes('not authorized')) {
+            errorMessage = '您没有权限更新这个角色'
+          } else if (errorMessage.includes('Error updating character')) {
+            errorMessage = '更新角色时发生错误，请检查输入的数据'
+          }
+          
           toaster.error({
             title: '角色更新失败',
-            description: '请重试',
+            description: errorMessage,
             duration: 3000,
           })
         },
@@ -109,9 +130,30 @@ export const CharacterDetailModal = ({
         onError: (error) => {
           console.error('Failed to delete character:', error)
           setShowDeleteConfirm(false)
+          
+          // Extract error message from ts-rest error response
+          let errorMessage = '请重试'
+          if (error && typeof error === 'object' && 'body' in error) {
+            const errorBody = error.body as { message?: string }
+            if (errorBody.message) {
+              errorMessage = errorBody.message
+            }
+          } else if (error instanceof Error) {
+            errorMessage = error.message
+          }
+          
+          // Map specific error messages to more user-friendly ones
+          if (errorMessage.includes('Character not found or not authorized')) {
+            errorMessage = '角色不存在或您没有权限删除此角色'
+          } else if (errorMessage.includes('Character not found')) {
+            errorMessage = '角色不存在或已被删除'
+          } else if (errorMessage.includes('not authorized')) {
+            errorMessage = '您没有权限删除这个角色'
+          }
+          
           toaster.error({
             title: '角色删除失败',
-            description: '请重试',
+            description: errorMessage,
             duration: 3000,
           })
         },
