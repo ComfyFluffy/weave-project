@@ -77,7 +77,7 @@ export function AIChatSection({
       const errorMessage = error?.message || '发送消息失败，请稍后重试'
       setError(errorMessage)
       hasError = true
-      
+
       // 在错误情况下立即重置处理状态
       setIsProcessing(false)
     } finally {
@@ -167,7 +167,7 @@ export function AIChatSection({
               message={{
                 id: 'error-' + Date.now(),
                 role: 'assistant',
-                content: error
+                content: error,
               }}
               isError={true}
             />
@@ -229,7 +229,11 @@ interface MessageItemProps {
   isError?: boolean
 }
 
-function MessageItem({ message, isLoading, isError = false }: MessageItemProps) {
+function MessageItem({
+  message,
+  isLoading,
+  isError = false,
+}: MessageItemProps) {
   const isUser = message.role === 'user'
 
   return (
@@ -293,4 +297,3 @@ function MessageItem({ message, isLoading, isError = false }: MessageItemProps) 
     </Flex>
   )
 }
-

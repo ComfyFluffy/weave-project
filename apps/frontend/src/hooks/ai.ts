@@ -25,25 +25,28 @@ export const useWorldChat = (
     fetch: async (url, options) => {
       try {
         const response = await fetch(url, options)
-        
+
         // 检查响应状态码
         if (!response.ok) {
           // 尝试解析错误信息
           let errorMessage = ''
           try {
             const errorData = await response.json()
-            errorMessage = errorData.error || errorData.message || `请求失败 (${response.status})`
+            errorMessage =
+              errorData.error ||
+              errorData.message ||
+              `请求失败 (${response.status})`
           } catch (e) {
             // 如果无法解析JSON，使用状态码作为错误信息
             errorMessage = `请求失败 (${response.status} ${response.statusText})`
           }
-          
+
           // 创建新的错误对象，包含服务器返回的错误信息
           const error = new Error(errorMessage)
           error.name = 'AIChatError'
           throw error
         }
-        
+
         return response
       } catch (error) {
         // 如果是网络错误或其他类型的错误，直接抛出
