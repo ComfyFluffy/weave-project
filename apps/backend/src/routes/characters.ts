@@ -40,7 +40,7 @@ export function createCharacterRouter() {
         },
       })
       if (!channel?.worldState?.characters) {
-        return { status: 404, body: { message: 'Not Found' } }
+        return { status: 404, body: { message: '未找到相关数据' } }
       }
       const mappedCharacters = channel.worldState.characters.map(mapCharacter)
       return {
@@ -56,7 +56,7 @@ export function createCharacterRouter() {
         },
       })
       if (!worldState?.characters) {
-        return { status: 404, body: { message: 'World state not found' } }
+        return { status: 404, body: { message: '世界状态不存在' } }
       }
       const mappedCharacters = worldState.characters.map(mapCharacter)
       return {
@@ -73,7 +73,7 @@ export function createCharacterRouter() {
         return {
           status: 404,
           body: {
-            message: 'Character not found',
+            message: '角色不存在',
           },
         }
       }
@@ -131,7 +131,7 @@ export function createCharacterRouter() {
           return {
             status: 404,
             body: {
-              message: 'Character not found or not authorized',
+              message: '角色不存在或您没有权限',
             },
           }
         }
@@ -165,7 +165,7 @@ export function createCharacterRouter() {
         return {
           status: 400,
           body: {
-            message: 'Error updating character',
+            message: '更新角色失败',
           },
         }
       }
@@ -183,7 +183,7 @@ export function createCharacterRouter() {
         return {
           status: 404,
           body: {
-            message: 'Character not found or not authorized',
+            message: '角色不存在或您没有权限',
           },
         }
       }
@@ -208,7 +208,7 @@ export function createCharacterRouter() {
       if (!currentWorldState) {
         return {
           status: 404,
-          body: { message: 'World state not found' },
+          body: { message: '世界状态不存在' },
         }
       }
 
@@ -269,7 +269,7 @@ export function createCharacterRouter() {
       if (!currentWorldState) {
         return {
           status: 404,
-          body: { message: 'World state not found' },
+          body: { message: '世界状态不存在' },
         }
       }
 

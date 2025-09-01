@@ -145,9 +145,10 @@ export const EditWorldModal = ({
         },
         onError: (error) => {
           console.error('Failed to delete world:', error)
+          // 直接显示后端返回的错误信息
           toaster.error({
             title: '删除世界失败',
-            description: error instanceof Error ? error.message : '未知错误',
+            description: (error as any)?.body?.message,
             duration: 3000,
           })
           setIsConfirmDialogOpen(false)

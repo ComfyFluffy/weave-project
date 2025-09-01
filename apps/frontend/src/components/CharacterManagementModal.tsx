@@ -384,10 +384,10 @@ export function CharacterManagementModal({
                   console.error('Failed to delete character:', error)
                   setIsConfirmDialogOpen(false)
                   setCharacterToDelete(null)
+                  // 直接显示后端返回的错误信息
                   toaster.error({
                     title: '删除角色失败',
-                    description:
-                      error instanceof Error ? error.message : '请重试',
+                    description: (error as any)?.body?.message,
                     duration: 3000,
                   })
                 },
