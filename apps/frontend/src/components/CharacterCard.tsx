@@ -18,6 +18,16 @@ export const CharacterCard = ({
   onDelete,
   onAddToChat,
 }: CharacterCardProps) => {
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    onDelete?.()
+  }
+
+  const handleAddToChatClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    onAddToChat?.()
+  }
+
   return (
     <Box
       bg="gray.800"
@@ -75,11 +85,7 @@ export const CharacterCard = ({
                 bgColor="red.500"
                 color="white"
                 _hover={{ bgColor: 'red.600' }}
-                onClick={(e) => {
-                  // Prevent the click event from bubbling up to the parent Box
-                  e.stopPropagation()
-                  onDelete()
-                }}
+                onClick={handleDeleteClick}
               >
                 删除
               </Button>
@@ -91,11 +97,7 @@ export const CharacterCard = ({
                 bgColor="purple.500"
                 color="white"
                 _hover={{ bgColor: 'purple.600' }}
-                onClick={(e) => {
-                  // Prevent the click event from bubbling up to the parent Box
-                  e.stopPropagation()
-                  onAddToChat()
-                }}
+                onClick={handleAddToChatClick}
               >
                 添加
               </Button>

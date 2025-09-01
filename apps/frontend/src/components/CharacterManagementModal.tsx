@@ -18,6 +18,7 @@ import {
   useUpdateWorldStateCharacters,
   useWorldState,
 } from '../hooks/queries'
+import { useCurrentUser } from '../hooks/auth'
 import { CreateCharacterModal } from './CreateCharacterModal'
 import { CharacterDetailModal } from './CharacterDetailModal'
 import { ConfirmDialog } from './ConfirmDialog'
@@ -38,6 +39,7 @@ export function CharacterManagementModal({
   isOpen,
   onClose,
 }: CharacterManagementModalProps) {
+  const { data: currentUserResponse } = useCurrentUser()
   const {
     data: allCharactersData,
     isLoading: isLoadingAll,
@@ -49,6 +51,9 @@ export function CharacterManagementModal({
     refetch: refetchMyCharacters,
   } = useMyCharacters()
   const { data: worldStateData } = useWorldState(worldStateId)
+
+  const currentUser =
+    currentUserResponse?.status === 200 ? currentUserResponse.body.user : null
 
   const [isCreateCharacterModalOpen, setIsCreateCharacterModalOpen] =
     useState(false)
