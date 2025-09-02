@@ -1,8 +1,17 @@
-import { Box, Text, VStack, HStack, Badge } from '@chakra-ui/react'
-import { useMemo } from 'react'
+import {
+  Box,
+  Text,
+  VStack,
+  HStack,
+  Badge,
+  IconButton,
+  Button,
+} from '@chakra-ui/react'
+import { useMemo, useState } from 'react'
 import { EditableText } from '../shared-editable-components'
 import { EditableNumberInput } from '../shared-number-slider-components'
 import type { Item, ItemTemplate } from '@weave/types'
+import { LuTrash2, LuPlus } from 'react-icons/lu'
 
 interface ItemDetailPanelProps {
   item: Item
@@ -12,13 +21,19 @@ interface ItemDetailPanelProps {
     property: string,
     newValue: any
   ) => void
+  onDeleteItem?: (itemKey: string) => void
 }
 
 export function ItemDetailPanel({
   item,
   itemTemplates = [],
   onUpdateItemProperty,
+  onDeleteItem,
 }: ItemDetailPanelProps) {
+  const [newStatName, setNewStatName] = useState('')
+  const [newStatValue, setNewStatValue] = useState('')
+  const [newPropertyName, setNewPropertyName] = useState('')
+  const [newPropertyValue, setNewPropertyValue] = useState('')
   // Find the template for this item if it exists - use useMemo to ensure real-time updates
   const template = useMemo(() => {
     return item.templateName
@@ -107,6 +122,20 @@ export function ItemDetailPanel({
             <Badge colorPalette="teal" variant="solid">
               {typeDisplay[type] || type}
             </Badge>
+            {onDeleteItem && (
+              <IconButton
+                size="sm"
+                aria-label="删除物品"
+                colorPalette="red"
+                onClick={() => {
+                  if (confirm(`确定要删除物品 "${displayName}" 吗？`)) {
+                    onDeleteItem(item.key)
+                  }
+                }}
+              >
+                <LuTrash2 />
+              </IconButton>
+            )}
           </HStack>
         </HStack>
 
@@ -146,74 +175,140 @@ export function ItemDetailPanel({
         </HStack>
 
         {/* Stats section */}
-        {Object.keys(stats).length > 0 && (
-          <>
-            <Box height="1px" bg="gray.600" />
-            <VStack align="stretch" gap={2}>
-              <Text fontSize="sm" fontWeight="bold" color="white">
-                属性数值
-              </Text>
-              {Object.entries(stats).map(([key, value]) => (
-                <HStack key={key} justify="space-between">
-                  <Text fontSize="sm" color="gray.400">
-                    {key}:
+        <>
+          <Box height="1px" bg="gray.600" />
+          <VStack align="stretch" gap={2}>
+            <Text fontSize="sm" fontWeight="bold" color="white">
+              属性数值
+            </Text>
+            {Object.entries(stats).map(([key, value]) => (
+              <HStack key={key} justify="space-between">
+                <Text fontSize="sm" color="gray.400">
+                  {key}:
+                </Text>
+                {onUpdateItemProperty ? (
+                  <EditableNumberInput
+                    value={Number(value)}
+                    onChange={(newValue) => {
+                      const newStats = { ...stats, [key]: newValue }
+                      onUpdateItemProperty(item.key, 'stats', newStats)
+                    }}
+                    min={0}
+                  />
+                ) : (
+                  <Text fontSize="sm" color="white">
+                    {Number(value)}
                   </Text>
-                  {onUpdateItemProperty ? (
-                    <EditableNumberInput
-                      value={Number(value)}
-                      onChange={(newValue) => {
-                        const newStats = { ...stats, [key]: newValue }
-                        onUpdateItemProperty(item.key, 'stats', newStats)
-                      }}
-                      min={0}
-                    />
-                  ) : (
-                    <Text fontSize="sm" color="white">
-                      {Number(value)}
-                    </Text>
-                  )}
+                )}
+              </HStack>
+            ))}
+            {onUpdateItemProperty && (
+              <VStack align="stretch" gap={2} mt={2}>
+                <HStack justify="space-between">
+                  <EditableText
+                    value={newStatName}
+                    onChange={setNewStatName}
+                    placeholder="属性名称..."
+                  />
+                  <EditableNumberInput
+                    value={newStatValue ? Number(newStatValue) : 0}
+                    onChange={(newValue) => setNewStatValue(String(newValue))}
+                    min={0}
+                  />
                 </HStack>
-              ))}
-            </VStack>
-          </>
-        )}
+                <Button
+                  size="xs"
+                  colorPalette="blue"
+                  onClick={() => {
+                    if (newStatName.trim()) {
+                      const newStats = {
+                        ...stats,
+                        [newStatName.trim()]: Number(newStatValue) || 0,
+                      }
+                      onUpdateItemProperty(item.key, 'stats', newStats)
+                      setNewStatName('')
+                      setNewStatValue('')
+                    }
+                  }}
+                >
+                  添加属性数值
+                </Button>
+              </VStack>
+            )}
+          </VStack>
+        </>
 
         {/* Properties section */}
-        {Object.keys(properties).length > 0 && (
-          <>
-            <Box height="1px" bg="gray.600" />
-            <VStack align="stretch" gap={2}>
-              <Text fontSize="sm" fontWeight="bold" color="white">
-                特殊属性
-              </Text>
-              {Object.entries(properties).map(([key, value]) => (
-                <HStack key={key} justify="space-between">
-                  <Text fontSize="sm" color="gray.400">
-                    {key}:
+        <>
+          <Box height="1px" bg="gray.600" />
+          <VStack align="stretch" gap={2}>
+            <Text fontSize="sm" fontWeight="bold" color="white">
+              特殊属性
+            </Text>
+            {Object.entries(properties).map(([key, value]) => (
+              <HStack key={key} justify="space-between">
+                <Text fontSize="sm" color="gray.400">
+                  {key}:
+                </Text>
+                {onUpdateItemProperty ? (
+                  <EditableText
+                    value={String(value)}
+                    onChange={(newValue) => {
+                      const newProperties = { ...properties, [key]: newValue }
+                      onUpdateItemProperty(
+                        item.key,
+                        'properties',
+                        newProperties
+                      )
+                    }}
+                    placeholder="属性值..."
+                  />
+                ) : (
+                  <Text fontSize="sm" color="white">
+                    {String(value)}
                   </Text>
-                  {onUpdateItemProperty ? (
-                    <EditableText
-                      value={String(value)}
-                      onChange={(newValue) => {
-                        const newProperties = { ...properties, [key]: newValue }
-                        onUpdateItemProperty(
-                          item.key,
-                          'properties',
-                          newProperties
-                        )
-                      }}
-                      placeholder="属性值..."
-                    />
-                  ) : (
-                    <Text fontSize="sm" color="white">
-                      {String(value)}
-                    </Text>
-                  )}
+                )}
+              </HStack>
+            ))}
+            {onUpdateItemProperty && (
+              <VStack align="stretch" gap={2} mt={2}>
+                <HStack justify="space-between">
+                  <EditableText
+                    value={newPropertyName}
+                    onChange={setNewPropertyName}
+                    placeholder="属性名称..."
+                  />
+                  <EditableText
+                    value={newPropertyValue}
+                    onChange={setNewPropertyValue}
+                    placeholder="属性值..."
+                  />
                 </HStack>
-              ))}
-            </VStack>
-          </>
-        )}
+                <Button
+                  size="xs"
+                  colorPalette="blue"
+                  onClick={() => {
+                    if (newPropertyName.trim() && newPropertyValue.trim()) {
+                      const newProperties = {
+                        ...properties,
+                        [newPropertyName.trim()]: newPropertyValue.trim(),
+                      }
+                      onUpdateItemProperty(
+                        item.key,
+                        'properties',
+                        newProperties
+                      )
+                      setNewPropertyName('')
+                      setNewPropertyValue('')
+                    }
+                  }}
+                >
+                  添加特殊属性
+                </Button>
+              </VStack>
+            )}
+          </VStack>
+        </>
       </VStack>
     </Box>
   )

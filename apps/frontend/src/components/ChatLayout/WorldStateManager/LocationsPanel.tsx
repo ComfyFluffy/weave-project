@@ -715,7 +715,9 @@ export function LocationsPanel({
 
                     <HStack>
                       <GenericSelect
-                        items={locationNames}
+                        items={locationNames.filter(
+                          (name) => name !== location.name
+                        )}
                         selectedItem={newConnectedLocation || null}
                         onSelectionChange={handleConnectedLocationChange}
                         placeholder="添加新连接地点..."

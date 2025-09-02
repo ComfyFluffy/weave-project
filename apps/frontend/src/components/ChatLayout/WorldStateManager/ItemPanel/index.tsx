@@ -1,7 +1,19 @@
-import { useState, useMemo } from 'react'
-import { VStack, Button, Text, Box, HStack } from '@chakra-ui/react'
+import { useState, useMemo, useCallback } from 'react'
+import {
+  VStack,
+  Button,
+  Text,
+  Box,
+  HStack,
+  IconButton,
+  Input,
+  InputGroup,
+  NativeSelect,
+} from '@chakra-ui/react'
 import { ItemDetailPanel } from './ItemDetailPanel'
+import { InputAndAddItem } from '../shared-crud-components'
 import type { Item, ItemTemplate, WorldState } from '@weave/types'
+import { LuTrash2, LuPlus } from 'react-icons/lu'
 
 interface GroupedItem {
   templateName: string
@@ -61,12 +73,19 @@ interface ItemPanelProps {
     property: string,
     newValue: any
   ) => void
+  handleDeleteItem: (itemKey: string) => void
+  handleAddItem: (item: Item) => void
 }
 
 export function ItemPanel({
   worldState,
   handleItemPropertyUpdate,
+  handleDeleteItem,
+  handleAddItem,
 }: ItemPanelProps) {
+  // 添加物品的状态
+  const [newItemName, setNewItemName] = useState('')
+  const [isAddingItem, setIsAddingItem] = useState(false)
   const [selectedItemKey, setSelectedItemKey] = useState<string | null>(null)
   const [selectedGroupedItemKey, setSelectedGroupedItemKey] = useState<
     string | null
@@ -98,6 +117,33 @@ export function ItemPanel({
       ) || null
     )
   }, [selectedGroupedItemKey, groupedItems])
+
+  // 处理添加物品
+  const handleAddNewItem = useCallback(() => {
+    if (!newItemName.trim()) return
+
+    // 生成唯一键
+    const itemKey = `item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+
+    // 创建新物品
+    const newItem: Item = {
+      key: itemKey,
+      name: newItemName.trim(),
+      description: '新物品描述',
+      type: 'misc',
+      rarity: 'common',
+      count: 1,
+      properties: {},
+      stats: {},
+    }
+
+    // 调用父组件的处理函数
+    handleAddItem(newItem)
+
+    // 重置状态
+    setNewItemName('')
+    setIsAddingItem(false)
+  }, [newItemName, handleAddItem])
 
   return (
     <VStack align="stretch" gap={3}>
@@ -135,6 +181,20 @@ export function ItemPanel({
                 }
               })
             }}
+            onDeleteItem={(itemKey) => {
+              if (
+                confirm(
+                  `确定要删除物品 "${selectedGroupedItem.displayName}" 吗？`
+                )
+              ) {
+                // 删除该组中的所有物品
+                selectedGroupedItem.items.forEach((item) => {
+                  if (item.key) {
+                    handleDeleteItem(item.key)
+                  }
+                })
+              }
+            }}
           />
           <Box>
             <Text fontSize="sm" fontWeight="bold" color="white" mb={2}>
@@ -146,9 +206,29 @@ export function ItemPanel({
                   <Text fontSize="sm" color="white">
                     {item.name || item.templateName || item.key}
                   </Text>
-                  <Text fontSize="sm" color="gray.400">
-                    数量: {item.count || 1}
-                  </Text>
+                  <HStack>
+                    <Text fontSize="sm" color="gray.400">
+                      数量: {item.count || 1}
+                    </Text>
+                    {item.key && (
+                      <IconButton
+                        size="xs"
+                        aria-label="删除物品"
+                        colorPalette="red"
+                        onClick={() => {
+                          if (
+                            confirm(
+                              `确定要删除物品 "${item.name || item.templateName || item.key}" 吗？`
+                            )
+                          ) {
+                            handleDeleteItem(item.key)
+                          }
+                        }}
+                      >
+                        <LuTrash2 />
+                      </IconButton>
+                    )}
+                  </HStack>
                 </HStack>
                 {item.key && (
                   <Text fontSize="xs" color="gray.500">
@@ -173,6 +253,7 @@ export function ItemPanel({
             item={selectedItem}
             itemTemplates={worldState.state.itemTemplates || []}
             onUpdateItemProperty={handleItemPropertyUpdate}
+            onDeleteItem={handleDeleteItem}
           />
         </VStack>
       ) : (
@@ -180,6 +261,46 @@ export function ItemPanel({
           <Text fontSize="lg" fontWeight="bold" color="white">
             物品列表
           </Text>
+
+          {/* 添加物品按钮 */}
+          <HStack>
+            <LuPlus />
+            <Button
+              size="sm"
+              colorPalette="blue"
+              onClick={() => setIsAddingItem(!isAddingItem)}
+            >
+              {isAddingItem ? '取消添加' : '添加物品'}
+            </Button>
+          </HStack>
+
+          {/* 添加物品表单 */}
+          {isAddingItem && (
+            <Box bg="gray.700" p={3} borderRadius="md" mt={2}>
+              <VStack align="stretch" gap={3}>
+                <Input
+                  placeholder="物品名称"
+                  value={newItemName}
+                  onChange={(e) => setNewItemName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleAddNewItem()
+                    }
+                  }}
+                />
+
+                <Button
+                  size="sm"
+                  colorPalette="green"
+                  onClick={handleAddNewItem}
+                  disabled={!newItemName.trim()}
+                >
+                  创建物品
+                </Button>
+              </VStack>
+            </Box>
+          )}
+
           {groupedItems.length > 0 ? (
             groupedItems.map((groupedItem, index) => (
               <Box
@@ -195,9 +316,33 @@ export function ItemPanel({
               >
                 <HStack justify="space-between">
                   <Text color="white">{groupedItem.displayName}</Text>
-                  <Text color="gray.400" fontSize="sm">
-                    {groupedItem.totalCount} 个
-                  </Text>
+                  <HStack>
+                    <Text color="gray.400" fontSize="sm">
+                      {groupedItem.totalCount} 个
+                    </Text>
+                    <IconButton
+                      size="xs"
+                      aria-label="删除物品"
+                      colorPalette="red"
+                      onClick={(e) => {
+                        e.stopPropagation() // 阻止事件冒泡，避免触发选物品
+                        if (
+                          confirm(
+                            `确定要删除物品 "${groupedItem.displayName}" 吗？`
+                          )
+                        ) {
+                          // 删除该组中的所有物品
+                          groupedItem.items.forEach((item) => {
+                            if (item.key) {
+                              handleDeleteItem(item.key)
+                            }
+                          })
+                        }
+                      }}
+                    >
+                      <LuTrash2 />
+                    </IconButton>
+                  </HStack>
                 </HStack>
               </Box>
             ))

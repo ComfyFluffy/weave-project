@@ -8,7 +8,7 @@ import {
   Menu,
   Portal,
 } from '@chakra-ui/react'
-import { Send, Plus, Hash, User } from 'lucide-react'
+import { Send, Plus, Hash, User, X } from 'lucide-react'
 import { useState } from 'react'
 // 导入消息列表组件，该组件负责渲染消息内容，包括Markdown格式的消息
 import { MessageList } from './MessageList'
@@ -157,6 +157,22 @@ export function ChatArea({
                       >
                         <Flex align="center">
                           <Text>游戏主持人</Text>
+                        </Flex>
+                      </Menu.Item>
+                    )}
+
+                    {/* 取消选择角色选项 - 当有角色被选中时显示 */}
+                    {selectedCharacter && (
+                      <Menu.Item
+                        value="cancel-character"
+                        bg="gray.800"
+                        _hover={{ bg: 'gray.700' }}
+                        color="gray.400"
+                        onClick={() => onSelectCharacter?.(null)}
+                      >
+                        <Flex align="center">
+                          <X size={16} />
+                          <Text ml={2}>取消选择角色</Text>
                         </Flex>
                       </Menu.Item>
                     )}
