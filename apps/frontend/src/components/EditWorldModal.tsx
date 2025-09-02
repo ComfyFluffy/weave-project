@@ -259,84 +259,84 @@ export const EditWorldModal = ({
                       }}
                     >
                       标签
-                     </label>
-                     <Fieldset.Root size="sm">
-                       <Fieldset.Legend>标签（可选）</Fieldset.Legend>
-                       <VStack gap={3} align="stretch">
-                         <Field.Root>
-                           <Select.Root
-                             collection={tagCollection}
-                             onValueChange={handleTagSelectChange}
-                             value={selectedTag ? [selectedTag] : []}
-                             size="sm"
-                           >
-                             <Select.Label>选择标签</Select.Label>
-                             <Select.Control>
-                               <Select.Trigger>
-                                 <Select.ValueText placeholder="请选择标签" />
-                               </Select.Trigger>
-                               <Select.IndicatorGroup>
-                                 <Select.Indicator />
-                               </Select.IndicatorGroup>
-                             </Select.Control>
-                             <Select.Positioner>
-                               <Select.Content>
-                                 {tagOptions.map((option) => (
-                                   <Select.Item item={option} key={option.value}>
-                                     {option.label}
-                                   </Select.Item>
-                                 ))}
-                               </Select.Content>
-                             </Select.Positioner>
-                           </Select.Root>
-                         </Field.Root>
+                    </label>
+                    <Fieldset.Root size="sm">
+                      <Fieldset.Legend>标签（可选）</Fieldset.Legend>
+                      <VStack gap={3} align="stretch">
+                        <Field.Root>
+                          <Select.Root
+                            collection={tagCollection}
+                            onValueChange={handleTagSelectChange}
+                            value={selectedTag ? [selectedTag] : []}
+                            size="sm"
+                          >
+                            <Select.Label>选择标签</Select.Label>
+                            <Select.Control>
+                              <Select.Trigger>
+                                <Select.ValueText placeholder="请选择标签" />
+                              </Select.Trigger>
+                              <Select.IndicatorGroup>
+                                <Select.Indicator />
+                              </Select.IndicatorGroup>
+                            </Select.Control>
+                            <Select.Positioner>
+                              <Select.Content>
+                                {tagOptions.map((option) => (
+                                  <Select.Item item={option} key={option.value}>
+                                    {option.label}
+                                  </Select.Item>
+                                ))}
+                              </Select.Content>
+                            </Select.Positioner>
+                          </Select.Root>
+                        </Field.Root>
 
-                         <Button
-                           onClick={handleAddTag}
-                           size="sm"
-                           variant="outline"
-                           disabled={!selectedTag}
-                           width="full"
-                         >
-                           添加标签
-                         </Button>
+                        <Button
+                          onClick={handleAddTag}
+                          size="sm"
+                          variant="outline"
+                          disabled={!selectedTag}
+                          width="full"
+                        >
+                          添加标签
+                        </Button>
 
-                         {tags.length > 0 && (
-                           <Box>
-                             <Text fontSize="xs" color="gray.500" mb={1}>
-                               已选标签:
-                             </Text>
-                             <HStack wrap="wrap">
-                               {tags.map((tag) => (
-                                 <Box
-                                   key={tag}
-                                   display="flex"
-                                   alignItems="center"
-                                   bg="blue.500"
-                                   color="white"
-                                   px={2}
-                                   py={1}
-                                   borderRadius="md"
-                                   fontSize="sm"
-                                 >
-                                   <Text>{tag}</Text>
-                                   <IconButton
-                                     size="xs"
-                                     variant="ghost"
-                                     ml={1}
-                                     color="white"
-                                     _hover={{ bg: 'blue.600' }}
-                                     onClick={() => handleRemoveTag(tag)}
-                                   >
-                                     <X size={12} />
-                                   </IconButton>
-                                 </Box>
-                               ))}
-                             </HStack>
-                           </Box>
-                         )}
-                       </VStack>
-                     </Fieldset.Root>
+                        {tags.length > 0 && (
+                          <Box>
+                            <Text fontSize="xs" color="gray.500" mb={1}>
+                              已选标签:
+                            </Text>
+                            <HStack wrap="wrap">
+                              {tags.map((tag) => (
+                                <Box
+                                  key={tag}
+                                  display="flex"
+                                  alignItems="center"
+                                  bg="blue.500"
+                                  color="white"
+                                  px={2}
+                                  py={1}
+                                  borderRadius="md"
+                                  fontSize="sm"
+                                >
+                                  <Text>{tag}</Text>
+                                  <IconButton
+                                    size="xs"
+                                    variant="ghost"
+                                    ml={1}
+                                    color="white"
+                                    _hover={{ bg: 'blue.600' }}
+                                    onClick={() => handleRemoveTag(tag)}
+                                  >
+                                    <X size={12} />
+                                  </IconButton>
+                                </Box>
+                              ))}
+                            </HStack>
+                          </Box>
+                        )}
+                      </VStack>
+                    </Fieldset.Root>
                   </div>
 
                   <div>

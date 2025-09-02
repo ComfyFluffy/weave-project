@@ -19,7 +19,12 @@ const validatePassword = (password: string): string => {
   const hasSymbols = /[!@#$%^&*()_+\-={};':"\\|,.<>/?]/.test(password)
 
   // 计算包含的字符类型数量
-  const charTypesCount = [hasUpperCase, hasLowerCase, hasNumbers, hasSymbols].filter(Boolean).length
+  const charTypesCount = [
+    hasUpperCase,
+    hasLowerCase,
+    hasNumbers,
+    hasSymbols,
+  ].filter(Boolean).length
 
   // 检查是否至少包含两种字符类型
   if (charTypesCount < 2) {

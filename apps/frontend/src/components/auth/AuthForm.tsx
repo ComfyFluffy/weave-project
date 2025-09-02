@@ -47,22 +47,28 @@ export function AuthForm({ mode, onSuccess, onSwitchMode }: AuthFormProps) {
       const validationError = validateEmail(value)
       setEmailError(validationError)
     }
-    
+
     // 如果是密码输入，实时验证
     if (name === 'password') {
       const validationError = validatePassword(value)
       setPasswordError(validationError)
-      
+
       // 如果确认密码已经输入，同时也验证确认密码
       if (formData.confirmPassword) {
-        const confirmPasswordError = validateConfirmPassword(value, formData.confirmPassword)
+        const confirmPasswordError = validateConfirmPassword(
+          value,
+          formData.confirmPassword
+        )
         setConfirmPasswordError(confirmPasswordError)
       }
     }
-    
+
     // 如果是确认密码输入，验证确认密码
     if (name === 'confirmPassword') {
-      const confirmPasswordError = validateConfirmPassword(formData.password, value)
+      const confirmPasswordError = validateConfirmPassword(
+        formData.password,
+        value
+      )
       setConfirmPasswordError(confirmPasswordError)
     }
   }
@@ -81,7 +87,12 @@ export function AuthForm({ mode, onSuccess, onSwitchMode }: AuthFormProps) {
     const hasSymbols = /[!@#$%^&*()_+\-={};':"\\|,.<>/?]/.test(password)
 
     // 计算包含的字符类型数量
-    const charTypesCount = [hasUpperCase, hasLowerCase, hasNumbers, hasSymbols].filter(Boolean).length
+    const charTypesCount = [
+      hasUpperCase,
+      hasLowerCase,
+      hasNumbers,
+      hasSymbols,
+    ].filter(Boolean).length
 
     // 检查是否至少包含两种字符类型
     if (charTypesCount < 2) {
@@ -96,26 +107,29 @@ export function AuthForm({ mode, onSuccess, onSwitchMode }: AuthFormProps) {
     if (!email) {
       return '' // 空的先不验证
     }
-    
+
     // 简单的邮箱格式验证
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(email)) {
       return '请输入有效的邮箱地址，例如：example@example.com'
     }
-    
+
     return '' // 验证通过
   }
 
   // 验证确认密码
-  const validateConfirmPassword = (password: string, confirmPassword: string): string => {
+  const validateConfirmPassword = (
+    password: string,
+    confirmPassword: string
+  ): string => {
     if (!confirmPassword) {
       return '' // 空的不验证，只在提交时验证必填
     }
-    
+
     if (password !== confirmPassword) {
       return '两次输入的密码不一致'
     }
-    
+
     return '' // 验证通过
   }
 
@@ -147,9 +161,12 @@ export function AuthForm({ mode, onSuccess, onSwitchMode }: AuthFormProps) {
         setConfirmPasswordError('请再次输入密码以确认')
         return
       }
-      
+
       // 验证确认密码是否匹配
-      const confirmPasswordValidationError = validateConfirmPassword(formData.password, formData.confirmPassword || '')
+      const confirmPasswordValidationError = validateConfirmPassword(
+        formData.password,
+        formData.confirmPassword || ''
+      )
       if (confirmPasswordValidationError) {
         setConfirmPasswordError(confirmPasswordValidationError)
         return
@@ -205,18 +222,21 @@ export function AuthForm({ mode, onSuccess, onSwitchMode }: AuthFormProps) {
           },
           onError: (error) => {
             let errorMessage = '注册失败'
-            
+
             // 根据错误类型显示更友好的错误消息
             try {
               // 尝试从错误对象中获取消息
-              const errorMsg = (error as any)?.body?.message ||
-                             (error as any)?.message ||
-                             (error as any)?.toString() ||
-                             '未知错误'
-              
-              if (errorMsg.includes('User already exists') ||
-                  errorMsg.includes('already exists') ||
-                  errorMsg.includes('已被注册')) {
+              const errorMsg =
+                (error as any)?.body?.message ||
+                (error as any)?.message ||
+                (error as any)?.toString() ||
+                '未知错误'
+
+              if (
+                errorMsg.includes('User already exists') ||
+                errorMsg.includes('already exists') ||
+                errorMsg.includes('已被注册')
+              ) {
                 errorMessage = '该邮箱已被注册，请使用其他邮箱或尝试登录'
               } else if (errorMsg.includes('password')) {
                 errorMessage = '密码不符合要求，请检查'
@@ -227,7 +247,7 @@ export function AuthForm({ mode, onSuccess, onSwitchMode }: AuthFormProps) {
               // 如果解析错误失败，使用默认消息
               console.error('Error parsing error message:', e)
             }
-            
+
             toaster.create({
               title: '注册失败',
               description: errorMessage,
