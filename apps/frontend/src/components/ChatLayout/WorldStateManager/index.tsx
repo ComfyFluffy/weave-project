@@ -345,6 +345,9 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
       knowledge?: Record<string, string[]>
       goals?: Record<string, string[]>
       secrets?: Record<string, string[]>
+      deleteKnowledgeCategory?: string
+      deleteGoalsCategory?: string
+      deleteSecretsCategory?: string
     }
   ) => {
     void updateWorldState((draft) => {
@@ -382,6 +385,32 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
       if (updates.secrets) {
         characterState.secrets = characterState.secrets || {}
         Object.assign(characterState.secrets, updates.secrets)
+      }
+
+      // 处理类别删除
+      if (updates.deleteKnowledgeCategory) {
+        if (
+          characterState.knowledge &&
+          characterState.knowledge[updates.deleteKnowledgeCategory]
+        ) {
+          delete characterState.knowledge[updates.deleteKnowledgeCategory]
+        }
+      }
+      if (updates.deleteGoalsCategory) {
+        if (
+          characterState.goals &&
+          characterState.goals[updates.deleteGoalsCategory]
+        ) {
+          delete characterState.goals[updates.deleteGoalsCategory]
+        }
+      }
+      if (updates.deleteSecretsCategory) {
+        if (
+          characterState.secrets &&
+          characterState.secrets[updates.deleteSecretsCategory]
+        ) {
+          delete characterState.secrets[updates.deleteSecretsCategory]
+        }
       }
     })
   }
@@ -479,12 +508,72 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
             draft.state.items[itemKey].count = newValue
           } else if (property === 'stats') {
             draft.state.items[itemKey].stats = newValue
+          } else if (property === 'properties') {
+            draft.state.items[itemKey].properties = newValue
           } else {
             // Handle other properties
             draft.state.items[itemKey].properties =
               draft.state.items[itemKey].properties || {}
             draft.state.items[itemKey].properties[property] = newValue
           }
+        }
+      })
+    },
+    [updateWorldState]
+  )
+
+  const handleAddItem = useCallback(
+    (item: Item) => {
+      void updateWorldState((draft) => {
+        // 确保 items 存在
+        if (!draft.state.items) {
+          draft.state.items = {}
+        }
+
+        // 添加新物品
+        draft.state.items[item.key] = item
+      })
+    },
+    [updateWorldState]
+  )
+
+  const handleDeleteItem = useCallback(
+    (itemKey: string) => {
+      void updateWorldState((draft) => {
+        // 确保 items 存在
+        if (!draft.state.items) {
+          draft.state.items = {}
+        }
+
+        // 删除物品
+        if (draft.state.items[itemKey]) {
+          delete draft.state.items[itemKey]
+        }
+
+        // 从所有角色的库存中移除该物品
+        if (draft.state.characterStates) {
+          Object.values(draft.state.characterStates).forEach(
+            (characterState) => {
+              if (characterState.inventory) {
+                const index = characterState.inventory.indexOf(itemKey)
+                if (index !== -1) {
+                  characterState.inventory.splice(index, 1)
+                }
+              }
+            }
+          )
+        }
+
+        // 从所有地点的物品列表中移除该物品
+        if (draft.state.locations) {
+          draft.state.locations.forEach((location) => {
+            if (location.items) {
+              const index = location.items.indexOf(itemKey)
+              if (index !== -1) {
+                location.items.splice(index, 1)
+              }
+            }
+          })
         }
       })
     },
@@ -634,6 +723,8 @@ export function WorldStateManager({ worldStateId }: WorldStateManagerProps) {
               <ItemPanel
                 worldState={worldState}
                 handleItemPropertyUpdate={handleItemPropertyUpdate}
+                handleDeleteItem={handleDeleteItem}
+                handleAddItem={handleAddItem}
               />
             </Tabs.Content>
           </Box>

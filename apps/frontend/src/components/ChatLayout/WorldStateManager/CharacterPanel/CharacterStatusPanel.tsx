@@ -7,6 +7,8 @@ import {
   Badge,
   Input,
   InputGroup,
+  Portal,
+  Field,
 } from '@chakra-ui/react'
 import { EditableText } from '../shared-editable-components'
 import {
@@ -21,7 +23,7 @@ import type {
   Item,
   ItemTemplate,
 } from '@weave/types'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 
 interface CharacterStatusPanelProps {
   character: Character
@@ -50,6 +52,9 @@ interface CharacterStatusPanelProps {
     updates: {
       properties?: Record<string, string>
       knowledge?: Record<string, string[]>
+      deleteKnowledgeCategory?: string
+      deleteGoalsCategory?: string
+      deleteSecretsCategory?: string
     }
   ) => void
   onUpdateCharacterGoals?: (
@@ -413,6 +418,28 @@ export function CharacterStatusPanel({
   const [newGoalItem, setNewGoalItem] = useState<Record<string, string>>({})
   const [newSecretItem, setNewSecretItem] = useState<Record<string, string>>({})
 
+  // 处理类别删除
+  const handleDeleteKnowledgeCategory = (categoryName: string) => {
+    // 直接使用通用更新函数
+    void onUpdateCharacterPropertiesAndKnowledge?.(character.id, {
+      deleteKnowledgeCategory: categoryName,
+    })
+  }
+
+  const handleDeleteGoalsCategory = (categoryName: string) => {
+    // 使用通用更新函数
+    void onUpdateCharacterPropertiesAndKnowledge?.(character.id, {
+      deleteGoalsCategory: categoryName,
+    })
+  }
+
+  const handleDeleteSecretsCategory = (categoryName: string) => {
+    // 使用通用更新函数
+    void onUpdateCharacterPropertiesAndKnowledge?.(character.id, {
+      deleteSecretsCategory: categoryName,
+    })
+  }
+
   // Get the most important stats to display
   const healthStat = state.stats?.health
   const manaStat = state.stats?.mana
@@ -429,13 +456,15 @@ export function CharacterStatusPanel({
       // Generate a unique key for the new item
       const newItemKey = `item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
 
-      // Create a new item
+      // Create a new item with empty properties and stats
       const newItem = {
         key: newItemKey,
         name: newItemName.trim(),
         description: '新物品',
         type: 'misc',
         rarity: 'common',
+        properties: {}, // Empty properties object
+        stats: {}, // Empty stats object
       }
 
       // Add the item to the world state and character's inventory
@@ -703,20 +732,7 @@ export function CharacterStatusPanel({
                     }
                   : undefined
               }
-              onDeleteCategory={
-                onUpdateCharacterPropertiesAndKnowledge
-                  ? (categoryName) => {
-                      const updatedKnowledge = { ...state.knowledge }
-                      delete updatedKnowledge[categoryName]
-                      void onUpdateCharacterPropertiesAndKnowledge?.(
-                        character.id,
-                        {
-                          knowledge: updatedKnowledge,
-                        }
-                      )
-                    }
-                  : undefined
-              }
+              onDeleteCategory={handleDeleteKnowledgeCategory}
               onAddItem={
                 onUpdateCharacterPropertiesAndKnowledge
                   ? (categoryName, item) => {
@@ -791,15 +807,7 @@ export function CharacterStatusPanel({
                     }
                   : undefined
               }
-              onDeleteCategory={
-                onUpdateCharacterGoals
-                  ? (categoryName) => {
-                      const updatedGoals = { ...state.goals }
-                      delete updatedGoals[categoryName]
-                      void onUpdateCharacterGoals?.(character.id, updatedGoals)
-                    }
-                  : undefined
-              }
+              onDeleteCategory={handleDeleteGoalsCategory}
               onAddItem={
                 onUpdateCharacterGoals
                   ? (categoryName, item) => {
@@ -866,18 +874,7 @@ export function CharacterStatusPanel({
                     }
                   : undefined
               }
-              onDeleteCategory={
-                onUpdateCharacterSecrets
-                  ? (categoryName) => {
-                      const updatedSecrets = { ...state.secrets }
-                      delete updatedSecrets[categoryName]
-                      void onUpdateCharacterSecrets?.(
-                        character.id,
-                        updatedSecrets
-                      )
-                    }
-                  : undefined
-              }
+              onDeleteCategory={handleDeleteSecretsCategory}
               onAddItem={
                 onUpdateCharacterSecrets
                   ? (categoryName, item) => {

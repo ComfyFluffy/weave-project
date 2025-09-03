@@ -28,6 +28,9 @@ interface CharacterPanelProps {
     updates: {
       properties?: Record<string, string>
       knowledge?: Record<string, string[]>
+      deleteKnowledgeCategory?: string
+      deleteGoalsCategory?: string
+      deleteSecretsCategory?: string
     }
   ) => void
   handleCharacterGoalsUpdate: (
