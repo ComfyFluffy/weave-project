@@ -10,12 +10,11 @@ import {
 import { useMemo, useState } from 'react'
 import { EditableText } from '../shared-editable-components'
 import { EditableNumberInput } from '../shared-number-slider-components'
-import type { Item, ItemTemplate } from '@weave/types'
+import type { Item } from '@weave/types'
 import { LuTrash2, LuPlus } from 'react-icons/lu'
 
 interface ItemDetailPanelProps {
   item: Item
-  itemTemplates?: ItemTemplate[]
   onUpdateItemProperty?: (
     itemKey: string,
     property: string,
@@ -26,7 +25,6 @@ interface ItemDetailPanelProps {
 
 export function ItemDetailPanel({
   item,
-  itemTemplates = [],
   onUpdateItemProperty,
   onDeleteItem,
 }: ItemDetailPanelProps) {
@@ -34,40 +32,30 @@ export function ItemDetailPanel({
   const [newStatValue, setNewStatValue] = useState('')
   const [newPropertyName, setNewPropertyName] = useState('')
   const [newPropertyValue, setNewPropertyValue] = useState('')
-  // Find the template for this item if it exists - use useMemo to ensure real-time updates
-  const template = useMemo(() => {
-    return item.templateName
-      ? itemTemplates.find((t) => t.name === item.templateName)
-      : null
-  }, [item.templateName, itemTemplates])
-
-  // Merge template and item properties, with item properties taking precedence - use useMemo
+  // Get item properties directly from the item - use useMemo
   const displayName = useMemo(() => {
-    return item.name || template?.name || item.key
-  }, [item.name, template?.name, item.key])
+    return item.name || item.key
+  }, [item.name, item.key])
 
   const description = useMemo(() => {
-    return item.description || template?.description || '暂无描述'
-  }, [item.description, template?.description])
+    return item.description || '暂无描述'
+  }, [item.description])
 
   const type = useMemo(() => {
-    return item.type || template?.type || 'unknown'
-  }, [item.type, template?.type])
+    return item.type || 'unknown'
+  }, [item.type])
 
   const rarity = useMemo(() => {
-    return item.rarity || template?.rarity || 'common'
-  }, [item.rarity, template?.rarity])
+    return item.rarity || 'common'
+  }, [item.rarity])
 
   const properties = useMemo(() => {
-    return {
-      ...(template?.properties || {}),
-      ...(item.properties || {}),
-    }
-  }, [template?.properties, item.properties])
+    return item.properties || {}
+  }, [item.properties])
 
   const stats = useMemo(() => {
-    return { ...(template?.stats || {}), ...(item.stats || {}) }
-  }, [template?.stats, item.stats])
+    return item.stats || {}
+  }, [item.stats])
 
   // Rarity color mapping
   const rarityColors: Record<string, string> = {

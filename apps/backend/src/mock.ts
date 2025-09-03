@@ -4,7 +4,6 @@ import {
   WorldState,
   Character,
   User,
-  ItemTemplate,
 } from '@weave/types'
 
 // Users
@@ -32,73 +31,6 @@ export const users: User[] = [
     email: 'gm@example.com',
     displayName: '游戏主持人',
     avatar: '🎭',
-  },
-]
-
-// Item Templates (reusable item definitions)
-export const itemTemplates: ItemTemplate[] = [
-  {
-    name: '圣光之剑',
-    description: '散发神圣光芒的双手剑，对邪恶生物造成额外伤害',
-    type: 'weapon',
-    rarity: 'rare',
-    properties: {
-      enchantment: '神圣',
-      material: '秘银',
-      weaponType: '双手剑',
-      special: '对邪恶生物+2伤害',
-    },
-    stats: { damage: 12, accuracy: 8, durability: 100 },
-  },
-  {
-    name: '星辰法杖',
-    description: '顶端镶嵌蓝宝石的橡木法杖，夜晚会发出微光',
-    type: 'weapon',
-    rarity: 'rare',
-    properties: {
-      enchantment: '星辰之力',
-      material: '月桂木',
-      weaponType: '法杖',
-      special: '+1法术攻击',
-    },
-    stats: { spellPower: 10, manaRegeneration: 2, durability: 80 },
-  },
-  {
-    name: '月影短剑',
-    description: '锋利的精灵短剑，刀身如月光般闪烁',
-    type: 'weapon',
-    rarity: 'uncommon',
-    properties: {
-      enchantment: '月影',
-      material: '精灵钢',
-      weaponType: '短剑',
-      special: '潜行时+2攻击',
-    },
-    stats: { damage: 8, accuracy: 12, durability: 90 },
-  },
-  {
-    name: '治疗药水',
-    description: '恢复生命值的红色药剂',
-    type: 'consumable',
-    rarity: 'common',
-    properties: {
-      effect: '治疗',
-      consumeType: '饮用',
-      stackable: 'true',
-    },
-    stats: { healing: 30, charges: 1 },
-  },
-  {
-    name: '魔法卷轴：火球术',
-    description: '施放火球术的一次性卷轴',
-    type: 'consumable',
-    rarity: 'uncommon',
-    properties: {
-      spell: '火球术',
-      level: '3',
-      consumeType: '施法',
-    },
-    stats: { damage: 28, range: 150, charges: 1 },
   },
 ]
 
@@ -142,7 +74,6 @@ export const worldState: WorldState = {
   worldId: '1',
   characters,
   state: {
-    itemTemplates,
     keyEventsLog: [
       {
         title: '命运的相遇',
@@ -176,46 +107,83 @@ export const worldState: WorldState = {
       },
     ],
     items: {
-      // Unique item instances
-      'holy-sword-001': {
-        key: 'holy-sword-001',
-        templateName: '圣光之剑',
+      // Item instances with required properties
+      'holy-sword': {
+        key: 'holy-sword',
         count: 1,
-        // Custom stats for this specific instance
-        stats: { damage: 12, accuracy: 8, durability: 95 }, // Slightly used
+        name: '圣光之剑',
+        description: '散发神圣光芒的双手剑，对邪恶生物造成额外伤害',
+        type: 'weapon',
+        rarity: 'rare',
+        properties: {
+          enchantment: '神圣',
+          material: '秘银',
+          weaponType: '双手剑',
+          special: '对邪恶生物+2伤害',
+        },
+        stats: { damage: 12, accuracy: 8, durability: 100 },
       },
-      'star-staff-001': {
-        key: 'star-staff-001',
-        templateName: '星辰法杖',
+      'star-staff': {
+        key: 'star-staff',
         count: 1,
+        name: '星辰法杖',
+        description: '顶端镶嵌蓝宝石的橡木法杖，夜晚会发出微光',
+        type: 'weapon',
+        rarity: 'rare',
+        properties: {
+          enchantment: '星辰之力',
+          material: '月桂木',
+          weaponType: '法杖',
+          special: '+1法术攻击',
+        },
         stats: { spellPower: 10, manaRegeneration: 2, durability: 80 },
       },
-      'moon-blade-001': {
-        key: 'moon-blade-001',
-        templateName: '月影短剑',
+      'moon-blade': {
+        key: 'moon-blade',
         count: 1,
+        name: '月影短剑',
+        description: '锋利的精灵短剑，刀身如月光般闪烁',
+        type: 'weapon',
+        rarity: 'uncommon',
+        properties: {
+          enchantment: '月影',
+          material: '精灵钢',
+          weaponType: '短剑',
+          special: '潜行时+2攻击',
+        },
         stats: { damage: 8, accuracy: 12, durability: 90 },
       },
-      'health-potion-001': {
-        key: 'health-potion-001',
-        templateName: '治疗药水',
-        count: 3, // Three potions
+      'health-potion': {
+        key: 'health-potion',
+        count: 1,
+        name: '治疗药水',
+        description: '恢复生命值的红色药剂',
+        type: 'consumable',
+        rarity: 'common',
+        properties: {
+          effect: '治疗',
+          consumeType: '饮用',
+          stackable: 'true',
+        },
         stats: { healing: 30, charges: 1 },
       },
-      'health-potion-002': {
-        key: 'health-potion-002',
-        templateName: '治疗药水',
-        count: 2, // Two more potions in different location
-        stats: { healing: 30, charges: 1 },
-      },
-      'fireball-scroll-001': {
-        key: 'fireball-scroll-001',
-        templateName: '魔法卷轴：火球术',
-        count: 2,
+      'fireball-scroll': {
+        key: 'fireball-scroll',
+        count: 1,
+        name: '魔法卷轴：火球术',
+        description: '施放火球术的一次性卷轴',
+        type: 'consumable',
+        rarity: 'uncommon',
+        properties: {
+          spell: '火球术',
+          level: '3',
+          consumeType: '施法',
+        },
         stats: { damage: 28, range: 150, charges: 1 },
       },
-      'ancient-map-001': {
-        key: 'ancient-map-001',
+      'ancient-map': {
+        key: 'ancient-map',
+        count: 1,
         name: '古老的地图',
         description: '绘制在羊皮纸上的褪色地图，标记着附近遗迹的位置',
         type: 'key-item',
@@ -226,10 +194,10 @@ export const worldState: WorldState = {
           condition: '古旧但清晰',
         },
         stats: { authenticity: 95 },
-        count: 1,
       },
-      'elf-coins-001': {
-        key: 'elf-coins-001',
+      'elf-coins': {
+        key: 'elf-coins',
+        count: 12,
         name: '精灵硬币',
         description: '古老的精灵制造的银币，上面刻着月亮符号',
         type: 'misc',
@@ -240,13 +208,12 @@ export const worldState: WorldState = {
           condition: '保存完好',
         },
         stats: { value: 50 },
-        count: 12,
       },
     },
     characterStates: {
       'char-1': {
         currentLocationName: '金麦酒馆',
-        inventory: ['holy-sword-001', 'health-potion-001'],
+        inventory: ['holy-sword', 'health-potion'],
         stats: {
           health: { current: 95, max: 100 },
           mana: { current: 25, max: 30 },
@@ -285,7 +252,7 @@ export const worldState: WorldState = {
       },
       'char-2': {
         currentLocationName: '金麦酒馆',
-        inventory: ['star-staff-001', 'fireball-scroll-001'],
+        inventory: ['star-staff', 'fireball-scroll'],
         stats: {
           health: { current: 68, max: 75 },
           mana: { current: 45, max: 60 },
@@ -325,7 +292,7 @@ export const worldState: WorldState = {
       },
       'char-3': {
         currentLocationName: '金麦酒馆',
-        inventory: ['moon-blade-001'],
+        inventory: ['moon-blade'],
         stats: {
           health: { current: 72, max: 78 },
           stealth: { current: 95, max: 100 },
@@ -388,7 +355,7 @@ export const worldState: WorldState = {
           '吧台下藏着一把古老的精灵短剑',
           '壁炉后有秘密隔间',
         ],
-        items: ['ancient-map-001', 'elf-coins-001', 'health-potion-002'],
+        items: ['ancient-map', 'elf-coins', 'health-potion'],
       },
     ],
     plots: [
@@ -445,7 +412,6 @@ export const worldState2: WorldState = {
   worldId: '2',
   characters: [], // Different characters for cyberpunk world
   state: {
-    itemTemplates: [], // Different items for cyberpunk
     characterStates: {}, // Empty character states for now
     keyEventsLog: [
       {

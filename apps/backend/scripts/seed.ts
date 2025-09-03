@@ -105,7 +105,6 @@ async function seed() {
       lore: mockWorldState.state.lore,
       characterStates: mockWorldState.state.characterStates,
       items: mockWorldState.state.items,
-      itemTemplates: mockWorldState.state.itemTemplates,
       currentGameTime: mockWorldState.state.currentGameTime,
       outline: mockWorldState.state.outline,
     }
@@ -129,7 +128,6 @@ async function seed() {
       lore: mockWorldState2.state.lore,
       characterStates: mockWorldState2.state.characterStates,
       items: mockWorldState2.state.items,
-      itemTemplates: mockWorldState2.state.itemTemplates,
       currentGameTime: mockWorldState2.state.currentGameTime,
       outline: mockWorldState2.state.outline,
     }
