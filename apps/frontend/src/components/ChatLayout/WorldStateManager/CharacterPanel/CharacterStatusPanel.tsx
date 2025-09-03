@@ -10,6 +10,7 @@ import {
   Portal,
   Field,
 } from '@chakra-ui/react'
+import { GenericSelect } from '../shared-select-components'
 import { EditableText } from '../shared-editable-components'
 import {
   EditableStatValue,
@@ -21,7 +22,6 @@ import type {
   CharacterState,
   StatValue,
   Item,
-  ItemTemplate,
 } from '@weave/types'
 import { useState, useMemo } from 'react'
 
@@ -29,7 +29,6 @@ interface CharacterStatusPanelProps {
   character: Character
   state: CharacterState
   items?: Record<string, Item>
-  itemTemplates?: ItemTemplate[]
   onUpdateStat?: (
     characterId: string,
     statName: string,
@@ -273,7 +272,6 @@ const EditableCategorySection = ({
 interface InventoryItemProps {
   itemKey: string
   item: Item | undefined
-  template: ItemTemplate | null | undefined
   itemName: string
   rarity: string
   type: string
@@ -299,7 +297,6 @@ interface InventoryItemProps {
 const InventoryItem = ({
   itemKey,
   item,
-  template,
   itemName,
   rarity,
   type,
@@ -408,10 +405,11 @@ export function CharacterStatusPanel({
   onUpdateItemProperty,
   onAddItemToCharacterInventory,
   onRemoveItemFromCharacterInventory,
-  itemTemplates,
 }: CharacterStatusPanelProps) {
   const [selectedItemKey, setSelectedItemKey] = useState<string | null>(null)
   const [newItemName, setNewItemName] = useState('')
+  const [newItemType, setNewItemType] = useState('misc')
+  const [newItemRarity, setNewItemRarity] = useState('common')
   const [newKnowledgeItem, setNewKnowledgeItem] = useState<
     Record<string, string>
   >({})
@@ -456,13 +454,13 @@ export function CharacterStatusPanel({
       // Generate a unique key for the new item
       const newItemKey = `item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
 
-      // Create a new item with empty properties and stats
+      // Create a new item with selected type and rarity
       const newItem = {
         key: newItemKey,
         name: newItemName.trim(),
         description: '新物品',
-        type: 'misc',
-        rarity: 'common',
+        type: newItemType,
+        rarity: newItemRarity,
         properties: {}, // Empty properties object
         stats: {}, // Empty stats object
       }
@@ -470,7 +468,7 @@ export function CharacterStatusPanel({
       // Add the item to the world state and character's inventory
       onAddItemToCharacterInventory(character.id, newItem)
 
-      // Clear the input
+      // Only clear the item name input, keep the selected type and rarity
       setNewItemName('')
     }
   }
@@ -945,7 +943,6 @@ export function CharacterStatusPanel({
                   </Button>
                   <ItemDetailPanel
                     item={selectedItem}
-                    itemTemplates={itemTemplates}
                     onUpdateItemProperty={(itemKey, property, newValue) =>
                       void onUpdateItemProperty?.(itemKey, property, newValue)
                     }
@@ -954,22 +951,16 @@ export function CharacterStatusPanel({
               ) : state.inventory && state.inventory.length > 0 ? (
                 state.inventory.map((itemKey, index) => {
                   const item = items?.[itemKey]
-                  // Find the template for this item if it exists
-                  const template = item?.templateName
-                    ? itemTemplates?.find((t) => t.name === item.templateName)
-                    : null
-
-                  // Merge template and item properties, with item properties taking precedence
-                  const itemName = item?.name || template?.name || itemKey
-                  const rarity = item?.rarity || template?.rarity || 'common'
-                  const type = item?.type || template?.type || 'unknown'
+                  // Get item properties directly from the item
+                  const itemName = item?.name || itemKey
+                  const rarity = item?.rarity || 'common'
+                  const type = item?.type || 'unknown'
 
                   return (
                     <InventoryItem
                       key={index}
                       itemKey={itemKey}
                       item={item}
-                      template={template}
                       itemName={itemName}
                       rarity={rarity}
                       type={type}
@@ -993,20 +984,77 @@ export function CharacterStatusPanel({
                 </Text>
               )}
               {onAddItemToCharacterInventory && (
-                <InputGroup mt={2}>
-                  <Input
-                    value={newItemName}
-                    onChange={(e) => setNewItemName(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        handleAddItem()
-                      }
-                    }}
-                    onBlur={handleAddItem}
-                    placeholder="输入物品名称并按回车或失焦添加"
-                    size="xs"
-                  />
-                </InputGroup>
+                <VStack align="stretch" gap={2} mt={2}>
+                  <InputGroup>
+                    <Input
+                      value={newItemName}
+                      onChange={(e) => setNewItemName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          handleAddItem()
+                        }
+                      }}
+                      placeholder="输入物品名称"
+                      size="xs"
+                    />
+                  </InputGroup>
+                  <HStack gap={2}>
+                    <Box minWidth="120px">
+                      <GenericSelect
+                        items={['武器', '护甲', '消耗品', '工具', '关键道具', '杂项']}
+                        selectedItem={
+                          newItemType === 'weapon' ? '武器' :
+                          newItemType === 'armor' ? '护甲' :
+                          newItemType === 'consumable' ? '消耗品' :
+                          newItemType === 'tool' ? '工具' :
+                          newItemType === 'key-item' ? '关键道具' : '杂项'
+                        }
+                        onSelectionChange={(value) => {
+                          const typeMap: Record<string, string> = {
+                            '武器': 'weapon',
+                            '护甲': 'armor',
+                            '消耗品': 'consumable',
+                            '工具': 'tool',
+                            '关键道具': 'key-item',
+                            '杂项': 'misc'
+                          }
+                          setNewItemType(typeMap[value || '杂项'])
+                        }}
+                        placeholder="选择类型"
+                      />
+                    </Box>
+                    <Box minWidth="120px">
+                      <GenericSelect
+                        items={['普通', '不普通', '稀有', '非常稀有', '传说']}
+                        selectedItem={
+                          newItemRarity === 'common' ? '普通' :
+                          newItemRarity === 'uncommon' ? '不普通' :
+                          newItemRarity === 'rare' ? '稀有' :
+                          newItemRarity === 'very-rare' ? '非常稀有' : '传说'
+                        }
+                        onSelectionChange={(value) => {
+                          const rarityMap: Record<string, string> = {
+                            '普通': 'common',
+                            '不普通': 'uncommon',
+                            '稀有': 'rare',
+                            '非常稀有': 'very-rare',
+                            '传说': 'legendary'
+                          }
+                          setNewItemRarity(rarityMap[value || '普通'])
+                        }}
+                        placeholder="选择稀有度"
+                      />
+                    </Box>
+                    <Button
+                      size="xs"
+                      colorPalette="blue"
+                      onClick={handleAddItem}
+                      minWidth="80px"
+                    >
+                      添加物品
+                    </Button>
+                  </HStack>
+                </VStack>
               )}
             </VStack>
           </>

@@ -132,7 +132,6 @@ export function CharacterPanel({
             onRemoveItemFromCharacterInventory={
               handleRemoveItemFromCharacterInventory
             }
-            itemTemplates={worldState.state.itemTemplates}
           />
         </VStack>
       ) : (

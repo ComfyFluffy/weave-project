@@ -203,8 +203,6 @@ export const WorldStateSchema = z.object({
     locations: z.array(LocationSchema),
     /** All items in the world, keyed by unique item key */
     items: z.record(ItemSchema),
-    /** Reusable item templates for common items */
-    itemTemplates: z.array(ItemTemplateSchema).optional(),
     /** Active storylines and plots */
     plots: z.array(PlotSchema),
     /** World lore and background information */

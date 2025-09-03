@@ -5,7 +5,6 @@ export const defaultWorldState: () => WorldState['state'] = () => ({
   characterStates: {},
   locations: [],
   items: {},
-  itemTemplates: [],
   plots: [],
   lore: [],
   currentGameTime: '',
