@@ -9,11 +9,13 @@ import {
   Avatar,
   Flex,
   Spinner,
+  Heading,
 } from '@chakra-ui/react'
-import { Send, User, Bot } from 'lucide-react'
+import { Send, User, Bot, AlertTriangle } from 'lucide-react'
 import { type Message } from '@ai-sdk/react'
 import { useWorldChat } from '../hooks/ai'
 import { MemoizedMarkdown } from './MemoizedMarkdown'
+import { Clipboard } from './ui/clipboard'
 
 interface AIChatSectionProps {
   worldId: string
@@ -29,6 +31,8 @@ export function AIChatSection({
   selectedRole,
 }: AIChatSectionProps) {
   const [input, setInput] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [isProcessing, setIsProcessing] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const { messages, isLoading, append } = useWorldChat(
@@ -46,20 +50,43 @@ export function AIChatSection({
     scrollToBottom()
   }, [messages])
 
+  // 监听错误状态，确保错误发生后按钮状态能够正确重置
+  useEffect(() => {
+    if (error) {
+      setIsProcessing(false)
+    }
+  }, [error])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!input.trim() || isLoading) return
+    if (!input.trim() || isLoading || isProcessing) return
 
     const userMessage = input.trim()
     setInput('')
+    setIsProcessing(true)
+    let hasError = false
 
     try {
+      setError(null) // 清除之前的错误
       await append({
         role: 'user',
         content: userMessage,
       })
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error sending message:', error)
+      const errorMessage = error?.message || '发送消息失败，请稍后重试'
+      setError(errorMessage)
+      hasError = true
+
+      // 在错误情况下立即重置处理状态
+      setIsProcessing(false)
+    } finally {
+      // 只有在成功情况下才延迟重置，确保错误能够立即显示
+      if (!hasError) {
+        setTimeout(() => {
+          setIsProcessing(false)
+        }, 100)
+      }
     }
   }
 
@@ -72,7 +99,7 @@ export function AIChatSection({
 
   return (
     <Box
-      height="60%"
+      height="100%"
       bg="gray.900"
       border="1px solid"
       borderColor="gray.700"
@@ -114,7 +141,7 @@ export function AIChatSection({
         }}
       >
         <VStack gap={4} align="stretch">
-          {messages.length === 0 ? (
+          {messages.length === 0 && !error ? (
             <Box
               display="flex"
               alignItems="center"
@@ -134,6 +161,16 @@ export function AIChatSection({
                 isLoading={isLoading && index === messages.length - 1}
               />
             ))
+          )}
+          {error && (
+            <MessageItem
+              message={{
+                id: 'error-' + Date.now(),
+                role: 'assistant',
+                content: error,
+              }}
+              isError={true}
+            />
           )}
           <div ref={messagesEndRef} />
         </VStack>
@@ -174,8 +211,8 @@ export function AIChatSection({
               type="submit"
               size="md"
               colorScheme="blue"
-              disabled={!input.trim() || isLoading}
-              loading={isLoading}
+              disabled={!input.trim() || isLoading || isProcessing}
+              loading={isLoading || isProcessing}
             >
               <Send size={16} />
             </IconButton>
@@ -189,9 +226,14 @@ export function AIChatSection({
 interface MessageItemProps {
   message: Message
   isLoading?: boolean
+  isError?: boolean
 }
 
-function MessageItem({ message, isLoading }: MessageItemProps) {
+function MessageItem({
+  message,
+  isLoading,
+  isError = false,
+}: MessageItemProps) {
   const isUser = message.role === 'user'
 
   return (
@@ -202,16 +244,16 @@ function MessageItem({ message, isLoading }: MessageItemProps) {
       justify={isUser ? 'flex-end' : 'flex-start'}
     >
       {!isUser && (
-        <Avatar.Root size="sm" bg="green.600">
+        <Avatar.Root size="sm" bg={isError ? 'red.800' : 'green.600'}>
           <Avatar.Fallback>
-            <Bot size={16} />
+            {isError ? <AlertTriangle size={16} /> : <Bot size={16} />}
           </Avatar.Fallback>
         </Avatar.Root>
       )}
 
       <Box
         maxWidth="75%"
-        bg={isUser ? 'blue.600' : 'gray.700'}
+        bg={isError ? 'red.700' : isUser ? 'blue.600' : 'gray.700'}
         color="white"
         px={4}
         py={3}
@@ -219,10 +261,23 @@ function MessageItem({ message, isLoading }: MessageItemProps) {
         borderTopLeftRadius={!isUser ? 'sm' : 'lg'}
         borderTopRightRadius={isUser ? 'sm' : 'lg'}
         position="relative"
+        borderTop={isError ? '2px solid' : 'none'}
+        borderColor={isError ? 'red.900' : undefined}
+        boxShadow={isError ? '0 4px 6px rgba(0, 0, 0, 0.1)' : undefined}
       >
         <MemoizedMarkdown content={message.content} id={message.id} />
 
-        {isLoading && !isUser && (
+        {/* Clipboard button */}
+        <HStack justify="flex-end" mt={2}>
+          <Clipboard
+            text={message.content}
+            variant="icon"
+            size="sm"
+            tooltip="Copy message"
+          />
+        </HStack>
+
+        {isLoading && !isUser && !isError && (
           <Flex align="center" gap={2} mt={2}>
             <Spinner size="xs" />
             <Text fontSize="xs" color="gray.300">

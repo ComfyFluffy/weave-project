@@ -7,8 +7,14 @@ import cors from 'cors'
 
 // Import services and routes
 import { createWorldRouter } from './routes/worlds'
-import { createWorldStateRouter } from './routes/world-states'
-import { createCharacterRouter } from './routes/characters'
+import {
+  createWorldStateRouter,
+  setSocketIO as setWorldStateSocketIO,
+} from './routes/world-states'
+import {
+  createCharacterRouter,
+  setSocketIO as setCharacterSocketIO,
+} from './routes/characters'
 import { createMessageRouter } from './routes/messages'
 import { createAIRoutes } from './routes/ai'
 import { createExpressEndpoints, initServer } from '@ts-rest/express'
@@ -27,7 +33,6 @@ const app = express()
 const server = createServer(app)
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:5173',
     methods: ['GET', 'POST'],
   },
 })
@@ -35,13 +40,17 @@ const io = new Server(server, {
 // Apply authentication middleware to all socket connections
 io.use(socketAuthMiddleware)
 
+// Set Socket.IO instance for routers
+setWorldStateSocketIO(io)
+setCharacterSocketIO(io)
+
 // Initialize JWT middleware
 const jwtMiddleware = createJwtMiddleware()
 // const verifyUserMiddleware = createVerifyUserMiddleware(dbService)
 
 app.use(
   cors({
-    origin: 'http://localhost:5173',
+    origin: ['http://localhost:5173', 'http://0.0.0.0:5173'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   })

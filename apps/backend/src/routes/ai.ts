@@ -1,7 +1,7 @@
 import express from 'express'
 import { Message as AIMessage, streamText } from 'ai'
 import { openai } from '../services/ai'
-import { Message, WorldState } from '@weave/types'
+import { Character, Message, WorldState } from '@weave/types'
 import { AIChatRequestSchema } from '@weave/types/apis'
 import { prisma } from '../services/database'
 import { mapWorldState, mapMessage } from '../utils/mapper'
@@ -31,8 +31,22 @@ export function createAIRoutes() {
         ? await (async () => {
             const worldStates = await prisma.worldState.findMany({
               where: { worldId },
+              include: { characters: true },
             })
-            return worldStates[0] ? mapWorldState(worldStates[0]) : null
+            if (worldStates[0]) {
+              return {
+                ...mapWorldState(worldStates[0]),
+                characters: worldStates[0].characters.map(
+                  ({ id, name, description }) =>
+                    ({
+                      id,
+                      name,
+                      description,
+                    }) satisfies Character
+                ),
+              }
+            }
+            return null
           })()
         : null
       const recentMessages = channelId

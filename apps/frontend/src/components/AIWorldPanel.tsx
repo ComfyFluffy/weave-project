@@ -1,7 +1,7 @@
 import { Box, HStack, Button } from '@chakra-ui/react'
 import { WorldDataViewer } from './WorldDataViewer'
 import { AIChatSection } from './AIChatSection'
-import { WorldStateManager } from './WorldStateManager'
+import { WorldStateManager } from './ChatLayout/WorldStateManager'
 import type { WorldState } from '@weave/types'
 import { useState } from 'react'
 

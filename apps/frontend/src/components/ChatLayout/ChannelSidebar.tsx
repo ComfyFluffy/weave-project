@@ -19,7 +19,11 @@ import {
 } from 'lucide-react'
 import type { Channel } from '@weave/types'
 import { CreateChannelModal } from '../CreateChannelModal'
+import { EditWorldModal } from '../../components/EditWorldModal'
 import { RoleSelector, type UserRole } from '../RoleSelector'
+import { useDeleteChannel } from '../../hooks/queries'
+import { useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 
 interface ChannelSidebarProps {
   worldId?: string
@@ -46,6 +50,29 @@ export function ChannelSidebar({
   onChannelSelect,
   onRoleChange,
 }: ChannelSidebarProps) {
+  const [isEditWorldModalOpen, setIsEditWorldModalOpen] = useState(false)
+  const queryClient = useQueryClient()
+  const deleteChannelMutation = useDeleteChannel()
+
+  const handleDeleteChannel = async (channelId: string) => {
+    try {
+      await deleteChannelMutation.mutateAsync({
+        params: { channelId },
+      })
+
+      // Invalidate and refetch channels
+      await queryClient.invalidateQueries({
+        queryKey: ['channels', worldId],
+      })
+
+      // If the deleted channel was selected, clear the selection
+      if (selectedChannelId === channelId) {
+        onChannelSelect?.('')
+      }
+    } catch (error) {
+      console.error('Failed to delete channel:', error)
+    }
+  }
   return (
     <Box
       width="240px"
@@ -69,7 +96,16 @@ export function ChannelSidebar({
           <Text fontWeight="bold" color="white" fontSize="md">
             {worldName}
           </Text>
-          <Settings size={16} color="#9ca3af" />
+          <IconButton
+            size="sm"
+            variant="ghost"
+            color="#9ca3af"
+            _hover={{ color: 'white', bg: 'gray.700' }}
+            onClick={() => setIsEditWorldModalOpen(true)}
+            aria-label="编辑世界"
+          >
+            <Settings size={16} />
+          </IconButton>
         </Flex>
       </Box>
 
@@ -87,9 +123,7 @@ export function ChannelSidebar({
             >
               频道
             </Text>
-            {worldId && selectedRole === 'gm' && (
-              <CreateChannelModal worldId={worldId} />
-            )}
+            {worldId && <CreateChannelModal worldId={worldId} />}
           </Flex>
 
           {/* Channel List */}
@@ -125,40 +159,39 @@ export function ChannelSidebar({
                         />
                         <Text>{channel.name}</Text>
                       </Flex>
-                      {selectedRole === 'gm' && (
-                        <Menu.Root>
-                          <Menu.Trigger asChild>
-                            <IconButton
-                              variant="ghost"
-                              size="sm"
-                              color="gray.400"
-                              _hover={{ color: 'white', bg: 'gray.700' }}
-                              p={1}
-                              minW="auto"
-                              height="auto"
-                            >
-                              <MoreHorizontal />
-                            </IconButton>
-                          </Menu.Trigger>
-                          <Portal>
-                            <Menu.Positioner>
-                              <Menu.Content>
-                                <Menu.Item
-                                  value="delete-channel"
-                                  onClick={() => {
-                                    // TODO
-                                  }}
-                                  color="red.400"
-                                  _hover={{ bg: 'red.600', color: 'white' }}
-                                >
-                                  <Trash2 size={14} />
-                                  <Text>删除频道</Text>
-                                </Menu.Item>
-                              </Menu.Content>
-                            </Menu.Positioner>
-                          </Portal>
-                        </Menu.Root>
-                      )}
+                      {/* Remove GM restriction - anyone can delete channels */}
+                      <Menu.Root>
+                        <Menu.Trigger asChild>
+                          <IconButton
+                            variant="ghost"
+                            size="sm"
+                            color="gray.400"
+                            _hover={{ color: 'white', bg: 'gray.700' }}
+                            p={1}
+                            minW="auto"
+                            height="auto"
+                          >
+                            <MoreHorizontal />
+                          </IconButton>
+                        </Menu.Trigger>
+                        <Portal>
+                          <Menu.Positioner>
+                            <Menu.Content>
+                              <Menu.Item
+                                value="delete-channel"
+                                onClick={() =>
+                                  void handleDeleteChannel(channel.id)
+                                }
+                                color="red.400"
+                                _hover={{ bg: 'red.600', color: 'white' }}
+                              >
+                                <Trash2 size={14} />
+                                <Text>删除频道</Text>
+                              </Menu.Item>
+                            </Menu.Content>
+                          </Menu.Positioner>
+                        </Portal>
+                      </Menu.Root>
                     </Flex>
                   </Button>
                 </Flex>
@@ -170,6 +203,21 @@ export function ChannelSidebar({
 
       {/* Role Selector */}
       <RoleSelector selectedRole={selectedRole} onRoleChange={onRoleChange} />
+
+      {/* Edit World Modal */}
+      {worldId && (
+        <EditWorldModal
+          open={isEditWorldModalOpen}
+          onOpenChange={setIsEditWorldModalOpen}
+          worldId={worldId}
+          onWorldUpdated={() => {
+            // Refresh the world data
+            void queryClient.invalidateQueries({
+              queryKey: ['world', worldId],
+            })
+          }}
+        />
+      )}
     </Box>
   )
 }

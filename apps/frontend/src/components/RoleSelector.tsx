@@ -51,13 +51,13 @@ const roleCollection = createListCollection({
       color: 'yellow.400',
       icon: Crown,
     },
-    {
-      label: '观察者',
-      value: 'spectator',
-      description: '只能观看，无法参与',
-      color: 'gray.400',
-      icon: Eye,
-    },
+    // {
+    //   label: '观察者',
+    //   value: 'spectator',
+    //   description: '只能观看，无法参与',
+    //   color: 'gray.400',
+    //   icon: Eye,
+    // },
   ],
 })
 

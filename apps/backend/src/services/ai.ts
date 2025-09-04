@@ -15,7 +15,7 @@ export const openai = registry.languageModel(
 
 // Test
 console.log('OpenAI model initialized:', openai)
-void (async () => {
+;(async () => {
   const result = streamText({
     model: openai,
     prompt: 'What is the weather like in San Francisco?',
@@ -40,11 +40,11 @@ void (async () => {
       }),
     },
     toolChoice: 'auto',
-    maxSteps: 2,
+    maxSteps: 3,
   })
 
   for await (const chunk of result.textStream) {
     process.stdout.write(chunk)
   }
   console.log('\nStream completed.')
-})()
+})().catch((e) => console.error('Error during AI processing:', e))

@@ -14,6 +14,14 @@ export const ChannelSingleResponseSchema = z.object({
 })
 export type ChannelSingleResponse = z.infer<typeof ChannelSingleResponseSchema>
 
+export const CreateChannelRequestSchema = z.object({
+  worldId: z.string(),
+  name: z.string().min(1),
+  type: z.enum(['ooc', 'ic', 'announcement']),
+  description: z.string(),
+})
+export type CreateChannelRequest = z.infer<typeof CreateChannelRequestSchema>
+
 export const channelContract = c.router(
   {
     getChannelsByWorldId: {
@@ -21,6 +29,23 @@ export const channelContract = c.router(
       path: '/world/:worldId',
       responses: {
         200: ChannelsResponseSchema,
+      },
+    },
+    createChannel: {
+      method: 'POST',
+      path: '/',
+      body: CreateChannelRequestSchema,
+      responses: {
+        201: ChannelSingleResponseSchema,
+      },
+    },
+    deleteChannel: {
+      method: 'DELETE',
+      path: '/:channelId',
+      responses: {
+        200: z.object({
+          message: z.string(),
+        }),
       },
     },
   },

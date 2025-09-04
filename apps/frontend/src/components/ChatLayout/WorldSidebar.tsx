@@ -1,8 +1,12 @@
-import { VStack, Box, IconButton, Badge } from '@chakra-ui/react'
-import { PlusSquareIcon, LogOutIcon } from 'lucide-react'
+import { VStack, Box, IconButton, Badge, Avatar, Image } from '@chakra-ui/react'
+import { LogOutIcon } from 'lucide-react'
 import { Tooltip } from '../ui/tooltip'
 import { useLogout } from '../../hooks/auth'
 import { useNavigate } from 'react-router'
+import { CreateWorldModal } from '../CreateWorldModal'
+import { UserProfilePopover } from '../user-profile-popover'
+import { useCurrentUser } from '../../hooks/auth'
+import { isEmoji } from '../../utils/image'
 
 interface WorldSidebarProps {
   worlds?: Array<{
@@ -24,6 +28,10 @@ export function WorldSidebar({
 }: WorldSidebarProps) {
   const { logout } = useLogout()
   const navigate = useNavigate()
+  const { data: currentUserResponse } = useCurrentUser()
+
+  const currentUser =
+    currentUserResponse?.status === 200 ? currentUserResponse.body.user : null
 
   return (
     <Box
@@ -39,17 +47,7 @@ export function WorldSidebar({
       <VStack gap={2} px={3} flex="1">
         {/* Add World Button */}
         <Tooltip content="创建世界" positioning={{ placement: 'right' }}>
-          <IconButton
-            size="lg"
-            bg="gray.700"
-            color="green.400"
-            _hover={{ bg: 'green.600', color: 'white' }}
-            onClick={onCreateWorld}
-            borderRadius="12px"
-            transition="all 0.2s"
-          >
-            <PlusSquareIcon size={24} />
-          </IconButton>
+          <CreateWorldModal onWorldCreated={onCreateWorld} />
         </Tooltip>
 
         {/* Separator */}
@@ -113,22 +111,66 @@ export function WorldSidebar({
 
       {/* Logout Button at the bottom */}
       <Box px={3} pb={2}>
-        <Tooltip content="退出登录" positioning={{ placement: 'right' }}>
-          <IconButton
-            size="lg"
-            bg="gray.700"
-            color="red.400"
-            _hover={{ bg: 'red.600', color: 'white' }}
-            onClick={() => {
-              logout()
-              void navigate('/')
-            }}
-            borderRadius="12px"
-            transition="all 0.2s"
-          >
-            <LogOutIcon size={20} />
-          </IconButton>
-        </Tooltip>
+        <VStack gap={2}>
+          {/* User Avatar */}
+          {currentUser && (
+            <Tooltip content="个人资料" positioning={{ placement: 'right' }}>
+              <UserProfilePopover>
+                <Avatar.Root
+                  size="lg"
+                  bg="blue.600"
+                  borderRadius="12px"
+                  cursor="pointer"
+                  _hover={{ bg: 'blue.700' }}
+                  transition="all 0.2s"
+                >
+                  {currentUser.avatar ? (
+                    isEmoji(currentUser.avatar) ? (
+                      <Avatar.Fallback
+                        name={currentUser.displayName}
+                        fontSize="xl"
+                        bg="transparent"
+                      >
+                        {currentUser.avatar}
+                      </Avatar.Fallback>
+                    ) : (
+                      <Image
+                        src={currentUser.avatar}
+                        alt={currentUser.displayName}
+                        borderRadius="12px"
+                        objectFit="cover"
+                        width="full"
+                        height="full"
+                      />
+                    )
+                  ) : (
+                    <Avatar.Fallback name={currentUser.displayName}>
+                      {currentUser.displayName[0]}
+                    </Avatar.Fallback>
+                  )}
+                </Avatar.Root>
+              </UserProfilePopover>
+            </Tooltip>
+          )}
+
+          {/* Logout Button */}
+          <Tooltip content="退出登录" positioning={{ placement: 'right' }}>
+            <IconButton
+              size="lg"
+              bg="gray.700"
+              color="red.400"
+              _hover={{ bg: 'red.600', color: 'white' }}
+              onClick={() => {
+                logout()
+                void navigate('/')
+              }}
+              borderRadius="12px"
+              transition="all 0.2s"
+            >
+              <LogOutIcon size={20} />
+            </IconButton>
+          </Tooltip>
+        </VStack>
       </Box>
     </Box>
   )

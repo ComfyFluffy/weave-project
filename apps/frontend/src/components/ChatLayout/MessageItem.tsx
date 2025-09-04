@@ -1,4 +1,4 @@
-import { Box, Text, Avatar, Flex, Badge } from '@chakra-ui/react'
+import { Box, Text, Avatar, Flex, Badge, HStack } from '@chakra-ui/react'
 import {
   getMessageColor,
   getAuthorColor,
@@ -7,6 +7,8 @@ import {
 import { MemoizedMarkdown } from '../MemoizedMarkdown'
 import { useUser, useCharacter } from '../../hooks/queries'
 import type { Message, PublicUser, Character } from '@weave/types'
+import { Clipboard } from '../ui/clipboard'
+import { isEmoji } from '../../utils/image'
 
 // 定义消息项组件的属性接口
 // message: 消息对象，包含内容、类型、时间等信息
@@ -90,15 +92,18 @@ function MessageAvatar({
   // 确定头像显示的内容和背景色
   let avatarContent = '?'
   let avatarName = 'Unknown'
+  let avatarSrc: string | null = null
 
   if (message.type === 'system') {
     avatarContent = '⚙️'
     avatarName = 'System'
   } else if (character) {
-    avatarContent = character.avatar || character.name[0]
+    avatarSrc = character.avatar || null
+    avatarContent = character.name[0]
     avatarName = character.name
   } else if (user) {
-    avatarContent = user.avatar || user.displayName[0]
+    avatarSrc = user.avatar || null
+    avatarContent = user.displayName[0]
     avatarName = user.displayName
   } else if (message.type === 'gm') {
     avatarContent = '🎭'
@@ -107,7 +112,15 @@ function MessageAvatar({
 
   return (
     <Avatar.Root size="sm" bg={getAuthorColor(message.type)}>
-      <Avatar.Fallback name={avatarName}>{avatarContent}</Avatar.Fallback>
+      {avatarSrc && isEmoji(avatarSrc) ? (
+        <Avatar.Fallback name={avatarName} fontSize="sm" bg="transparent">
+          {avatarSrc}
+        </Avatar.Fallback>
+      ) : avatarSrc ? (
+        <Avatar.Image src={avatarSrc} alt={avatarName} />
+      ) : (
+        <Avatar.Fallback name={avatarName}>{avatarContent}</Avatar.Fallback>
+      )}
     </Avatar.Root>
   )
 }
@@ -170,6 +183,15 @@ function MessageContent({ message }: { message: Message }) {
     <Box color="gray.200" fontSize="sm" lineHeight="1.4">
       {/* 使用统一的 Markdown 渲染器渲染内容 */}
       <MemoizedMarkdown content={message.content} id={message.id} />
+      {/* 复制按钮 */}
+      <HStack justify="flex-end" mt={2}>
+        <Clipboard
+          text={message.content}
+          variant="icon"
+          size="sm"
+          tooltip="Copy message"
+        />
+      </HStack>
     </Box>
   )
 }

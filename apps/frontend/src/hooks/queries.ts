@@ -20,6 +20,21 @@ export function useWorld(worldId: string | null) {
   })
 }
 
+// Create world mutation
+export function useCreateWorld() {
+  return tsr.world.createWorld.useMutation()
+}
+
+// Update world mutation
+export function useUpdateWorld() {
+  return tsr.world.updateWorld.useMutation()
+}
+
+// Delete world mutation
+export function useDeleteWorld() {
+  return tsr.world.deleteWorld.useMutation()
+}
+
 // Channels by world query
 export function useChannelsByWorld(worldId: string | null) {
   return tsr.channel.getChannelsByWorldId.useQuery({
@@ -31,6 +46,16 @@ export function useChannelsByWorld(worldId: string | null) {
     },
     enabled: !!worldId,
   })
+}
+
+// Create channel mutation
+export function useCreateChannel() {
+  return tsr.channel.createChannel.useMutation()
+}
+
+// Delete channel mutation
+export function useDeleteChannel() {
+  return tsr.channel.deleteChannel.useMutation()
 }
 
 // World state by channel query
@@ -59,6 +84,11 @@ export function useWorldState(worldStateId: string | null) {
   })
 }
 
+// World state mutation for updates
+export function useUpdateWorldState() {
+  return tsr.worldState.updateWorldState.useMutation()
+}
+
 // Channel messages query
 export const useChannelMessages = (channelId: string | null) => {
   return tsr.message.getMessagesByChannelId.useQuery({
@@ -72,7 +102,13 @@ export const useChannelMessages = (channelId: string | null) => {
   })
 }
 
-// Character management hooks - now channel-based
+// Character management hooks
+export const useAllCharacters = () => {
+  return tsr.character.getAllCharacters.useQuery({
+    queryKey: ['allCharacters'],
+  })
+}
+
 export const useChannelCharacters = (channelId: string | null) => {
   return tsr.character.getCharactersByChannelId.useQuery({
     queryKey: ['channelCharacters', channelId],
@@ -109,4 +145,53 @@ export function useCharacter(characterId: string | undefined | null) {
     },
     enabled: !!characterId,
   })
+}
+
+export function useCreateCharacter() {
+  return tsr.character.createCharacter.useMutation()
+}
+
+// Update character
+export function useUpdateCharacter() {
+  return tsr.character.updateCharacter.useMutation()
+}
+
+// Get user's own characters
+export function useMyCharacters() {
+  return tsr.character.getMyCharacters.useQuery({
+    queryKey: ['myCharacters'],
+  })
+}
+
+// Delete character by ID
+export function useDeleteCharacter() {
+  return tsr.character.deleteCharacterById.useMutation()
+}
+
+// WorldState-based character management
+export const useWorldStateCharacters = (worldStateId: string | null) => {
+  return tsr.character.getCharactersByWorldStateId.useQuery({
+    queryKey: ['worldStateCharacters', worldStateId],
+    queryData: {
+      params: {
+        worldStateId: worldStateId!,
+      },
+    },
+    enabled: !!worldStateId,
+  })
+}
+
+// Update characters associated with a world state
+export function useUpdateWorldStateCharacters() {
+  return tsr.character.updateWorldStateCharacters.useMutation()
+}
+
+// Update user profile
+export function useUpdateUser() {
+  return tsr.user.updateUser.useMutation()
+}
+
+// Remove character from world state
+export function useRemoveCharacterFromWorldState() {
+  return tsr.character.removeCharacterFromWorldState.useMutation()
 }

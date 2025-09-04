@@ -511,22 +511,6 @@ export const worlds: World[] = [
         description: '冒险开始的地方，温暖的酒馆里充满了故事和机遇',
         worldStateId: 'ws-1',
       },
-      {
-        id: '2',
-        worldId: '1',
-        name: '镇外-精灵废墟',
-        type: 'ic',
-        description: '充满危险和宝藏的古代精灵遗迹',
-        worldStateId: 'ws-1',
-      },
-      {
-        id: '3',
-        worldId: '1',
-        name: 'OOC聊天',
-        type: 'ooc',
-        description: '玩家之间的非角色对话',
-        worldStateId: 'ws-1',
-      },
     ],
   },
   {
